@@ -19,16 +19,12 @@ public class StrongholdsGame extends ApplicationAdapter {
 
 	@Override
 	public void create () {
-		assetManager = new AssetManager();
-		model = new Model();
-		model.init(6, 2);
+		model = new Model(6, 2);
 		view = new View(model, this);
 
-		try {
-			init();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+		assetManager = new AssetManager();
+		loadAssets();
+		view.setTextures();
 	}
 
 	@Override
@@ -48,10 +44,11 @@ public class StrongholdsGame extends ApplicationAdapter {
 		return assetManager;
 	}
 
-	private void init() throws InterruptedException {
+	private void loadAssets(){
 		assetManager.load("background-textures.png", Texture.class);
+		assetManager.load("badlogic.jpg", Texture.class);
+		assetManager.load("platform.jpg", Texture.class);
 		assetManager.finishLoading();
 		System.out.println("finished loading assets");
-		view.init();
 	}
 }

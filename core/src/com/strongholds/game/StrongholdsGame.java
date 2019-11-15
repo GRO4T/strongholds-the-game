@@ -1,11 +1,8 @@
 package com.strongholds.game;
 
 import com.badlogic.gdx.ApplicationAdapter;
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
-import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 // It's our game controller
 
@@ -13,9 +10,16 @@ public class StrongholdsGame extends ApplicationAdapter {
 	private AssetManager assetManager;
 
 	final float Fps = 60.0f;
+	private int screenWidth;
+	private int screenHeight;
 
 	private Model model;
 	private View view;
+
+	public StrongholdsGame(int screenWidth, int screenHeight) {
+		this.screenWidth = screenWidth;
+		this.screenHeight = screenHeight;
+	}
 
 	@Override
 	public void create () {
@@ -50,5 +54,13 @@ public class StrongholdsGame extends ApplicationAdapter {
 		assetManager.load("platform.jpg", Texture.class);
 		assetManager.finishLoading();
 		System.out.println("finished loading assets");
+	}
+
+	public int getScreenWidth() {
+		return screenWidth;
+	}
+
+	public int getScreenHeight() {
+		return screenHeight;
 	}
 }

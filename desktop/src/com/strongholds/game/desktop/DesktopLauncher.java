@@ -5,8 +5,13 @@ import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 import com.strongholds.game.StrongholdsGame;
 
 public class DesktopLauncher {
-	public static void main (String[] arg) {
-		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
-		new LwjglApplication(new StrongholdsGame(), config);
-	}
+    static final private int screenWidth = 1200;
+    static final private int screenHeight = 600;
+
+    public static void main (String[] arg) {
+        LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
+        config.width = screenWidth;
+        config.height = screenHeight;
+        new LwjglApplication(new StrongholdsGame(screenWidth, screenHeight), config);
+    }
 }

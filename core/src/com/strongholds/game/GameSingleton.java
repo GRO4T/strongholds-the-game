@@ -1,13 +1,17 @@
 package com.strongholds.game;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class GameSingleton {
     private static volatile GameSingleton INSTANCE;
 
     private final float pixels_per_meter = 16.0f;
-    private String textureFilenames[] = {"platform.png", "base.png", "background-textures.png"};
+    private String textureFilenames[] = {"platform.png", "base.png", "background-textures.png", "troop.png"};
+
+    public enum ObjectType{
+        PLATFORM, BACKGROUND_IMAGE, BASE, SWORDSMAN;
+    }
+    public enum ObjectState{
+        MOVING, IDLING, ATTACKING;
+    }
 
     public float getPixels_per_meter(){ return pixels_per_meter; }
     public String[] getTextureFilenames(){ return textureFilenames; }

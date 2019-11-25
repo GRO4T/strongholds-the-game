@@ -5,7 +5,10 @@ import com.badlogic.gdx.physics.box2d.*;
 
 import java.util.*;
 
-public class Model extends java.util.Observable{
+import com.strongholds.game.GameSingleton.ObjectType;
+import static com.strongholds.game.GameSingleton.getGameSingleton;
+
+public class Model{
 
     public class GameObject {
         private Body body;
@@ -48,10 +51,6 @@ public class Model extends java.util.Observable{
         }
     }
 
-    public enum ObjectType{
-        BALL, PLATFORM, BACKGROUND_IMAGE, BASE;
-    }
-
     private World world;
     private int velocityIterations;
     private int positionIterations;
@@ -59,6 +58,8 @@ public class Model extends java.util.Observable{
     List<GameObject> projectiles;
     List<GameObject> backgroundObjects;
     Map<ObjectType, GameObject> foregroundObjectsMap;
+
+    Queue<ObjectStateChangedListener> objectStateChangedListeners;
 
     public Model(){}
     public Model(int velocityIterations, int positionIterations){
@@ -74,13 +75,12 @@ public class Model extends java.util.Observable{
         world.step(timeStep, velocityIterations, positionIterations);
     }
 
-    public void dispose(){
-        //TODO
+    public void dispose(){ //TODO
     }
 
     // this may be rewritten to some Factory
     public void createObject(ObjectType objectType, Vector2 position, Vector2 size){
-        float pixels_per_meter = GameSingleton.getGameSingleton().getPixels_per_meter();
+        float pixels_per_meter = getGameSingleton().getPixels_per_meter();
         Vector2 bodySize = new Vector2(size.x / (2*pixels_per_meter), size.y / (2*pixels_per_meter));
         Vector2 bodyPos = new Vector2(position.x / pixels_per_meter + bodySize.x,
                 position.y / pixels_per_meter + bodySize.y);
@@ -88,16 +88,15 @@ public class Model extends java.util.Observable{
         BodyDef bodyDef = new BodyDef();
         bodyDef.position.set(bodyPos.x, bodyPos.y);
 
-        if (objectType == ObjectType.PLATFORM){
+        if (objectType == ObjectType.PLATFORM || objectType == ObjectType.BASE){
             bodyDef.type = BodyDef.BodyType.StaticBody;
-            foregroundObjectsMap.put(objectType, new GameObject(world, bodyDef,
-                    bodySize.x, bodySize.y, objectType));
         }
-        else if (objectType == ObjectType.BASE){
-            bodyDef.type = BodyDef.BodyType.StaticBody;
-            foregroundObjectsMap.put(objectType, new GameObject(world, bodyDef,
-                    bodySize.x, bodySize.y, objectType));
+        else if (objectType == ObjectType.SWORDSMAN){
+            bodyDef.type = BodyDef.BodyType.DynamicBody;
         }
+
+        foregroundObjectsMap.put(objectType, new GameObject(world, bodyDef,
+                bodySize.x, bodySize.y, objectType));
     }
 
 
@@ -111,5 +110,9 @@ public class Model extends java.util.Observable{
 
     public Map<ObjectType, GameObject> getForegroundObjectsMap() {
         return foregroundObjectsMap;
+    }
+
+    public void addStateChangedListener(ObjectStateChangedListener listener){
+        objectStateChangedListeners.add(listener);
     }
 }

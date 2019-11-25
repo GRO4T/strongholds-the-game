@@ -2,7 +2,6 @@ package com.strongholds.game;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -12,8 +11,10 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Observable;
-import java.util.Observer;
+
+import com.strongholds.game.GameSingleton.ObjectType;
+import com.strongholds.game.GameSingleton.ObjectState;
+import com.strongholds.game.Model.GameObject;
 
 public class View implements PropertyChangeListener {
     private Model model;
@@ -26,12 +27,14 @@ public class View implements PropertyChangeListener {
     private final float cameraZoom = 1.0f;
 
     private SpriteBatch spriteBatch;
-    Map<Model.ObjectType, Texture> textureMap;
+    Map<ObjectType, Texture> staticObjectsTextureMap;
+    //Map<I, Map<ObjectState, AnimationClip>> animatedObjectsMap;
 
     public View(Model model, StrongholdsGame controller) {
         pixels_per_meter = GameSingleton.getGameSingleton().getPixels_per_meter();
 
-        textureMap = new HashMap<>();
+        staticObjectsTextureMap = new HashMap<>();
+        //animatedObjectsMap =
 
         this.model = model;
         this.controller = controller;
@@ -53,16 +56,16 @@ public class View implements PropertyChangeListener {
 
     public void draw(){
         spriteBatch.begin();
-        Texture backgroundTexture = textureMap.get(Model.ObjectType.BACKGROUND_IMAGE);
+        Texture backgroundTexture = staticObjectsTextureMap.get(ObjectType.BACKGROUND_IMAGE);
         spriteBatch.draw(backgroundTexture, 0, 0);
         spriteBatch.draw(backgroundTexture, -1200, 0);
         spriteBatch.draw(backgroundTexture, 1200, 0);
 
         //drawGameObject(model.ball, textureMap.get(Model.ObjectType.BALL));
-        for (Map.Entry< Model.ObjectType, Model.GameObject> entry :
+        for (Map.Entry<ObjectType, GameObject> entry :
                 model.getForegroundObjectsMap().entrySet())
         {
-            drawGameObject(entry.getValue(), textureMap.get(entry.getKey()));
+            drawGameObject(entry.getValue(), staticObjectsTextureMap.get(entry.getKey()));
         }
         spriteBatch.end();
     }
@@ -77,13 +80,14 @@ public class View implements PropertyChangeListener {
     }
 
     public void setTextures(){
-        textureMap.put(Model.ObjectType.BACKGROUND_IMAGE, (Texture)controller.getAssetManager().get("background-textures.png"));
-        textureMap.put(Model.ObjectType.PLATFORM, (Texture)controller.getAssetManager().get("platform.png"));
-        textureMap.put(Model.ObjectType.BASE, (Texture)controller.getAssetManager().get("base.png"));
+        staticObjectsTextureMap.put(ObjectType.BACKGROUND_IMAGE, (Texture)controller.getAssetManager().get("background-textures.png"));
+        staticObjectsTextureMap.put(ObjectType.PLATFORM, (Texture)controller.getAssetManager().get("platform.png"));
+        staticObjectsTextureMap.put(ObjectType.BASE, (Texture)controller.getAssetManager().get("base.png"));
+        staticObjectsTextureMap.put(ObjectType.SWORDSMAN, (Texture)controller.getAssetManager().get("troop.png"));
     }
 
-    public Vector2 getTextureSize(Model.ObjectType objectType){
-        Texture texture = textureMap.get(objectType);
+    public Vector2 getTextureSize(ObjectType objectType){
+        Texture texture = staticObjectsTextureMap.get(objectType);
         return new Vector2(texture.getWidth(), texture.getHeight());
     }
 

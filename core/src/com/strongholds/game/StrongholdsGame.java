@@ -5,6 +5,8 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Vector2;
 
+import com.strongholds.game.GameSingleton.ObjectType;
+
 // It's our game controller
 
 public class StrongholdsGame extends ApplicationAdapter {
@@ -31,10 +33,12 @@ public class StrongholdsGame extends ApplicationAdapter {
 		loadAssets();
 		view.setTextures();
 
-		model.createObject(Model.ObjectType.BASE, new Vector2(0, 60),
-				view.getTextureSize(Model.ObjectType.BASE));
-		model.createObject(Model.ObjectType.PLATFORM, new Vector2(0, 0),
-				view.getTextureSize(Model.ObjectType.PLATFORM));
+		model.createObject(ObjectType.BASE, new Vector2(0, 60),
+				view.getTextureSize(ObjectType.BASE));
+		model.createObject(ObjectType.PLATFORM, new Vector2(0, 0),
+				view.getTextureSize(ObjectType.PLATFORM));
+		model.createObject(ObjectType.SWORDSMAN, new Vector2(200, 400),
+				view.getTextureSize(ObjectType.SWORDSMAN));
 	}
 
 	@Override

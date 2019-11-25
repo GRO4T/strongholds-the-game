@@ -3,6 +3,7 @@ package com.strongholds.game;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.math.Vector2;
 
 // It's our game controller
 
@@ -29,10 +30,16 @@ public class StrongholdsGame extends ApplicationAdapter {
 		assetManager = new AssetManager();
 		loadAssets();
 		view.setTextures();
+
+		model.createObject(Model.ObjectType.BASE, new Vector2(0, 60),
+				view.getTextureSize(Model.ObjectType.BASE));
+		model.createObject(Model.ObjectType.PLATFORM, new Vector2(0, 0),
+				view.getTextureSize(Model.ObjectType.PLATFORM));
 	}
 
 	@Override
 	public void render () {
+		view.update();
 		model.update(1.0f / Fps);
 		view.draw();
 	}
@@ -49,9 +56,9 @@ public class StrongholdsGame extends ApplicationAdapter {
 	}
 
 	private void loadAssets(){
-		assetManager.load("background-textures.png", Texture.class);
-		assetManager.load("badlogic.jpg", Texture.class);
-		assetManager.load("platform.jpg", Texture.class);
+		for (String filename : GameSingleton.getGameSingleton().getTextureFilenames()){
+			assetManager.load(filename, Texture.class);
+		}
 		assetManager.finishLoading();
 		System.out.println("finished loading assets");
 	}

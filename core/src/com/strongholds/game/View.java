@@ -6,25 +6,31 @@ import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Vector2;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
 
-public class View implements Observer{
+public class View implements PropertyChangeListener {
     private Model model;
     private StrongholdsGame controller;
 
-    private final float pixels_per_meter = 16.0f;
+    private float pixels_per_meter;
 
     private OrthographicCamera cam;
     private final int cameraSpeed = 10;
+    private final float cameraZoom = 1.0f;
 
     private SpriteBatch spriteBatch;
     Map<Model.ObjectType, Texture> textureMap;
 
     public View(Model model, StrongholdsGame controller) {
+        pixels_per_meter = GameSingleton.getGameSingleton().getPixels_per_meter();
+
         textureMap = new HashMap<>();
 
         this.model = model;
@@ -32,28 +38,32 @@ public class View implements Observer{
         spriteBatch = new SpriteBatch();
 
         cam = new OrthographicCamera(controller.getScreenWidth(), controller.getScreenHeight());
-        cam.position.set(600, 300, 0);
-        cam.zoom = 1.0f;
+        cam.position.set(controller.getScreenWidth() / 2, controller.getScreenHeight() / 2, 0);
+        cam.zoom = cameraZoom;
     }
 
-    @Override
-    public void update(Observable observable, Object o) {
+    public void update(){
+        //returns true (How to check class of the object)
+        //System.out.println(this.getClass().equals(com.strongholds.game.View.class));
 
-    }
-
-    public void draw(){
         handleInput();
         cam.update();
         spriteBatch.setProjectionMatrix(cam.combined);
+    }
 
+    public void draw(){
         spriteBatch.begin();
-            Texture backgroundTexture = textureMap.get(Model.ObjectType.BACKGROUND_IMAGE);
-            spriteBatch.draw(backgroundTexture, 0, 0);
-            spriteBatch.draw(backgroundTexture, -1200, 0);
-            spriteBatch.draw(backgroundTexture, 1200, 0);
+        Texture backgroundTexture = textureMap.get(Model.ObjectType.BACKGROUND_IMAGE);
+        spriteBatch.draw(backgroundTexture, 0, 0);
+        spriteBatch.draw(backgroundTexture, -1200, 0);
+        spriteBatch.draw(backgroundTexture, 1200, 0);
 
-            drawGameObject(model.ball, textureMap.get(Model.ObjectType.BALL));
-            drawGameObject(model.platform, textureMap.get(Model.ObjectType.PLATFORM));
+        //drawGameObject(model.ball, textureMap.get(Model.ObjectType.BALL));
+        for (Map.Entry< Model.ObjectType, Model.GameObject> entry :
+                model.getForegroundObjectsMap().entrySet())
+        {
+            drawGameObject(entry.getValue(), textureMap.get(entry.getKey()));
+        }
         spriteBatch.end();
     }
 
@@ -68,17 +78,27 @@ public class View implements Observer{
 
     public void setTextures(){
         textureMap.put(Model.ObjectType.BACKGROUND_IMAGE, (Texture)controller.getAssetManager().get("background-textures.png"));
-        textureMap.put(Model.ObjectType.BALL, (Texture)controller.getAssetManager().get("badlogic.jpg"));
-        textureMap.put(Model.ObjectType.PLATFORM, (Texture)controller.getAssetManager().get("platform.jpg"));
+        textureMap.put(Model.ObjectType.PLATFORM, (Texture)controller.getAssetManager().get("platform.png"));
+        textureMap.put(Model.ObjectType.BASE, (Texture)controller.getAssetManager().get("base.png"));
     }
 
-    public void handleInput(){
+    public Vector2 getTextureSize(Model.ObjectType objectType){
+        Texture texture = textureMap.get(objectType);
+        return new Vector2(texture.getWidth(), texture.getHeight());
+    }
+
+    private void handleInput(){
         if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
             cam.translate(-cameraSpeed, 0, 0);
         }
         if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
             cam.translate(cameraSpeed, 0, 0);
         }
+    }
+
+    @Override
+    public void propertyChange(PropertyChangeEvent propertyChangeEvent) {
+
     }
 }
 

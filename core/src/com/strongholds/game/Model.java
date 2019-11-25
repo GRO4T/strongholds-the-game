@@ -1,6 +1,5 @@
 package com.strongholds.game;
 
-import com.badlogic.gdx.Game;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 
@@ -50,7 +49,7 @@ public class Model extends java.util.Observable{
     }
 
     public enum ObjectType{
-        BALL, PLATFORM, BACKGROUND_IMAGE;
+        BALL, PLATFORM, BACKGROUND_IMAGE, BASE;
     }
 
     private World world;
@@ -61,9 +60,6 @@ public class Model extends java.util.Observable{
     List<GameObject> backgroundObjects;
     Map<ObjectType, GameObject> foregroundObjectsMap;
 
-    public GameObject ball;
-    public GameObject platform;
-
     public Model(){}
     public Model(int velocityIterations, int positionIterations){
         projectiles = new LinkedList<>();
@@ -73,15 +69,6 @@ public class Model extends java.util.Observable{
         this.velocityIterations = velocityIterations;
         this.positionIterations = positionIterations;
         world = new World(new Vector2(0, -15), true);
-
-        BodyDef bodyDef = new BodyDef();
-        bodyDef.position.set(12.5f, 37.5f);
-        bodyDef.type = BodyDef.BodyType.DynamicBody;
-        ball = new GameObject(world, bodyDef, 8, 8, ObjectType.BALL);
-
-        bodyDef.position.set(18.75f, 0);
-        bodyDef.type = BodyDef.BodyType.StaticBody;
-        platform = new GameObject(world, bodyDef, 16, 2, ObjectType.BALL);
     }
     public void update(float timeStep){
         world.step(timeStep, velocityIterations, positionIterations);
@@ -90,6 +77,29 @@ public class Model extends java.util.Observable{
     public void dispose(){
         //TODO
     }
+
+    // this may be rewritten to some Factory
+    public void createObject(ObjectType objectType, Vector2 position, Vector2 size){
+        float pixels_per_meter = GameSingleton.getGameSingleton().getPixels_per_meter();
+        Vector2 bodySize = new Vector2(size.x / (2*pixels_per_meter), size.y / (2*pixels_per_meter));
+        Vector2 bodyPos = new Vector2(position.x / pixels_per_meter + bodySize.x,
+                position.y / pixels_per_meter + bodySize.y);
+
+        BodyDef bodyDef = new BodyDef();
+        bodyDef.position.set(bodyPos.x, bodyPos.y);
+
+        if (objectType == ObjectType.PLATFORM){
+            bodyDef.type = BodyDef.BodyType.StaticBody;
+            foregroundObjectsMap.put(objectType, new GameObject(world, bodyDef,
+                    bodySize.x, bodySize.y, objectType));
+        }
+        else if (objectType == ObjectType.BASE){
+            bodyDef.type = BodyDef.BodyType.StaticBody;
+            foregroundObjectsMap.put(objectType, new GameObject(world, bodyDef,
+                    bodySize.x, bodySize.y, objectType));
+        }
+    }
+
 
     public List<GameObject> getProjectiles() {
         return projectiles;

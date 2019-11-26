@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Vector2;
 
 import com.strongholds.game.GameSingleton.ObjectType;
+import com.strongholds.game.view.View;
 
 // It's our game controller
 

@@ -6,51 +6,9 @@ import com.badlogic.gdx.physics.box2d.*;
 import java.util.*;
 
 import com.strongholds.game.GameSingleton.ObjectType;
-import static com.strongholds.game.GameSingleton.getGameSingleton;
+import com.strongholds.game.gameobject.GameObject;
 
 public class Model{
-
-    public class GameObject {
-        private Body body;
-        private ObjectType type;
-        private float width;
-        private float height;
-
-        public GameObject(World world, BodyDef bodyDef, float width, float height, ObjectType type) {
-            this.type = type;
-            this.width = width;
-            this.height = height;
-
-            PolygonShape polygonShape = new PolygonShape();
-            polygonShape.setAsBox(width, height);
-
-            FixtureDef fixtureDef = new FixtureDef();
-            fixtureDef.shape = polygonShape;
-            fixtureDef.density = 1.0f;
-            fixtureDef.friction = 0.3f;
-            fixtureDef.restitution = 0.5f;
-
-            body = world.createBody(bodyDef);
-            body.createFixture(fixtureDef);
-        }
-
-        public Vector2 getPosition(){
-            return body.getPosition();
-        }
-
-        public float getWidth() {
-            return width;
-        }
-
-        public float getHeight() {
-            return height;
-        }
-
-        public ObjectType getType() {
-            return type;
-        }
-    }
-
     private World world;
     private int velocityIterations;
     private int positionIterations;
@@ -58,8 +16,6 @@ public class Model{
     List<GameObject> projectiles;
     List<GameObject> backgroundObjects;
     Map<ObjectType, GameObject> foregroundObjectsMap;
-
-    Queue<ObjectStateChangedListener> objectStateChangedListeners;
 
     public Model(){}
     public Model(int velocityIterations, int positionIterations){
@@ -80,25 +36,8 @@ public class Model{
 
     // this may be rewritten to some Factory
     public void createObject(ObjectType objectType, Vector2 position, Vector2 size){
-        float pixels_per_meter = getGameSingleton().getPixels_per_meter();
-        Vector2 bodySize = new Vector2(size.x / (2*pixels_per_meter), size.y / (2*pixels_per_meter));
-        Vector2 bodyPos = new Vector2(position.x / pixels_per_meter + bodySize.x,
-                position.y / pixels_per_meter + bodySize.y);
 
-        BodyDef bodyDef = new BodyDef();
-        bodyDef.position.set(bodyPos.x, bodyPos.y);
-
-        if (objectType == ObjectType.PLATFORM || objectType == ObjectType.BASE){
-            bodyDef.type = BodyDef.BodyType.StaticBody;
-        }
-        else if (objectType == ObjectType.SWORDSMAN){
-            bodyDef.type = BodyDef.BodyType.DynamicBody;
-        }
-
-        foregroundObjectsMap.put(objectType, new GameObject(world, bodyDef,
-                bodySize.x, bodySize.y, objectType));
     }
-
 
     public List<GameObject> getProjectiles() {
         return projectiles;
@@ -110,9 +49,5 @@ public class Model{
 
     public Map<ObjectType, GameObject> getForegroundObjectsMap() {
         return foregroundObjectsMap;
-    }
-
-    public void addStateChangedListener(ObjectStateChangedListener listener){
-        objectStateChangedListeners.add(listener);
     }
 }

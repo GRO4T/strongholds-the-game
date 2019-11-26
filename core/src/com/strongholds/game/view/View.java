@@ -1,4 +1,4 @@
-package com.strongholds.game;
+package com.strongholds.game.view;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -12,9 +12,11 @@ import java.beans.PropertyChangeListener;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.strongholds.game.GameSingleton;
 import com.strongholds.game.GameSingleton.ObjectType;
-import com.strongholds.game.GameSingleton.ObjectState;
-import com.strongholds.game.Model.GameObject;
+import com.strongholds.game.Model;
+import com.strongholds.game.StrongholdsGame;
+import com.strongholds.game.gameobject.GameObject;
 
 public class View implements PropertyChangeListener {
     private Model model;
@@ -47,7 +49,7 @@ public class View implements PropertyChangeListener {
 
     public void update(){
         //returns true (How to check class of the object)
-        //System.out.println(this.getClass().equals(com.strongholds.game.View.class));
+        //System.out.println(this.getClass().equals(com.strongholds.game.view.View.class));
 
         handleInput();
         cam.update();
@@ -70,7 +72,7 @@ public class View implements PropertyChangeListener {
         spriteBatch.end();
     }
 
-    private void drawGameObject(Model.GameObject gameObject, Texture texture){
+    private void drawGameObject(GameObject gameObject, Texture texture){
         spriteBatch.draw(texture, (gameObject.getPosition().x - gameObject.getWidth()) * pixels_per_meter,
                 (gameObject.getPosition().y - gameObject.getHeight()) * pixels_per_meter);
     }

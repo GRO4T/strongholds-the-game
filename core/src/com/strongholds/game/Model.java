@@ -13,15 +13,11 @@ public class Model{
     private int velocityIterations;
     private int positionIterations;
 
-    List<GameObject> projectiles;
-    List<GameObject> backgroundObjects;
-    Map<ObjectType, GameObject> foregroundObjectsMap;
+    Map<String, GameObject> gameObjectsMap;
 
     public Model(){}
     public Model(int velocityIterations, int positionIterations){
-        projectiles = new LinkedList<>();
-        backgroundObjects = new ArrayList<>();
-        foregroundObjectsMap = new HashMap<>();
+        gameObjectsMap = new HashMap<>();
 
         this.velocityIterations = velocityIterations;
         this.positionIterations = positionIterations;
@@ -35,19 +31,11 @@ public class Model{
     }
 
     // this may be rewritten to some Factory
-    public void createObject(ObjectType objectType, Vector2 position, Vector2 size){
-
+    public void createObject(String objectId, Vector2 position, Vector2 size){
+        gameObjectsMap.put(objectId, )
     }
 
-    public List<GameObject> getProjectiles() {
-        return projectiles;
-    }
-
-    public List<GameObject> getBackgroundObjects() {
-        return backgroundObjects;
-    }
-
-    public Map<ObjectType, GameObject> getForegroundObjectsMap() {
+    public Map<String, GameObject> getForegroundObjectsMap() {
         return foregroundObjectsMap;
     }
 }

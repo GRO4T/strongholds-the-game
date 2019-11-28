@@ -4,11 +4,17 @@ import com.strongholds.game.GameSingleton;
 import com.strongholds.game.gameobject.ListenableState;
 import com.strongholds.game.gameobject.StateChangedListener;
 
+import java.util.LinkedList;
 import java.util.List;
 
 public class AnimatedActorState implements ListenableState {
     private List<StateChangedListener> listenerList;
     private GameSingleton.ObjectState state;
+
+    AnimatedActorState() {
+        state = GameSingleton.ObjectState.IDLING;
+        listenerList = new LinkedList<>();
+    }
 
     @Override
     public void addListener(StateChangedListener stateChangedListener) {

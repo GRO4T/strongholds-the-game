@@ -11,7 +11,13 @@ import static com.strongholds.game.GameSingleton.getGameSingleton;
 import com.strongholds.game.GameSingleton.ObjectState;
 
 public class GameObjectsFactory {
-    public GameObject createObject(World world, ObjectType objectType, Vector2 position, Vector2 size){
+    World world;
+
+    public GameObjectsFactory(World world) {
+        this.world = world;
+    }
+
+    public GameObject createObject(ObjectType objectType, Vector2 position, Vector2 size){
         float pixels_per_meter = getGameSingleton().getPixels_per_meter();
         Vector2 bodySize = new Vector2(size.x / (2*pixels_per_meter), size.y / (2*pixels_per_meter));
         Vector2 bodyPos = new Vector2(position.x / pixels_per_meter + bodySize.x,

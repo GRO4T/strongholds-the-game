@@ -4,7 +4,9 @@ public class GameSingleton {
     private static volatile GameSingleton INSTANCE;
 
     private final float pixels_per_meter = 16.0f;
-    private String textureFilenames[] = {"platform.png", "base.png", "background-textures.png", "troop.png"};
+    private String textureFilenames[] = {
+            "platform.png", "base.png", "background-textures.png", "troop.png",
+            "swordsman_idling.png"};
 
     public enum ObjectType{
         PLATFORM, BACKGROUND_IMAGE, BASE, SWORDSMAN;

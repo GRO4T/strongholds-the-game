@@ -5,6 +5,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 
 import java.beans.PropertyChangeEvent;
@@ -14,11 +15,14 @@ import java.util.Map;
 
 import com.strongholds.game.GameSingleton;
 import com.strongholds.game.GameSingleton.ObjectType;
+import com.strongholds.game.GameSingleton.ObjectState;
 import com.strongholds.game.Model;
 import com.strongholds.game.StrongholdsGame;
+import com.strongholds.game.gameobject.AnimatedActor;
 import com.strongholds.game.gameobject.GameObject;
 
-public class View implements PropertyChangeListener {
+public class View implements PropertyChangeListener
+{
     private Model model;
     private StrongholdsGame controller;
 
@@ -30,13 +34,14 @@ public class View implements PropertyChangeListener {
 
     private SpriteBatch spriteBatch;
     Map<ObjectType, Texture> staticObjectsTextureMap;
-    //Map<I, Map<ObjectState, AnimationClip>> animatedObjectsMap;
+    Map<ObjectType, Map<ObjectState, AnimationClip>> actorsTextureMap;
 
-    public View(Model model, StrongholdsGame controller) {
+    public View(Model model, StrongholdsGame controller)
+    {
         pixels_per_meter = GameSingleton.getGameSingleton().getPixels_per_meter();
 
         staticObjectsTextureMap = new HashMap<>();
-        //animatedObjectsMap =
+        actorsTextureMap = new HashMap<>();
 
         this.model = model;
         this.controller = controller;
@@ -47,7 +52,8 @@ public class View implements PropertyChangeListener {
         cam.zoom = cameraZoom;
     }
 
-    public void update(){
+    public void update()
+    {
         //returns true (How to check class of the object)
         //System.out.println(this.getClass().equals(com.strongholds.game.view.View.class));
 
@@ -56,24 +62,40 @@ public class View implements PropertyChangeListener {
         spriteBatch.setProjectionMatrix(cam.combined);
     }
 
-    public void draw(){
+    public void draw(float deltaTime)
+    {
         spriteBatch.begin();
         Texture backgroundTexture = staticObjectsTextureMap.get(ObjectType.BACKGROUND_IMAGE);
         spriteBatch.draw(backgroundTexture, 0, 0);
         spriteBatch.draw(backgroundTexture, -1200, 0);
         spriteBatch.draw(backgroundTexture, 1200, 0);
 
-        //drawGameObject(model.ball, textureMap.get(Model.ObjectType.BALL));
-        for (Map.Entry<ObjectType, GameObject> entry :
-                model.getForegroundObjectsMap().entrySet())
+        // draw non-animated objects
+        for (Object gameObject : model.getGameObjects())
         {
-            drawGameObject(entry.getValue(), staticObjectsTextureMap.get(entry.getKey()));
+            drawGameObject((GameObject)gameObject);
+        }
+        //draw actors
+        for (Object actor : model.getActors()){
+            drawGameObject((AnimatedActor)actor, deltaTime);
         }
         spriteBatch.end();
     }
 
-    private void drawGameObject(GameObject gameObject, Texture texture){
-        spriteBatch.draw(texture, (gameObject.getPosition().x - gameObject.getWidth()) * pixels_per_meter,
+    private void drawGameObject(GameObject gameObject){
+        Texture texture = staticObjectsTextureMap.get(gameObject.getType());
+        float x = (gameObject.getPosition().x - gameObject.getWidth()) * pixels_per_meter;
+        float y = (gameObject.getPosition().y - gameObject.getHeight()) * pixels_per_meter;
+        spriteBatch.draw(texture, x, y);
+    }
+
+    private void drawGameObject(AnimatedActor gameObject, float deltaTime){
+        ObjectType objectType = gameObject.getType();
+        ObjectState objectState = gameObject.getState();
+        AnimationClip clip = actorsTextureMap.get(objectType).get(objectState);
+        TextureRegion textureRegion = clip.getCurrentFrame();
+        clip.update(deltaTime);
+        spriteBatch.draw(textureRegion, (gameObject.getPosition().x - gameObject.getWidth()) * pixels_per_meter,
                 (gameObject.getPosition().y - gameObject.getHeight()) * pixels_per_meter);
     }
 
@@ -81,16 +103,28 @@ public class View implements PropertyChangeListener {
 
     }
 
+    private Texture getTexture(String filename){
+        return (Texture)controller.getAssetManager().get(filename);
+    }
+
     public void setTextures(){
-        staticObjectsTextureMap.put(ObjectType.BACKGROUND_IMAGE, (Texture)controller.getAssetManager().get("background-textures.png"));
-        staticObjectsTextureMap.put(ObjectType.PLATFORM, (Texture)controller.getAssetManager().get("platform.png"));
-        staticObjectsTextureMap.put(ObjectType.BASE, (Texture)controller.getAssetManager().get("base.png"));
-        staticObjectsTextureMap.put(ObjectType.SWORDSMAN, (Texture)controller.getAssetManager().get("troop.png"));
+        staticObjectsTextureMap.put(ObjectType.BACKGROUND_IMAGE, getTexture("background-textures.png"));
+        staticObjectsTextureMap.put(ObjectType.PLATFORM, getTexture("platform.png"));
+        staticObjectsTextureMap.put(ObjectType.BASE, getTexture("base.png"));
+
+        actorsTextureMap.put(ObjectType.SWORDSMAN, new HashMap<ObjectState, AnimationClip>());
+        AnimationClip clip = new AnimationClip(getTexture("swordsman_idling.png"), 5, 2, 9, 0.1f);
+        actorsTextureMap.get(ObjectType.SWORDSMAN).put(ObjectState.IDLING, clip);
     }
 
     public Vector2 getTextureSize(ObjectType objectType){
         Texture texture = staticObjectsTextureMap.get(objectType);
         return new Vector2(texture.getWidth(), texture.getHeight());
+    }
+
+    public Vector2 getTextureSize(ObjectType objectType, ObjectState objectState){
+        TextureRegion texture = actorsTextureMap.get(objectType).get(objectState).getCurrentFrame();
+        return new Vector2(texture.getRegionWidth(), texture.getRegionHeight());
     }
 
     private void handleInput(){

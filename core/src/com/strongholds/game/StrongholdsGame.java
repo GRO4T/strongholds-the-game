@@ -1,6 +1,7 @@
 package com.strongholds.game;
 
 import com.badlogic.gdx.ApplicationAdapter;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Vector2;
@@ -34,19 +35,17 @@ public class StrongholdsGame extends ApplicationAdapter {
 		loadAssets();
 		view.setTextures();
 
-		model.createObject(ObjectType.BASE, new Vector2(0, 60),
-				view.getTextureSize(ObjectType.BASE));
-		model.createObject(ObjectType.PLATFORM, new Vector2(0, 0),
-				view.getTextureSize(ObjectType.PLATFORM));
-		model.createObject(ObjectType.SWORDSMAN, new Vector2(200, 400),
-				view.getTextureSize(ObjectType.SWORDSMAN));
+		createObject(ObjectType.BASE, new Vector2(0, 60));
+		createObject(ObjectType.PLATFORM, new Vector2(0, 0));
+
+		createActor(ObjectType.SWORDSMAN, new Vector2(200, 400));
 	}
 
 	@Override
 	public void render () {
 		view.update();
 		model.update(1.0f / Fps);
-		view.draw();
+		view.draw(Gdx.graphics.getDeltaTime());
 	}
 
 	@Override
@@ -74,5 +73,14 @@ public class StrongholdsGame extends ApplicationAdapter {
 
 	public int getScreenHeight() {
 		return screenHeight;
+	}
+
+	private void createObject(ObjectType objectType, Vector2 position){
+		model.createObject(objectType, position, view.getTextureSize(objectType));
+	}
+
+	private void createActor(ObjectType objectType, Vector2 position){
+		Vector2 actorSize = view.getTextureSize(objectType, GameSingleton.ObjectState.IDLING);
+		model.createActor(objectType, position, actorSize);
 	}
 }

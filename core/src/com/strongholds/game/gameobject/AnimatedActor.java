@@ -9,6 +9,7 @@ public class AnimatedActor extends GameObject{
 
     public AnimatedActor(World world, BodyDef bodyDef, float width, float height, GameSingleton.ObjectType type) {
         super(world, bodyDef, width, height, type);
+        state = new AnimatedActorState();
     }
 
     public GameSingleton.ObjectState getState(){

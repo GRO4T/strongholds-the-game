@@ -25,7 +25,8 @@ public class GameObject {
         fixtureDef.restitution = 0.5f;
 
         body = world.createBody(bodyDef);
-        body.createFixture(fixtureDef);
+        Fixture fixture = body.createFixture(fixtureDef);
+        fixture.setUserData(type);
     }
 
     public Vector2 getPosition(){

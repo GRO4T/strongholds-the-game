@@ -1,4 +1,4 @@
-package com.strongholds.game;
+package com.strongholds.game.controller;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
@@ -6,8 +6,12 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Vector2;
 
+import com.strongholds.game.GameSingleton;
 import com.strongholds.game.GameSingleton.ObjectType;
+import com.strongholds.game.Model;
 import com.strongholds.game.view.View;
+
+import java.util.Queue;
 
 // It's our game controller
 
@@ -21,6 +25,8 @@ public class StrongholdsGame extends ApplicationAdapter {
 	private Model model;
 	private View view;
 
+	Queue events;
+
 	public StrongholdsGame(int screenWidth, int screenHeight) {
 		this.screenWidth = screenWidth;
 		this.screenHeight = screenHeight;
@@ -28,12 +34,12 @@ public class StrongholdsGame extends ApplicationAdapter {
 
 	@Override
 	public void create () {
-		model = new Model(6, 2);
+		model = new Model();
 		view = new View(model, this);
 
 		assetManager = new AssetManager();
 		loadAssets();
-		view.setTextures();
+		view.loadTextures();
 
 		createObject(ObjectType.BASE, new Vector2(0, 60));
 		createObject(ObjectType.PLATFORM, new Vector2(0, 0));
@@ -44,6 +50,7 @@ public class StrongholdsGame extends ApplicationAdapter {
 	@Override
 	public void render () {
 		view.update();
+		update();
 		model.update(1.0f / Fps);
 		view.draw(Gdx.graphics.getDeltaTime());
 	}
@@ -53,6 +60,10 @@ public class StrongholdsGame extends ApplicationAdapter {
 		model.dispose();
 		view.dispose();
 		assetManager.dispose();
+	}
+
+	private void update(){
+
 	}
 
 	public AssetManager getAssetManager() {

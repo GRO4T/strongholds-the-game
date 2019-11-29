@@ -2,7 +2,7 @@ package com.strongholds.game.desktop;
 
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
-import com.strongholds.game.StrongholdsGame;
+import com.strongholds.game.controller.StrongholdsGame;
 
 public class DesktopLauncher {
     static final private int screenWidth = 1200;

@@ -17,7 +17,7 @@ import com.strongholds.game.GameSingleton;
 import com.strongholds.game.GameSingleton.ObjectType;
 import com.strongholds.game.GameSingleton.ObjectState;
 import com.strongholds.game.Model;
-import com.strongholds.game.StrongholdsGame;
+import com.strongholds.game.controller.StrongholdsGame;
 import com.strongholds.game.gameobject.AnimatedActor;
 import com.strongholds.game.gameobject.GameObject;
 
@@ -107,14 +107,17 @@ public class View implements PropertyChangeListener
         return (Texture)controller.getAssetManager().get(filename);
     }
 
-    public void setTextures(){
+    public void loadTextures(){
         staticObjectsTextureMap.put(ObjectType.BACKGROUND_IMAGE, getTexture("background-textures.png"));
         staticObjectsTextureMap.put(ObjectType.PLATFORM, getTexture("platform.png"));
         staticObjectsTextureMap.put(ObjectType.BASE, getTexture("base.png"));
 
         actorsTextureMap.put(ObjectType.SWORDSMAN, new HashMap<ObjectState, AnimationClip>());
-        AnimationClip clip = new AnimationClip(getTexture("swordsman_idling.png"), 5, 2, 9, 0.1f);
+        AnimationClip clip = new AnimationClip(getTexture("swordsman_idling.png"), 7, 1, 7, 0.1f);
         actorsTextureMap.get(ObjectType.SWORDSMAN).put(ObjectState.IDLING, clip);
+
+        AnimationClip clip2 = new AnimationClip(getTexture("swordsman_attacking.png"), 9, 1, 9, 0.1f);
+        actorsTextureMap.get(ObjectType.SWORDSMAN).put(ObjectState.ATTACKING, clip2);
     }
 
     public Vector2 getTextureSize(ObjectType objectType){

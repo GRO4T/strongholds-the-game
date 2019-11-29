@@ -6,25 +6,27 @@ import com.badlogic.gdx.physics.box2d.*;
 import java.util.*;
 
 import com.strongholds.game.GameSingleton.ObjectType;
+import com.strongholds.game.gameobject.AnimatedActor;
 import com.strongholds.game.gameobject.GameObject;
 import com.strongholds.game.gameobject.GameObjectsFactory;
 
 public class Model
 {
     private World world;
-    private int velocityIterations;
-    private int positionIterations;
+    private final int velocityIterations = 6;
+    private final int positionIterations = 2;
+    private final float worldGravity = -15.0f;
+
+    Queue events;
 
     int nextId;
     GameObjectsFactory gameObjectsFactory;
     Map<String, GameObject> gameObjectsMap;
-    Map<String, GameObject> actorsMap;
+    Map<String, AnimatedActor> actorsMap;
 
-    public Model(int velocityIterations, int positionIterations)
+    public Model()
     {
-        this.velocityIterations = velocityIterations;
-        this.positionIterations = positionIterations;
-        world = new World(new Vector2(0, -15), true);
+        world = new World(new Vector2(0, worldGravity), true);
 
         gameObjectsFactory = new GameObjectsFactory(world);
         gameObjectsMap = new HashMap<>();
@@ -34,6 +36,10 @@ public class Model
     public void update(float timeStep)
     {
         world.step(timeStep, velocityIterations, positionIterations);
+
+        for (AnimatedActor actor : actorsMap.values()){
+            actor.setState(GameSingleton.ObjectState.ATTACKING);
+        }
     }
 
     public void dispose()
@@ -48,7 +54,7 @@ public class Model
     }
 
     public void createActor(ObjectType objectType, Vector2 position, Vector2 size) {
-        GameObject newObject = gameObjectsFactory.createObject(objectType, position, size);
+        AnimatedActor newObject = (AnimatedActor)gameObjectsFactory.createObject(objectType, position, size);
         actorsMap.put(Integer.toString(nextId++), newObject);
     }
 

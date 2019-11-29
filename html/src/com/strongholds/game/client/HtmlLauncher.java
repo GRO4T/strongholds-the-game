@@ -3,7 +3,7 @@ package com.strongholds.game.client;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.backends.gwt.GwtApplication;
 import com.badlogic.gdx.backends.gwt.GwtApplicationConfiguration;
-import com.strongholds.game.StrongholdsGame;
+import com.strongholds.game.controller.StrongholdsGame;
 
 public class HtmlLauncher extends GwtApplication {
 

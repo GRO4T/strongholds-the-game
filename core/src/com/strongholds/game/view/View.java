@@ -4,7 +4,9 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 
@@ -13,18 +15,25 @@ import java.beans.PropertyChangeListener;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.strongholds.game.GameSingleton;
 import com.strongholds.game.GameSingleton.ObjectType;
 import com.strongholds.game.GameSingleton.ObjectState;
-import com.strongholds.game.Model;
+import com.strongholds.game.model.Model;
 import com.strongholds.game.controller.StrongholdsGame;
-import com.strongholds.game.gameobject.AnimatedActor;
-import com.strongholds.game.gameobject.GameObject;
+import com.strongholds.game.model.gameobject.AnimatedActor;
+import com.strongholds.game.model.gameobject.GameObject;
 
 public class View implements PropertyChangeListener
 {
     private Model model;
     private StrongholdsGame controller;
+
+    private Stage UIstage;
 
     private float pixels_per_meter;
 
@@ -36,12 +45,23 @@ public class View implements PropertyChangeListener
     Map<ObjectType, Texture> staticObjectsTextureMap;
     Map<ObjectType, Map<ObjectState, AnimationClip>> actorsTextureMap;
 
+    BitmapFont font;
+    TextButton button;
+    TextButton.TextButtonStyle textButtonStyle;
+    Skin skin;
+    TextureAtlas buttonAtlas;
+
+
     public View(Model model, StrongholdsGame controller)
     {
         pixels_per_meter = GameSingleton.getGameSingleton().getPixels_per_meter();
 
         staticObjectsTextureMap = new HashMap<>();
         actorsTextureMap = new HashMap<>();
+
+        UIstage = new Stage();
+        Gdx.input.setInputProcessor(UIstage);
+
 
         this.model = model;
         this.controller = controller;
@@ -50,6 +70,28 @@ public class View implements PropertyChangeListener
         cam = new OrthographicCamera(controller.getScreenWidth(), controller.getScreenHeight());
         cam.position.set(controller.getScreenWidth() / 2, controller.getScreenHeight() / 2, 0);
         cam.zoom = cameraZoom;
+
+
+        //create button
+        font = new BitmapFont();
+        skin = new Skin();
+        buttonAtlas = new TextureAtlas(Gdx.files.internal("buttons/buttons.pack"));
+        skin.addRegions(buttonAtlas);
+        textButtonStyle = new TextButton.TextButtonStyle();
+        textButtonStyle.font = font;
+        textButtonStyle.up = skin.getDrawable("button_on");
+        textButtonStyle.down = skin.getDrawable("button_off");
+        textButtonStyle.checked = skin.getDrawable("button_on");
+        button = new TextButton("Button1", textButtonStyle);
+        button.setPosition(200, 200);
+        button.addListener(new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y){
+                System.out.println(x+" "+y);
+            }
+        });
+        UIstage.addActor(button);
+
     }
 
     public void update()
@@ -80,6 +122,9 @@ public class View implements PropertyChangeListener
             drawGameObject((AnimatedActor)actor, deltaTime);
         }
         spriteBatch.end();
+
+        //draw UI
+        UIstage.draw();
     }
 
     private void drawGameObject(GameObject gameObject){
@@ -95,8 +140,10 @@ public class View implements PropertyChangeListener
         AnimationClip clip = actorsTextureMap.get(objectType).get(objectState);
         TextureRegion textureRegion = clip.getCurrentFrame();
         clip.update(deltaTime);
+        //textureRegion.flip(true, false);
         spriteBatch.draw(textureRegion, (gameObject.getPosition().x - gameObject.getWidth()) * pixels_per_meter,
                 (gameObject.getPosition().y - gameObject.getHeight()) * pixels_per_meter);
+        //textureRegion.flip(true, false);
     }
 
     public void dispose(){

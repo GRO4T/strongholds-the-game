@@ -8,7 +8,7 @@ import com.badlogic.gdx.math.Vector2;
 
 import com.strongholds.game.GameSingleton;
 import com.strongholds.game.GameSingleton.ObjectType;
-import com.strongholds.game.Model;
+import com.strongholds.game.model.Model;
 import com.strongholds.game.view.View;
 
 import java.util.Queue;
@@ -45,6 +45,9 @@ public class StrongholdsGame extends ApplicationAdapter {
 		createObject(ObjectType.PLATFORM, new Vector2(0, 0));
 
 		createActor(ObjectType.SWORDSMAN, new Vector2(200, 400));
+
+
+		createActor("player", ObjectType.SWORDSMAN, new Vector2(600, 400));
 	}
 
 	@Override
@@ -93,5 +96,10 @@ public class StrongholdsGame extends ApplicationAdapter {
 	private void createActor(ObjectType objectType, Vector2 position){
 		Vector2 actorSize = view.getTextureSize(objectType, GameSingleton.ObjectState.IDLING);
 		model.createActor(objectType, position, actorSize);
+	}
+
+	private void createActor(String id, ObjectType objectType, Vector2 position){
+		Vector2 actorSize = view.getTextureSize(objectType, GameSingleton.ObjectState.IDLING);
+		model.createActor(id, objectType, position, actorSize);
 	}
 }

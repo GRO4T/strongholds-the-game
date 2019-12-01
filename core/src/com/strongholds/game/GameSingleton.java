@@ -1,5 +1,8 @@
 package com.strongholds.game;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class GameSingleton {
     private static volatile GameSingleton INSTANCE;
 
@@ -14,6 +17,10 @@ public class GameSingleton {
     public enum ObjectState{
         MOVING, IDLING, ATTACKING;
     }
+
+    public static final short GAME_OBJECT_COLLISION_MASK = 0x0001;
+    public static final short ACTOR_COLLISION_MASK = 0x0002;
+    public static final short SENSOR_COLLISION_MASK = 0x0004;
 
     public float getPixels_per_meter(){ return pixels_per_meter; }
     public String[] getTextureFilenames(){ return textureFilenames; }

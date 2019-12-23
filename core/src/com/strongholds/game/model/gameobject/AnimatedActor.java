@@ -10,6 +10,8 @@ public class AnimatedActor extends GameObject{
     private AnimatedActorState state;
     private LinkedList<AnimatedActor> targets;
 
+    private String id;
+
     public AnimatedActor(World world, BodyDef bodyDef, float width, float height, GameSingleton.ObjectType type) {
         super(world, bodyDef, width, height, type);
         state = new AnimatedActorState();
@@ -42,6 +44,14 @@ public class AnimatedActor extends GameObject{
 
     public void setState(GameSingleton.ObjectState newState){
         state.setState(newState);
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     @Override

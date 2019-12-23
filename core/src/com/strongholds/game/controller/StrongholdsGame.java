@@ -22,6 +22,8 @@ public class StrongholdsGame extends ApplicationAdapter {
 	private int screenWidth;
 	private int screenHeight;
 
+	int nextId = 0;
+
 	private Model model;
 	private View view;
 
@@ -45,7 +47,6 @@ public class StrongholdsGame extends ApplicationAdapter {
 		createObject(ObjectType.PLATFORM, new Vector2(0, 0));
 
 		createActor(ObjectType.SWORDSMAN, new Vector2(200, 400));
-
 
 		createActor("player", ObjectType.SWORDSMAN, new Vector2(600, 400));
 	}
@@ -90,16 +91,17 @@ public class StrongholdsGame extends ApplicationAdapter {
 	}
 
 	private void createObject(ObjectType objectType, Vector2 position){
-		model.createObject(objectType, position, view.getTextureSize(objectType));
+		model.createObject(Integer.toString(nextId++), objectType, position, view.getTextureSize(objectType));
 	}
 
 	private void createActor(ObjectType objectType, Vector2 position){
-		Vector2 actorSize = view.getTextureSize(objectType, GameSingleton.ObjectState.IDLING);
-		model.createActor(objectType, position, actorSize);
+		String id = Integer.toString(nextId++);
+		createActor(id, objectType, position);
 	}
 
 	private void createActor(String id, ObjectType objectType, Vector2 position){
-		Vector2 actorSize = view.getTextureSize(objectType, GameSingleton.ObjectState.IDLING);
+		view.loadActorSprites(id, objectType);
+		Vector2 actorSize = view.getTextureSize(id);
 		model.createActor(id, objectType, position, actorSize);
 	}
 }

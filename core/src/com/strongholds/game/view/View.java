@@ -33,9 +33,12 @@ public class View implements PropertyChangeListener
     private Model model;
     private StrongholdsGame controller;
 
+
     private Stage UIstage;
 
     private float pixels_per_meter;
+    private float screenX;
+    private float screenY;
 
     private OrthographicCamera cam;
     private final int cameraSpeed = 10;
@@ -43,7 +46,7 @@ public class View implements PropertyChangeListener
 
     private SpriteBatch spriteBatch;
     Map<ObjectType, Texture> staticObjectsTextureMap;
-    Map<ObjectType, Map<ObjectState, AnimationClip>> actorsTextureMap;
+    Map<String, Animator> actorsMap;
 
     BitmapFont font;
     TextButton button;
@@ -51,26 +54,27 @@ public class View implements PropertyChangeListener
     Skin skin;
     TextureAtlas buttonAtlas;
 
+    TextButton addSwordsmanButton;
+    TextButton addArcherButton;
 
     public View(Model model, StrongholdsGame controller)
     {
+        this.model = model;
+        this.controller = controller;
+
         pixels_per_meter = GameSingleton.getGameSingleton().getPixels_per_meter();
+        screenX = controller.getScreenWidth();
+        screenY = controller.getScreenHeight();
 
         staticObjectsTextureMap = new HashMap<>();
-        actorsTextureMap = new HashMap<>();
-
+        actorsMap = new HashMap<>();
+        spriteBatch = new SpriteBatch();
         UIstage = new Stage();
         Gdx.input.setInputProcessor(UIstage);
 
-
-        this.model = model;
-        this.controller = controller;
-        spriteBatch = new SpriteBatch();
-
         cam = new OrthographicCamera(controller.getScreenWidth(), controller.getScreenHeight());
-        cam.position.set(controller.getScreenWidth() / 2, controller.getScreenHeight() / 2, 0);
+        cam.position.set(screenX / 2, screenY / 2, 0);
         cam.zoom = cameraZoom;
-
 
         //create button
         font = new BitmapFont();
@@ -82,6 +86,7 @@ public class View implements PropertyChangeListener
         textButtonStyle.up = skin.getDrawable("button_on");
         textButtonStyle.down = skin.getDrawable("button_off");
         textButtonStyle.checked = skin.getDrawable("button_on");
+
         button = new TextButton("Button1", textButtonStyle);
         button.setPosition(200, 200);
         button.addListener(new ClickListener(){
@@ -92,13 +97,36 @@ public class View implements PropertyChangeListener
         });
         UIstage.addActor(button);
 
+        createButton(-80, screenY - 200, "add Swordsman", addSwordsmanButton,
+            new ClickListener(){
+                @Override
+                public void clicked(InputEvent event, float x, float y){
+                    System.out.println("swordsman added!");
+                }
+            });
+        createButton(300,  screenY - 200, "add Archer", addArcherButton,
+            new ClickListener(){
+                @Override
+                public void clicked(InputEvent event, float x, float y){
+                    System.out.println("archer added!");
+                    //controller.addEvent()
+                }
+            });
+    }
+
+    private void createButton(float x, float y, String label, TextButton buttonRef, ClickListener clickListener){
+        buttonRef = new TextButton(label, textButtonStyle);
+        buttonRef.setPosition(x, y);
+        if (clickListener != null){
+            buttonRef.addListener(clickListener);
+        }
+        UIstage.addActor(buttonRef);
     }
 
     public void update()
     {
         //returns true (How to check class of the object)
         //System.out.println(this.getClass().equals(com.strongholds.game.view.View.class));
-
         handleInput();
         cam.update();
         spriteBatch.setProjectionMatrix(cam.combined);
@@ -121,6 +149,9 @@ public class View implements PropertyChangeListener
         for (Object actor : model.getActors()){
             drawGameObject((AnimatedActor)actor, deltaTime);
         }
+
+        font.draw(spriteBatch, "Money", screenX - 50, screenY - 20);
+
         spriteBatch.end();
 
         //draw UI
@@ -135,11 +166,11 @@ public class View implements PropertyChangeListener
     }
 
     private void drawGameObject(AnimatedActor gameObject, float deltaTime){
-        ObjectType objectType = gameObject.getType();
+        String id = gameObject.getId();
         ObjectState objectState = gameObject.getState();
-        AnimationClip clip = actorsTextureMap.get(objectType).get(objectState);
-        TextureRegion textureRegion = clip.getCurrentFrame();
-        clip.update(deltaTime);
+        Animator animator = actorsMap.get(id);
+        animator.update(objectState, deltaTime);
+        TextureRegion textureRegion = animator.getCurrentFrame();
         //textureRegion.flip(true, false);
         spriteBatch.draw(textureRegion, (gameObject.getPosition().x - gameObject.getWidth()) * pixels_per_meter,
                 (gameObject.getPosition().y - gameObject.getHeight()) * pixels_per_meter);
@@ -158,13 +189,52 @@ public class View implements PropertyChangeListener
         staticObjectsTextureMap.put(ObjectType.BACKGROUND_IMAGE, getTexture("background-textures.png"));
         staticObjectsTextureMap.put(ObjectType.PLATFORM, getTexture("platform.png"));
         staticObjectsTextureMap.put(ObjectType.BASE, getTexture("base.png"));
+    }
 
-        actorsTextureMap.put(ObjectType.SWORDSMAN, new HashMap<ObjectState, AnimationClip>());
-        AnimationClip clip = new AnimationClip(getTexture("swordsman_idling.png"), 7, 1, 7, 0.1f);
-        actorsTextureMap.get(ObjectType.SWORDSMAN).put(ObjectState.IDLING, clip);
+    public void loadActorSprites(String id, ObjectType objectType){
+        AnimationClip idle, move, attack;
+        GameSingleton.TextureInfo textureInfos[] = GameSingleton.getGameSingleton().getActorTextureInfo(objectType);
+        try{
+            idle = new AnimationClip(
+                    getTexture(textureInfos[0].filename),
+                    textureInfos[0].cols,
+                    textureInfos[0].rows,
+                    textureInfos[0].filledFrames,
+                    textureInfos[0].interval
+            );
+        }
+        catch (NullPointerException e){
+            System.out.println("IDLE texture info not set" + GameSingleton.getGameSingleton().toString(objectType));
+            idle = new AnimationClip();
+        }
+        try{
+            move = new AnimationClip(
+                    getTexture(textureInfos[1].filename),
+                    textureInfos[1].cols,
+                    textureInfos[1].rows,
+                    textureInfos[1].filledFrames,
+                    textureInfos[1].interval
+            );
+        }
+        catch (NullPointerException e){
+            System.out.println("MOVE texture info not set" + GameSingleton.getGameSingleton().toString(objectType));
+            move = new AnimationClip();
+        }
+        try{
+            attack = new AnimationClip(
+                    getTexture(textureInfos[2].filename),
+                    textureInfos[2].cols,
+                    textureInfos[2].rows,
+                    textureInfos[2].filledFrames,
+                    textureInfos[2].interval
+            );
+        }
+        catch (NullPointerException e){
+            System.out.println("ATTACK texture info not set" + GameSingleton.getGameSingleton().toString(objectType));
+            attack = new AnimationClip();
+        }
 
-        AnimationClip clip2 = new AnimationClip(getTexture("swordsman_attacking.png"), 9, 1, 9, 0.1f);
-        actorsTextureMap.get(ObjectType.SWORDSMAN).put(ObjectState.ATTACKING, clip2);
+        actorsMap.put(id, new Animator(idle, move, attack));
     }
 
     public Vector2 getTextureSize(ObjectType objectType){
@@ -172,8 +242,8 @@ public class View implements PropertyChangeListener
         return new Vector2(texture.getWidth(), texture.getHeight());
     }
 
-    public Vector2 getTextureSize(ObjectType objectType, ObjectState objectState){
-        TextureRegion texture = actorsTextureMap.get(objectType).get(objectState).getCurrentFrame();
+    public Vector2 getTextureSize(String id){
+        TextureRegion texture = actorsMap.get(id).getCurrentFrame();
         return new Vector2(texture.getRegionWidth(), texture.getRegionHeight());
     }
 
@@ -191,8 +261,3 @@ public class View implements PropertyChangeListener
 
     }
 }
-
-/* TODO
-    write AnimatedTexture class for animating objects
-    it would go sth like that view asks model for current state of the object and then decides what to do
- */

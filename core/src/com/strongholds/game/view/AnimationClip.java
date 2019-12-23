@@ -33,6 +33,8 @@ public class AnimationClip {
         stateTime = 0.0f;
     }
 
+    public AnimationClip(){}
+
     /**
      *
      * @param deltaTime
@@ -40,7 +42,7 @@ public class AnimationClip {
     public void update(float deltaTime){
         stateTime += deltaTime;
     }
-
+    public void reset(){ stateTime = 0.0f; }
     TextureRegion getCurrentFrame(){
         return animation.getKeyFrame(stateTime, true);
     }

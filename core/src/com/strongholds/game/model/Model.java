@@ -21,7 +21,6 @@ public class Model
 
     //Queue events;
 
-    int nextId;
     GameObjectsFactory gameObjectsFactory;
     Map<String, GameObject> gameObjectsMap;
     Map<String, AnimatedActor> actorsMap;
@@ -61,18 +60,20 @@ public class Model
         //TODO
     }
 
-    public void createObject(ObjectType objectType, Vector2 position, Vector2 size) {
+    public void createObject(String id, ObjectType objectType, Vector2 position, Vector2 size) {
         GameObject newObject = gameObjectsFactory.createObject(objectType, position, size);
-        gameObjectsMap.put(Integer.toString(nextId++), newObject);
+        gameObjectsMap.put(id, newObject);
     }
-
+/*
     public void createActor(ObjectType objectType, Vector2 position, Vector2 size) {
         AnimatedActor newObject = (AnimatedActor)gameObjectsFactory.createObject(objectType, position, size);
         actorsMap.put(Integer.toString(nextId++), newObject);
     }
 
+ */
     public void createActor(String id, ObjectType objectType, Vector2 position, Vector2 size) {
         AnimatedActor newObject = (AnimatedActor)gameObjectsFactory.createObject(objectType, position, size);
+        newObject.setId(id);
         actorsMap.put(id, newObject);
     }
 

@@ -1,4 +1,4 @@
-package com.strongholds.game.model.gameobject;
+package com.strongholds.game.exception;
 
 public class ObjectTypeNotDefinedException extends RuntimeException{
     public ObjectTypeNotDefinedException(String message){

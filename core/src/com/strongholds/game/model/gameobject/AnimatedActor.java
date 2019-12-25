@@ -2,19 +2,20 @@ package com.strongholds.game.model.gameobject;
 
 import com.badlogic.gdx.physics.box2d.*;
 import com.strongholds.game.GameSingleton;
+import com.strongholds.game.GameSingleton.ObjectType;
+import com.strongholds.game.GameSingleton.ObjectState;
 
 import java.util.LinkedList;
 import java.util.List;
 
-public class AnimatedActor extends GameObject{
-    private AnimatedActorState state;
+public class AnimatedActor extends GameObject implements IViewAnimatedActor{
+    //private AnimatedActorState state;
+    private ObjectState state;
     private LinkedList<AnimatedActor> targets;
 
-    private String id;
-
-    public AnimatedActor(World world, BodyDef bodyDef, float width, float height, GameSingleton.ObjectType type) {
-        super(world, bodyDef, width, height, type);
-        state = new AnimatedActorState();
+    public AnimatedActor(World world, BodyDef bodyDef, float width, float height, ObjectType type, String id) {
+        super(world, bodyDef, width, height, type, id);
+        //state = new AnimatedActorState();
         targets = new LinkedList<>();
         //set main fixture's collisionFilter
         Filter filter = new Filter();
@@ -39,20 +40,13 @@ public class AnimatedActor extends GameObject{
     }
 
     public GameSingleton.ObjectState getState(){
-        return state.getState();
+        return state;
     }
 
     public void setState(GameSingleton.ObjectState newState){
-        state.setState(newState);
+        state = newState;
     }
 
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
 
     @Override
     public void gotHit(int damage){

@@ -2,20 +2,23 @@ package com.strongholds.game.controller;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Vector2;
 
 import com.strongholds.game.GameSingleton;
 import com.strongholds.game.GameSingleton.ObjectType;
+import com.strongholds.game.model.IModel;
 import com.strongholds.game.model.Model;
+import com.strongholds.game.view.IView;
 import com.strongholds.game.view.View;
 
 import java.util.Queue;
 
 // It's our game controller
 
-public class StrongholdsGame extends ApplicationAdapter {
+public class StrongholdsGame extends ApplicationAdapter implements IViewController, IModelController{
 	private AssetManager assetManager;
 
 	final float Fps = 60.0f;
@@ -24,8 +27,8 @@ public class StrongholdsGame extends ApplicationAdapter {
 
 	int nextId = 0;
 
-	private Model model;
-	private View view;
+	private IModel model;
+	private IView view;
 
 	Queue events;
 
@@ -49,10 +52,14 @@ public class StrongholdsGame extends ApplicationAdapter {
 		createActor(ObjectType.SWORDSMAN, new Vector2(200, 400));
 
 		createActor("player", ObjectType.SWORDSMAN, new Vector2(600, 400));
+		//createActor("player", ObjectType.DEBUG_NO_OBJECT, new Vector2(600, 400));
 	}
 
 	@Override
 	public void render () {
+		if (Gdx.input.isKeyJustPressed(Input.Keys.C)){
+			createActor(ObjectType.SWORDSMAN, new Vector2(700, 400));
+		}
 		view.update();
 		update();
 		model.update(1.0f / Fps);

@@ -8,11 +8,9 @@ import com.badlogic.gdx.physics.box2d.*;
 import java.util.*;
 
 import com.strongholds.game.GameSingleton.ObjectType;
-import com.strongholds.game.model.gameobject.AnimatedActor;
-import com.strongholds.game.model.gameobject.GameObject;
-import com.strongholds.game.model.gameobject.GameObjectsFactory;
+import com.strongholds.game.model.gameobject.*;
 
-public class Model
+public class Model implements IModel
 {
     private World world;
     private final int velocityIterations = 6;
@@ -61,7 +59,7 @@ public class Model
     }
 
     public void createObject(String id, ObjectType objectType, Vector2 position, Vector2 size) {
-        GameObject newObject = gameObjectsFactory.createObject(objectType, position, size);
+        GameObject newObject = gameObjectsFactory.createObject(id, objectType, position, size);
         gameObjectsMap.put(id, newObject);
     }
 /*
@@ -72,8 +70,7 @@ public class Model
 
  */
     public void createActor(String id, ObjectType objectType, Vector2 position, Vector2 size) {
-        AnimatedActor newObject = (AnimatedActor)gameObjectsFactory.createObject(objectType, position, size);
-        newObject.setId(id);
+        AnimatedActor newObject = (AnimatedActor)gameObjectsFactory.createObject(id, objectType, position, size);
         actorsMap.put(id, newObject);
     }
 
@@ -84,4 +81,8 @@ public class Model
     public Object[] getActors(){
         return actorsMap.values().toArray();
     }
+
+    public IViewAnimatedActor getActor(String id){ return actorsMap.get(id); }
+
+    public IViewGameObject getGameObject(String id){ return gameObjectsMap.get(id); }
 }

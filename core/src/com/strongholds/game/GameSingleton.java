@@ -12,7 +12,7 @@ public class GameSingleton {
     private HashMap<ObjectType, TextureInfo[]> actorsTextureInfo;
 
     public enum ObjectType{
-        PLATFORM, BACKGROUND_IMAGE, BASE, SWORDSMAN;
+        PLATFORM, BACKGROUND_IMAGE, BASE, SWORDSMAN, DEBUG_NO_OBJECT;
     }
 
     public enum ObjectState{

@@ -4,13 +4,16 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import com.strongholds.game.GameSingleton;
 
-public class GameObject {
+public class GameObject implements IViewGameObject{
     protected Body body;
     private GameSingleton.ObjectType type;
     private float width;
     private float height;
 
-    public GameObject(World world, BodyDef bodyDef, float width, float height, GameSingleton.ObjectType type) {
+    private String id;
+
+    public GameObject(World world, BodyDef bodyDef, float width, float height, GameSingleton.ObjectType type, String id) {
+        this.id = id;
         this.type = type;
         this.width = width;
         this.height = height;
@@ -57,4 +60,13 @@ public class GameObject {
     public void gotHit(int damage){
 
     }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
 }

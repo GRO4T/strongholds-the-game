@@ -23,16 +23,16 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.strongholds.game.GameSingleton;
 import com.strongholds.game.GameSingleton.ObjectType;
 import com.strongholds.game.GameSingleton.ObjectState;
-import com.strongholds.game.model.Model;
+import com.strongholds.game.controller.IViewController;
 import com.strongholds.game.controller.StrongholdsGame;
-import com.strongholds.game.model.gameobject.AnimatedActor;
-import com.strongholds.game.model.gameobject.GameObject;
+import com.strongholds.game.model.IReadOnlyModel;
+import com.strongholds.game.model.gameobject.IViewAnimatedActor;
+import com.strongholds.game.model.gameobject.IViewGameObject;
 
-public class View implements PropertyChangeListener
+public class View implements PropertyChangeListener, IView
 {
-    private Model model;
-    private StrongholdsGame controller;
-
+    private IReadOnlyModel model;
+    private IViewController controller;
 
     private Stage UIstage;
 
@@ -57,7 +57,7 @@ public class View implements PropertyChangeListener
     TextButton addSwordsmanButton;
     TextButton addArcherButton;
 
-    public View(Model model, StrongholdsGame controller)
+    public View(IReadOnlyModel model, IViewController controller)
     {
         this.model = model;
         this.controller = controller;
@@ -143,11 +143,11 @@ public class View implements PropertyChangeListener
         // draw non-animated objects
         for (Object gameObject : model.getGameObjects())
         {
-            drawGameObject((GameObject)gameObject);
+            drawGameObject((IViewGameObject)gameObject);
         }
         //draw actors
         for (Object actor : model.getActors()){
-            drawGameObject((AnimatedActor)actor, deltaTime);
+            drawGameObject((IViewAnimatedActor)actor, deltaTime);
         }
 
         font.draw(spriteBatch, "Money", screenX - 50, screenY - 20);
@@ -158,14 +158,14 @@ public class View implements PropertyChangeListener
         UIstage.draw();
     }
 
-    private void drawGameObject(GameObject gameObject){
+    private void drawGameObject(IViewGameObject gameObject){
         Texture texture = staticObjectsTextureMap.get(gameObject.getType());
         float x = (gameObject.getPosition().x - gameObject.getWidth()) * pixels_per_meter;
         float y = (gameObject.getPosition().y - gameObject.getHeight()) * pixels_per_meter;
         spriteBatch.draw(texture, x, y);
     }
 
-    private void drawGameObject(AnimatedActor gameObject, float deltaTime){
+    private void drawGameObject(IViewAnimatedActor gameObject, float deltaTime){
         String id = gameObject.getId();
         ObjectState objectState = gameObject.getState();
         Animator animator = actorsMap.get(id);
@@ -204,7 +204,7 @@ public class View implements PropertyChangeListener
             );
         }
         catch (NullPointerException e){
-            System.out.println("IDLE texture info not set" + GameSingleton.getGameSingleton().toString(objectType));
+            System.out.println("IDLE TextureInfo not set " + GameSingleton.getGameSingleton().toString(objectType));
             idle = new AnimationClip();
         }
         try{
@@ -217,7 +217,7 @@ public class View implements PropertyChangeListener
             );
         }
         catch (NullPointerException e){
-            System.out.println("MOVE texture info not set" + GameSingleton.getGameSingleton().toString(objectType));
+            System.out.println("MOVE TextureInfo not set " + GameSingleton.getGameSingleton().toString(objectType));
             move = new AnimationClip();
         }
         try{
@@ -230,7 +230,7 @@ public class View implements PropertyChangeListener
             );
         }
         catch (NullPointerException e){
-            System.out.println("ATTACK texture info not set" + GameSingleton.getGameSingleton().toString(objectType));
+            System.out.println("ATTACK TextureInfo not set " + GameSingleton.getGameSingleton().toString(objectType));
             attack = new AnimationClip();
         }
 
@@ -243,7 +243,14 @@ public class View implements PropertyChangeListener
     }
 
     public Vector2 getTextureSize(String id){
-        TextureRegion texture = actorsMap.get(id).getCurrentFrame();
+        TextureRegion texture = null;
+        try{
+            texture = actorsMap.get(id).getCurrentFrame();
+        }
+        catch(NullPointerException e){
+            //System.out.println("animation not set for actor of type " +
+             //       GameSingleton.getGameSingleton().toString(model.getActor().getType()));
+        }
         return new Vector2(texture.getRegionWidth(), texture.getRegionHeight());
     }
 

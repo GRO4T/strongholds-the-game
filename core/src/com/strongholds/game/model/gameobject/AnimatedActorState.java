@@ -7,7 +7,7 @@ import java.util.List;
 public class AnimatedActorState {//implements ListenableState {
     //private List<StateChangedListener> listenerList;
     private GameSingleton.ObjectState state;
-
+//   UNUSED!!!!!!
     AnimatedActorState() {
       //  state = GameSingleton.ObjectState.IDLING;
      //   listenerList = new LinkedList<>();

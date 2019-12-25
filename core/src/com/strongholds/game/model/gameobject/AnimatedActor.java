@@ -6,17 +6,20 @@ import com.strongholds.game.GameSingleton.ObjectType;
 import com.strongholds.game.GameSingleton.ObjectState;
 
 import java.util.LinkedList;
-import java.util.List;
 
-public class AnimatedActor extends GameObject implements IViewAnimatedActor{
+public class AnimatedActor extends GameObject implements IAnimatedActor {
     //private AnimatedActorState state;
     private ObjectState state;
     private LinkedList<AnimatedActor> targets;
+
+    private boolean isEnemy;
 
     public AnimatedActor(World world, BodyDef bodyDef, float width, float height, ObjectType type, String id) {
         super(world, bodyDef, width, height, type, id);
         //state = new AnimatedActorState();
         targets = new LinkedList<>();
+        isEnemy = false;
+
         //set main fixture's collisionFilter
         Filter filter = new Filter();
         filter.categoryBits = GameSingleton.ACTOR_COLLISION_MASK; // 0x0002
@@ -24,12 +27,14 @@ public class AnimatedActor extends GameObject implements IViewAnimatedActor{
                 | GameSingleton.ACTOR_COLLISION_MASK
                 | GameSingleton.SENSOR_COLLISION_MASK; // 0x0007 = 0x0004 OR 0x0002 OR 0x0001
         body.getFixtureList().first().setFilterData(filter);
+
         //create sensor definition
         CircleShape sensorShape = new CircleShape();
         sensorShape.setRadius(4);
         FixtureDef sensorDef = new FixtureDef();
         sensorDef.isSensor = true;
         sensorDef.shape = sensorShape;
+
         //create sensor, set user its userData and collisionFilter
         Fixture sensor  = body.createFixture(sensorDef);
         sensor.setUserData(this);

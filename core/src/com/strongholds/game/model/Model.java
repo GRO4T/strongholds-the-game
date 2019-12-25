@@ -7,6 +7,7 @@ import com.badlogic.gdx.physics.box2d.*;
 
 import java.util.*;
 
+import com.strongholds.game.GameSingleton;
 import com.strongholds.game.GameSingleton.ObjectType;
 import com.strongholds.game.model.gameobject.*;
 
@@ -19,6 +20,8 @@ public class Model implements IModel
 
     //Queue events;
 
+    long money;
+
     GameObjectsFactory gameObjectsFactory;
     Map<String, GameObject> gameObjectsMap;
     Map<String, AnimatedActor> actorsMap;
@@ -27,6 +30,8 @@ public class Model implements IModel
 
     public Model()
     {
+        money = 200L;
+
         world = new World(new Vector2(0, worldGravity), true);
         contactListener = new MyContactListener();
         world.setContactListener(contactListener);
@@ -82,7 +87,15 @@ public class Model implements IModel
         return actorsMap.values().toArray();
     }
 
-    public IViewAnimatedActor getActor(String id){ return actorsMap.get(id); }
+    public IReadOnlyAnimatedActor getActor(String id){ return actorsMap.get(id); }
 
-    public IViewGameObject getGameObject(String id){ return gameObjectsMap.get(id); }
+    public IReadOnlyGameObject getGameObject(String id){ return gameObjectsMap.get(id); }
+
+    public long getMoney(){ return money; }
+
+    public void addMoney(long value){
+        money += value;
+        if (money < 0L)
+            money = 0L;
+    }
 }

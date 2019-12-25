@@ -11,6 +11,8 @@ public class GameSingleton {
             "swordsman_idling.png", "swordsman_attacking.png"};
     private HashMap<ObjectType, TextureInfo[]> actorsTextureInfo;
 
+    private HashMap<ObjectType, Long> costLedger;
+
     public enum ObjectType{
         PLATFORM, BACKGROUND_IMAGE, BASE, SWORDSMAN, DEBUG_NO_OBJECT;
     }
@@ -50,6 +52,9 @@ public class GameSingleton {
                 new TextureInfo("swordsman_attacking.png", 9, 1, 9, 0.1f)
             };
         actorsTextureInfo.put(ObjectType.SWORDSMAN, textureInfo);
+
+        costLedger = new HashMap<>();
+        costLedger.put(ObjectType.SWORDSMAN, 100L);
     }
 
     public static GameSingleton getGameSingleton(){
@@ -67,5 +72,9 @@ public class GameSingleton {
         if (objectType == ObjectType.SWORDSMAN)
             return "ObjectType.SWORDSMAN";
         return "toString not defined for this objectType";
+    }
+
+    public long getCost(ObjectType objectType){
+        return costLedger.get(objectType).longValue();
     }
 }

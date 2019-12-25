@@ -1,7 +1,6 @@
 package com.strongholds.game.view;
 
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.strongholds.game.GameSingleton;
 import com.strongholds.game.GameSingleton.ObjectState;
 
 import java.util.HashMap;

@@ -13,12 +13,14 @@ import com.strongholds.game.model.IModel;
 import com.strongholds.game.model.Model;
 import com.strongholds.game.view.IView;
 import com.strongholds.game.view.View;
+import com.strongholds.game.view.ViewEvent;
 
-import java.util.Queue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 // It's our game controller
 
 public class StrongholdsGame extends ApplicationAdapter implements IViewController, IModelController{
+	GameSingleton gameSingleton;
 	private AssetManager assetManager;
 
 	final float Fps = 60.0f;
@@ -30,9 +32,11 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 	private IModel model;
 	private IView view;
 
-	Queue events;
+	LinkedBlockingQueue<ViewEvent> viewEventsQueue;
+	//PriorityQueue<ModelEvent> modelEvents;
 
 	public StrongholdsGame(int screenWidth, int screenHeight) {
+		gameSingleton = GameSingleton.getGameSingleton();
 		this.screenWidth = screenWidth;
 		this.screenHeight = screenHeight;
 	}
@@ -41,6 +45,8 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 	public void create () {
 		model = new Model();
 		view = new View(model, this);
+
+		viewEventsQueue = new LinkedBlockingQueue<>();
 
 		assetManager = new AssetManager();
 		loadAssets();
@@ -57,9 +63,11 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 
 	@Override
 	public void render () {
+		//debug
 		if (Gdx.input.isKeyJustPressed(Input.Keys.C)){
 			createActor(ObjectType.SWORDSMAN, new Vector2(700, 400));
 		}
+		earlyUpdate();
 		view.update();
 		update();
 		model.update(1.0f / Fps);
@@ -73,8 +81,25 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 		assetManager.dispose();
 	}
 
-	private void update(){
+	private void earlyUpdate(){
 
+	}
+
+	private void update(){
+		ViewEvent viewEvent;
+		while (viewEventsQueue.size() > 0){
+			viewEvent = viewEventsQueue.poll();
+			if (viewEvent.toTrainUnit()){
+				ObjectType unitType = viewEvent.getUnitType();
+				long unitCost = gameSingleton.getCost(unitType);
+				if (model.getMoney() >= unitCost){
+					createActor(unitType, new Vector2(600, 400));
+					model.addMoney(-unitCost);
+				}
+				else
+					System.out.println("not enough money!");
+			}
+		}
 	}
 
 	public AssetManager getAssetManager() {
@@ -110,5 +135,9 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 		view.loadActorSprites(id, objectType);
 		Vector2 actorSize = view.getTextureSize(id);
 		model.createActor(id, objectType, position, actorSize);
+	}
+
+	public void addEvent(ViewEvent viewEvent){
+		viewEventsQueue.add(viewEvent);
 	}
 }

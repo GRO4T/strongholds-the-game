@@ -18,17 +18,36 @@ public class MeleeUnit extends Unit implements IUnit{
     }
 
     public void update(){
+        //GameSingleton.ObjectState state = getState();
+        if (getState() != GameSingleton.ObjectState.ATTACKING){
+            if (getTargets().size() != 0 && canAttack){
+                attack();
+            }
+            else{
+                if (Math.abs(getVelocity().x) < 0.5f){
+                    setState(GameSingleton.ObjectState.IDLING);
+                }
+                else{
+                    setState(GameSingleton.ObjectState.MOVING);
+                }
+            }
+        }
+
         if (isOnEnemySide())
             move(new Vector2(-1.0f, 0));
-        else if (getState() == GameSingleton.ObjectState.IDLING)
-            attack();
+        else
+            move(new Vector2(1.0f, 0));
     }
 
     public void attack(){
+        System.out.println(getId() +  " im attacking");
         setState(GameSingleton.ObjectState.ATTACKING);
+        canAttack = false;
         AttackTask attackTask = new AttackTask();
+        SuspendAttackTask suspendAttackTask = new SuspendAttackTask();
         Timer timer = new Timer(true);
-        timer.schedule(attackTask, 1000);
+        timer.schedule(attackTask, attackSpeed);
+        timer.schedule(suspendAttackTask, timeBetweenAttacks);
     }
 
     public void setSpeed(float speed) {
@@ -45,8 +64,20 @@ public class MeleeUnit extends Unit implements IUnit{
                     unit.gotHit(10);
                 }
             }
-            setState(GameSingleton.ObjectState.IDLING);
-            cancel();
+            if (Math.abs(getVelocity().x) < 0.5f){
+                setState(GameSingleton.ObjectState.IDLING);
+            }
+            else{
+                setState(GameSingleton.ObjectState.MOVING);
+            }
+            //cancel();
+        }
+    }
+
+    private class SuspendAttackTask extends TimerTask{
+        @Override
+        public void run() {
+            canAttack = true;
         }
     }
 }

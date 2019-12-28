@@ -58,7 +58,7 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 		createObject(ObjectType.BASE, new Vector2(0, 60));
 		createObject(ObjectType.PLATFORM, new Vector2(0, 0));
 
-		createUnit("player", ObjectType.SWORDSMAN, new Vector2(600, 400));
+		createUnit("player", ObjectType.SWORDSMAN, new Vector2(100, 100));
 		//createActor("player", ObjectType.DEBUG_NO_OBJECT, new Vector2(600, 400));
 	}
 
@@ -66,11 +66,11 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 	public void render () {
 		//debug
 		if (Gdx.input.isKeyJustPressed(Input.Keys.C)){
-			createUnit(ObjectType.SWORDSMAN, new Vector2(700, 400));
+			createUnit(ObjectType.SWORDSMAN, new Vector2(700, 100));
 		}
 		if (Gdx.input.isKeyJustPressed(Input.Keys.E)) {
 			String id = "enemy" + nextId++;
-			createUnit(id, ObjectType.SWORDSMAN, new Vector2( 800, 200));
+			createUnit(id, ObjectType.SWORDSMAN, new Vector2( 800, 100));
 			AnimatedActor enemy = (AnimatedActor)model.getActor(id);
 			enemy.setIsOnEnemySide(true);
 		}

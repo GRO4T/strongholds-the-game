@@ -46,6 +46,7 @@ public class Model implements IModel
         for (IUnit actor : actorsMap.values()){
             actor.update();
         }
+        /*
         IUnit player = actorsMap.get("player");
         if (Gdx.input.isKeyPressed(Input.Keys.A)){
             player.move(new Vector2(-1, 0));
@@ -53,7 +54,7 @@ public class Model implements IModel
         if (Gdx.input.isKeyPressed(Input.Keys.D)){
             player.move(new Vector2(1, 0));
         }
-        player.update();
+        */
         world.step(timeStep, velocityIterations, positionIterations);
     }
 

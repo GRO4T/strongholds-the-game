@@ -25,7 +25,7 @@ public class GameObject implements IGameObject {
         FixtureDef fixtureDef = new FixtureDef();
         fixtureDef.shape = polygonShape;
         fixtureDef.density = 3.0f;
-        fixtureDef.friction = 0.8f;
+        fixtureDef.friction = 0.6f;
         fixtureDef.restitution = 0.0f;
         //create body, main fixture and its userData and collisionFilter(collisionFilter can be overridden by inheriting classes)
         body = world.createBody(bodyDef);

@@ -24,19 +24,25 @@ public class MyContactListener implements ContactListener {
             System.out.println(actorB.getTargets());
             return;
         }
-        GameObject objectA = (GameObject) (contact.getFixtureA().getUserData());
-        GameObject objectB = (GameObject) (contact.getFixtureB().getUserData());
+        //GameObject objectA = (GameObject) (contact.getFixtureA().getUserData());
+        //GameObject objectB = (GameObject) (contact.getFixtureB().getUserData());
     }
 
     @Override
     public void endContact(Contact contact) {
         if (contact.getFixtureA().isSensor()){
             System.out.println("ended contact with sensor");
+            AnimatedActor actorA = (AnimatedActor)(contact.getFixtureA().getUserData());
+            AnimatedActor actorB = (AnimatedActor)(contact.getFixtureB().getUserData());
+            actorA.removeTarget(actorB);
             return;
         }
 
         if (contact.getFixtureB().isSensor()){
             System.out.println("ended contact with sensor");
+            AnimatedActor actorA = (AnimatedActor)(contact.getFixtureA().getUserData());
+            AnimatedActor actorB = (AnimatedActor)(contact.getFixtureB().getUserData());
+            actorB.removeTarget(actorA);
             return;
         }
     }

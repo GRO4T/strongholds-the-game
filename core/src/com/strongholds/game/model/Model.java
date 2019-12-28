@@ -43,6 +43,9 @@ public class Model implements IModel
 
     public void update(float timeStep)
     {
+        for (IUnit actor : actorsMap.values()){
+            actor.update();
+        }
         IUnit player = actorsMap.get("player");
         if (Gdx.input.isKeyPressed(Input.Keys.A)){
             player.move(new Vector2(-1, 0));

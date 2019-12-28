@@ -1,5 +1,6 @@
 package com.strongholds.game.model.gameobject;
 
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import com.strongholds.game.GameSingleton;
 import com.strongholds.game.GameSingleton.ObjectType;
@@ -29,7 +30,7 @@ public class AnimatedActor extends GameObject implements IAnimatedActor {
 
         //create sensor definition
         CircleShape sensorShape = new CircleShape();
-        sensorShape.setRadius(4);
+        sensorShape.setRadius(1.5f);
         FixtureDef sensorDef = new FixtureDef();
         sensorDef.isSensor = true;
         sensorDef.shape = sensorShape;
@@ -55,6 +56,13 @@ public class AnimatedActor extends GameObject implements IAnimatedActor {
     @Override
     public void gotHit(int damage){
         System.out.println(getId() + " got hit for " + damage);
+        Vector2 impulse;
+        if (isOnEnemySide()){
+            impulse = new Vector2(300.0f, 0);
+        }
+        else
+            impulse = new Vector2(-300.0f, 0);
+        body.applyLinearImpulse(impulse, body.getPosition(), true);
     }
 
     public void addTarget(AnimatedActor target){

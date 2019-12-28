@@ -7,8 +7,8 @@ public class GameSingleton {
 
     private final float pixels_per_meter = 16.0f;
     private String textureFilenames[] = {
-            "platform.png", "base.png", "background-textures.png", "troop.png",
-            "swordsman_idling.png", "swordsman_attacking.png"};
+            "platform.png", "base.png", "background-textures.png",
+            "Knight/idle.png", "Knight/move.png", "Knight/attack.png"};
     private HashMap<ObjectType, TextureInfo[]> actorsTextureInfo;
 
     private HashMap<ObjectType, Long> costLedger;
@@ -47,9 +47,9 @@ public class GameSingleton {
     private GameSingleton(){
         actorsTextureInfo = new HashMap<>();
         TextureInfo textureInfo[] = {
-                new TextureInfo("swordsman_idling.png", 7, 1, 7, 0.1f),
-                null,
-                new TextureInfo("swordsman_attacking.png", 9, 1, 9, 0.1f)
+                new TextureInfo("Knight/idle.png", 4, 1, 4, 0.1f),
+                new TextureInfo("Knight/move.png", 8, 1, 8, 0.1f),
+                new TextureInfo("Knight/attack.png", 10, 1, 10, 0.1f),
             };
         actorsTextureInfo.put(ObjectType.SWORDSMAN, textureInfo);
 

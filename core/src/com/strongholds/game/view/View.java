@@ -170,10 +170,17 @@ public class View implements PropertyChangeListener, IView
         Animator animator = actorsMap.get(id);
         animator.update(objectState, deltaTime);
         TextureRegion textureRegion = animator.getCurrentFrame();
-        //textureRegion.flip(true, false);
-        spriteBatch.draw(textureRegion, (gameObject.getPosition().x - gameObject.getWidth()) * pixels_per_meter,
-                (gameObject.getPosition().y - gameObject.getHeight()) * pixels_per_meter);
-        //textureRegion.flip(true, false);
+        float x = (gameObject.getPosition().x - gameObject.getWidth()) * pixels_per_meter;
+        float y = (gameObject.getPosition().y - gameObject.getHeight()) * pixels_per_meter;
+
+        if (gameObject.isOnEnemySide()){
+            textureRegion.flip(true, false);
+            spriteBatch.draw(textureRegion, x, y);
+            textureRegion.flip(true, false);
+        }
+        else {
+            spriteBatch.draw(textureRegion, x, y);
+        }
     }
 
     public void dispose(){

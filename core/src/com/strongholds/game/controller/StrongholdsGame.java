@@ -11,6 +11,9 @@ import com.strongholds.game.GameSingleton;
 import com.strongholds.game.GameSingleton.ObjectType;
 import com.strongholds.game.model.IModel;
 import com.strongholds.game.model.Model;
+import com.strongholds.game.model.gameobject.AnimatedActor;
+import com.strongholds.game.model.gameobject.IAnimatedActor;
+import com.strongholds.game.model.gameobject.IReadOnlyAnimatedActor;
 import com.strongholds.game.view.IView;
 import com.strongholds.game.view.View;
 import com.strongholds.game.view.ViewEvent;
@@ -55,9 +58,7 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 		createObject(ObjectType.BASE, new Vector2(0, 60));
 		createObject(ObjectType.PLATFORM, new Vector2(0, 0));
 
-		createActor(ObjectType.SWORDSMAN, new Vector2(200, 400));
-
-		createActor("player", ObjectType.SWORDSMAN, new Vector2(600, 400));
+		createUnit("player", ObjectType.SWORDSMAN, new Vector2(600, 400));
 		//createActor("player", ObjectType.DEBUG_NO_OBJECT, new Vector2(600, 400));
 	}
 
@@ -65,7 +66,13 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 	public void render () {
 		//debug
 		if (Gdx.input.isKeyJustPressed(Input.Keys.C)){
-			createActor(ObjectType.SWORDSMAN, new Vector2(700, 400));
+			createUnit(ObjectType.SWORDSMAN, new Vector2(700, 400));
+		}
+		if (Gdx.input.isKeyJustPressed(Input.Keys.E)) {
+			String id = "enemy" + nextId++;
+			createUnit(id, ObjectType.SWORDSMAN, new Vector2( 800, 200));
+			AnimatedActor enemy = (AnimatedActor)model.getActor(id);
+			enemy.setIsOnEnemySide(true);
 		}
 		earlyUpdate();
 		view.update();
@@ -93,7 +100,7 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 				ObjectType unitType = viewEvent.getUnitType();
 				long unitCost = gameSingleton.getCost(unitType);
 				if (model.getMoney() >= unitCost){
-					createActor(unitType, new Vector2(600, 400));
+					createUnit(unitType, new Vector2(600, 400));
 					model.addMoney(-unitCost);
 				}
 				else
@@ -126,15 +133,15 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 		model.createObject(Integer.toString(nextId++), objectType, position, view.getTextureSize(objectType));
 	}
 
-	private void createActor(ObjectType objectType, Vector2 position){
+	private void createUnit(ObjectType objectType, Vector2 position){
 		String id = Integer.toString(nextId++);
-		createActor(id, objectType, position);
+		createUnit(id, objectType, position);
 	}
 
-	private void createActor(String id, ObjectType objectType, Vector2 position){
+	private void createUnit(String id, ObjectType objectType, Vector2 position){
 		view.loadActorSprites(id, objectType);
-		Vector2 actorSize = view.getTextureSize(id);
-		model.createActor(id, objectType, position, actorSize);
+		Vector2 unitSize = view.getTextureSize(id);
+		model.createUnit(id, objectType, position, unitSize);
 	}
 
 	public void addEvent(ViewEvent viewEvent){

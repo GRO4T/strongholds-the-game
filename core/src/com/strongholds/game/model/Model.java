@@ -24,7 +24,7 @@ public class Model implements IModel
 
     GameObjectsFactory gameObjectsFactory;
     Map<String, GameObject> gameObjectsMap;
-    Map<String, AnimatedActor> actorsMap;
+    Map<String, IUnit> actorsMap;
 
     MyContactListener contactListener;
 
@@ -43,19 +43,15 @@ public class Model implements IModel
 
     public void update(float timeStep)
     {
-        world.step(timeStep, velocityIterations, positionIterations);
-
-        for (AnimatedActor actor : actorsMap.values()){
-            //actor.setState(GameSingleton.ObjectState.ATTACKING);
-        }
-
-        AnimatedActor player = actorsMap.get("player");
+        IUnit player = actorsMap.get("player");
         if (Gdx.input.isKeyPressed(Input.Keys.A)){
-            player.getBody().applyLinearImpulse(new Vector2(-10, 0), player.getBody().getPosition(), true);
+            player.move(new Vector2(-1, 0));
         }
         if (Gdx.input.isKeyPressed(Input.Keys.D)){
-            player.getBody().applyLinearImpulse(new Vector2(10, 0), player.getBody().getPosition(), true);
+            player.move(new Vector2(1, 0));
         }
+        player.update();
+        world.step(timeStep, velocityIterations, positionIterations);
     }
 
     public void dispose()
@@ -74,8 +70,8 @@ public class Model implements IModel
     }
 
  */
-    public void createActor(String id, ObjectType objectType, Vector2 position, Vector2 size) {
-        AnimatedActor newObject = (AnimatedActor)gameObjectsFactory.createObject(id, objectType, position, size);
+    public void createUnit(String id, ObjectType objectType, Vector2 position, Vector2 size) {
+        IUnit newObject = (IUnit)gameObjectsFactory.createObject(id, objectType, position, size);
         actorsMap.put(id, newObject);
     }
 

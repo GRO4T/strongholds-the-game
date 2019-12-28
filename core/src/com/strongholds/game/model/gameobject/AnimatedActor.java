@@ -18,7 +18,6 @@ public class AnimatedActor extends GameObject implements IAnimatedActor {
         super(world, bodyDef, width, height, type, id);
         //state = new AnimatedActorState();
         targets = new LinkedList<>();
-        isEnemy = false;
 
         //set main fixture's collisionFilter
         Filter filter = new Filter();
@@ -55,7 +54,7 @@ public class AnimatedActor extends GameObject implements IAnimatedActor {
 
     @Override
     public void gotHit(int damage){
-        //System.out.println("got hit for " + damage);
+        System.out.println(getId() + " got hit for " + damage);
     }
 
     public void addTarget(AnimatedActor target){

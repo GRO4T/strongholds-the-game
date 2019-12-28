@@ -13,13 +13,15 @@ import com.strongholds.game.exception.ObjectTypeNotDefinedException;
 
 public class GameObjectsFactory {
     World world;
+    GameSingleton gameSingleton;
 
     public GameObjectsFactory(World world) {
         this.world = world;
+        gameSingleton = getGameSingleton();
     }
 
     public GameObject createObject(String id, ObjectType objectType, Vector2 position, Vector2 size){
-        float pixels_per_meter = getGameSingleton().getPixels_per_meter();
+        float pixels_per_meter = gameSingleton.getPixels_per_meter();
         Vector2 bodySize = new Vector2(size.x / (2*pixels_per_meter), size.y / (2*pixels_per_meter));
         Vector2 bodyPos = new Vector2(position.x / pixels_per_meter + bodySize.x,
                 position.y / pixels_per_meter + bodySize.y);
@@ -33,11 +35,11 @@ public class GameObjectsFactory {
         }
         else if (objectType == ObjectType.SWORDSMAN){
             bodyDef.type = BodyDef.BodyType.DynamicBody;
-            AnimatedActor actor = new AnimatedActor(world, bodyDef, bodySize.x, bodySize.y, objectType, id);
-            actor.setState(ObjectState.IDLING);
-            return actor;
+            MeleeUnit meleeUnit = new MeleeUnit(world, bodyDef, bodySize.x, bodySize.y, objectType, id);
+            meleeUnit.setState(ObjectState.IDLING);
+            return meleeUnit;
         }
         throw new ObjectTypeNotDefinedException("ObjectType not handled by GameObjectsFactory: ObjectType = " +
-                GameSingleton.getGameSingleton().toString(objectType));
+                gameSingleton.toString(objectType));
     }
 }

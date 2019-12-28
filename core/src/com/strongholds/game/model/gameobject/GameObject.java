@@ -12,6 +12,8 @@ public class GameObject implements IGameObject {
 
     private String id;
 
+    private boolean isOnEnemySide = false;
+
     public GameObject(World world, BodyDef bodyDef, float width, float height, GameSingleton.ObjectType type, String id) {
         this.id = id;
         this.type = type;
@@ -22,9 +24,9 @@ public class GameObject implements IGameObject {
         polygonShape.setAsBox(width, height);
         FixtureDef fixtureDef = new FixtureDef();
         fixtureDef.shape = polygonShape;
-        fixtureDef.density = 1.0f;
-        fixtureDef.friction = 0.3f;
-        fixtureDef.restitution = 0.5f;
+        fixtureDef.density = 3.0f;
+        fixtureDef.friction = 0.8f;
+        fixtureDef.restitution = 0.0f;
         //create body, main fixture and its userData and collisionFilter(collisionFilter can be overridden by inheriting classes)
         body = world.createBody(bodyDef);
         Fixture fixture = body.createFixture(fixtureDef);
@@ -41,6 +43,8 @@ public class GameObject implements IGameObject {
         return body.getPosition();
     }
 
+    public Vector2 getVelocity(){ return body.getLinearVelocity(); }
+
     public float getWidth() {
         return width;
     }
@@ -53,12 +57,8 @@ public class GameObject implements IGameObject {
         return type;
     }
 
-    public Body getBody(){
-        return body;
-    }
-
     public void gotHit(int damage){
-
+        System.out.println("GameObject can't be damaged! (gotHit in GameObject got called without purpose)");
     }
 
     public String getId() {
@@ -68,5 +68,9 @@ public class GameObject implements IGameObject {
     public void setId(String id) {
         this.id = id;
     }
+
+    public boolean isOnEnemySide(){ return isOnEnemySide; }
+
+    public void setIsOnEnemySide(boolean isOnEnemySide){ this.isOnEnemySide = isOnEnemySide; }
 
 }

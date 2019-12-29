@@ -12,6 +12,8 @@ public class GameObject implements IGameObject {
 
     private String id;
 
+    int health = 1000;
+
     private boolean isOnEnemySide = false;
 
     public GameObject(World world, BodyDef bodyDef, float width, float height, GameSingleton.ObjectType type, String id) {
@@ -32,7 +34,12 @@ public class GameObject implements IGameObject {
         Fixture fixture = body.createFixture(fixtureDef);
         fixture.setUserData(this);
         Filter filter = new Filter();
-        filter.categoryBits = GameSingleton.GAME_OBJECT_COLLISION_MASK; // 0x0001
+
+        if (type == GameSingleton.ObjectType.BASE)
+            filter.categoryBits = GameSingleton.ACTOR_COLLISION_MASK;
+        else
+            filter.categoryBits = GameSingleton.GAME_OBJECT_COLLISION_MASK; // 0x0001
+
         filter.maskBits = GameSingleton.GAME_OBJECT_COLLISION_MASK
                 | GameSingleton.ACTOR_COLLISION_MASK
                 | GameSingleton.SENSOR_COLLISION_MASK; // 0x0007 = 0x0004 OR 0x0002 OR 0x0001
@@ -58,7 +65,10 @@ public class GameObject implements IGameObject {
     }
 
     public void gotHit(int damage){
-        System.out.println("GameObject can't be damaged! (gotHit in GameObject got called without purpose)");
+        System.out.println("base hit for " + damage);
+        health -= damage;
+        if (health < 0)
+            health = 0;
     }
 
     public String getId() {
@@ -73,4 +83,11 @@ public class GameObject implements IGameObject {
 
     public void setIsOnEnemySide(boolean isOnEnemySide){ this.isOnEnemySide = isOnEnemySide; }
 
+    public int getHealth() {
+        return health;
+    }
+
+    public void setHealth(int health) {
+        this.health = health;
+    }
 }

@@ -1,14 +1,12 @@
 package com.strongholds.game.model;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 
 import java.util.*;
 
-import com.strongholds.game.GameSingleton;
 import com.strongholds.game.GameSingleton.ObjectType;
+import com.strongholds.game.controller.StrongholdsGame;
 import com.strongholds.game.model.gameobject.*;
 
 public class Model implements IModel
@@ -19,8 +17,14 @@ public class Model implements IModel
     private final float worldGravity = -15.0f;
 
     //Queue events;
+    Timer taskScheduler;
+    boolean addMoney = true;
+    int incomeInterval = 1000;
+    int moneyGain = 10;
 
     long money;
+    //int baseHealth = 1000;
+    //int enemyBaseHealth = 1000;
 
     GameObjectsFactory gameObjectsFactory;
     Map<String, GameObject> gameObjectsMap;
@@ -39,6 +43,8 @@ public class Model implements IModel
         gameObjectsFactory = new GameObjectsFactory(world);
         gameObjectsMap = new HashMap<>();
         actorsMap = new HashMap<>();
+
+        taskScheduler = new Timer(true);
     }
 
     public void update(float timeStep)
@@ -46,15 +52,13 @@ public class Model implements IModel
         for (IUnit actor : actorsMap.values()){
             actor.update();
         }
-        /*
-        IUnit player = actorsMap.get("player");
-        if (Gdx.input.isKeyPressed(Input.Keys.A)){
-            player.move(new Vector2(-1, 0));
+
+        if (addMoney){
+            addMoney = false;
+            AddMoneyTask addMoneyTask = new AddMoneyTask();
+            taskScheduler.schedule(addMoneyTask, incomeInterval);
         }
-        if (Gdx.input.isKeyPressed(Input.Keys.D)){
-            player.move(new Vector2(1, 0));
-        }
-        */
+
         world.step(timeStep, velocityIterations, positionIterations);
     }
 
@@ -67,13 +71,7 @@ public class Model implements IModel
         GameObject newObject = gameObjectsFactory.createObject(id, objectType, position, size);
         gameObjectsMap.put(id, newObject);
     }
-/*
-    public void createActor(ObjectType objectType, Vector2 position, Vector2 size) {
-        AnimatedActor newObject = (AnimatedActor)gameObjectsFactory.createObject(objectType, position, size);
-        actorsMap.put(Integer.toString(nextId++), newObject);
-    }
 
- */
     public void createUnit(String id, ObjectType objectType, Vector2 position, Vector2 size) {
         IUnit newObject = (IUnit)gameObjectsFactory.createObject(id, objectType, position, size);
         actorsMap.put(id, newObject);
@@ -97,5 +95,22 @@ public class Model implements IModel
         money += value;
         if (money < 0L)
             money = 0L;
+    }
+
+    public int getBaseHealth(){
+        return gameObjectsMap.get("base").getHealth();
+    }
+
+    public int getEnemyBaseHealth(){
+        return gameObjectsMap.get("enemyBase").getHealth();
+    }
+
+    private class AddMoneyTask extends TimerTask {
+
+        @Override
+        public void run() {
+            addMoney(moneyGain);
+            addMoney = true;
+        }
     }
 }

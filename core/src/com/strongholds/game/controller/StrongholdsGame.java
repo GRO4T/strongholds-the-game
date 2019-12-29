@@ -12,12 +12,15 @@ import com.strongholds.game.GameSingleton.ObjectType;
 import com.strongholds.game.model.IModel;
 import com.strongholds.game.model.Model;
 import com.strongholds.game.model.gameobject.AnimatedActor;
+import com.strongholds.game.model.gameobject.GameObject;
 import com.strongholds.game.model.gameobject.IAnimatedActor;
 import com.strongholds.game.model.gameobject.IReadOnlyAnimatedActor;
 import com.strongholds.game.view.IView;
 import com.strongholds.game.view.View;
 import com.strongholds.game.view.ViewEvent;
 
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.LinkedBlockingQueue;
 
 // It's our game controller
@@ -31,6 +34,7 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 	private int screenHeight;
 
 	int nextId = 0;
+
 
 	private IModel model;
 	private IView view;
@@ -49,13 +53,17 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 		model = new Model();
 		view = new View(model, this);
 
+
 		viewEventsQueue = new LinkedBlockingQueue<>();
 
 		assetManager = new AssetManager();
 		loadAssets();
 		view.loadTextures();
 
-		createObject(ObjectType.BASE, new Vector2(0, 60));
+		createObject("base", ObjectType.BASE, new Vector2(0, 60));
+		createObject("enemyBase", ObjectType.BASE, new Vector2(1100, 60));
+		GameObject base = (GameObject)model.getGameObject("enemyBase");
+		base.setIsOnEnemySide(true);
 		createObject(ObjectType.PLATFORM, new Vector2(0, 0));
 
 		createUnit("player", ObjectType.SWORDSMAN, new Vector2(100, 100));
@@ -70,7 +78,7 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 		}
 		if (Gdx.input.isKeyJustPressed(Input.Keys.E)) {
 			String id = "enemy" + nextId++;
-			createUnit(id, ObjectType.SWORDSMAN, new Vector2( 800, 100));
+			createUnit(id, ObjectType.SWORDSMAN, new Vector2( 1100, 100));
 			AnimatedActor enemy = (AnimatedActor)model.getActor(id);
 			enemy.setIsOnEnemySide(true);
 		}
@@ -100,13 +108,14 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 				ObjectType unitType = viewEvent.getUnitType();
 				long unitCost = gameSingleton.getCost(unitType);
 				if (model.getMoney() >= unitCost){
-					createUnit(unitType, new Vector2(600, 400));
+					createUnit(unitType, new Vector2(150, 60));
 					model.addMoney(-unitCost);
 				}
 				else
 					System.out.println("not enough money!");
 			}
 		}
+
 	}
 
 	public AssetManager getAssetManager() {
@@ -130,7 +139,11 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 	}
 
 	private void createObject(ObjectType objectType, Vector2 position){
-		model.createObject(Integer.toString(nextId++), objectType, position, view.getTextureSize(objectType));
+		createObject(Integer.toString(nextId++), objectType, position);
+	}
+
+	private void createObject(String id, ObjectType objectType, Vector2 position){
+		model.createObject(id, objectType, position, view.getTextureSize(objectType));
 	}
 
 	private void createUnit(ObjectType objectType, Vector2 position){
@@ -147,4 +160,6 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 	public void addEvent(ViewEvent viewEvent){
 		viewEventsQueue.add(viewEvent);
 	}
+
+
 }

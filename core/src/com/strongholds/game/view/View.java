@@ -4,10 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.math.Vector2;
 
 import java.beans.PropertyChangeEvent;
@@ -44,11 +41,11 @@ public class View implements PropertyChangeListener, IView
     private final float cameraZoom = 1.0f;
 
     private SpriteBatch spriteBatch;
-    Map<ObjectType, Texture> staticObjectsTextureMap;
+    Map<ObjectType, Sprite> staticObjectsTextureMap;
     Map<String, Animator> actorsMap;
 
     BitmapFont font;
-    TextButton button;
+//    TextButton button;
     TextButton.TextButtonStyle textButtonStyle;
     Skin skin;
     TextureAtlas buttonAtlas;
@@ -85,16 +82,6 @@ public class View implements PropertyChangeListener, IView
         textButtonStyle.up = skin.getDrawable("button_on");
         textButtonStyle.down = skin.getDrawable("button_off");
         textButtonStyle.checked = skin.getDrawable("button_on");
-
-        button = new TextButton("Button1", textButtonStyle);
-        button.setPosition(200, 200);
-        button.addListener(new ClickListener(){
-            @Override
-            public void clicked(InputEvent event, float x, float y){
-                System.out.println(x+" "+y);
-            }
-        });
-        UIstage.addActor(button);
 
         createButton(-80, screenY - 200, "add Swordsman", addSwordsmanButton,
             new ClickListener(){
@@ -134,7 +121,7 @@ public class View implements PropertyChangeListener, IView
     public void draw(float deltaTime)
     {
         spriteBatch.begin();
-        Texture backgroundTexture = staticObjectsTextureMap.get(ObjectType.BACKGROUND_IMAGE);
+        Sprite backgroundTexture = staticObjectsTextureMap.get(ObjectType.BACKGROUND_IMAGE);
         spriteBatch.draw(backgroundTexture, 0, 0);
         spriteBatch.draw(backgroundTexture, -1200, 0);
         spriteBatch.draw(backgroundTexture, 1200, 0);
@@ -150,7 +137,8 @@ public class View implements PropertyChangeListener, IView
         }
 
         font.draw(spriteBatch, model.getMoney() + " $", screenX - 50, screenY - 20);
-
+        font.draw(spriteBatch, "base health = " + model.getBaseHealth(), screenX - 200, screenY - 20);
+        font.draw(spriteBatch, "enemy base health = " + model.getEnemyBaseHealth(), screenX - 400, screenY - 20);
         spriteBatch.end();
 
         //draw UI
@@ -158,10 +146,17 @@ public class View implements PropertyChangeListener, IView
     }
 
     private void drawGameObject(IReadOnlyGameObject gameObject){
-        Texture texture = staticObjectsTextureMap.get(gameObject.getType());
+        Sprite texture = staticObjectsTextureMap.get(gameObject.getType());
         float x = (gameObject.getPosition().x - gameObject.getWidth()) * pixels_per_meter;
         float y = (gameObject.getPosition().y - gameObject.getHeight()) * pixels_per_meter;
-        spriteBatch.draw(texture, x, y);
+        if (gameObject.isOnEnemySide()){
+            texture.flip(true, false);
+            spriteBatch.draw(texture, x, y);
+            texture.flip(true, false);
+        }
+        else {
+            spriteBatch.draw(texture, x, y);
+        }
     }
 
     private void drawGameObject(IReadOnlyAnimatedActor gameObject, float deltaTime){
@@ -188,13 +183,19 @@ public class View implements PropertyChangeListener, IView
     }
 
     private Texture getTexture(String filename){
+
         return (Texture)controller.getAssetManager().get(filename);
     }
 
+    private Sprite getSprite(String filename){
+
+        return new Sprite((Texture)controller.getAssetManager().get(filename));
+    }
+
     public void loadTextures(){
-        staticObjectsTextureMap.put(ObjectType.BACKGROUND_IMAGE, getTexture("background-textures.png"));
-        staticObjectsTextureMap.put(ObjectType.PLATFORM, getTexture("platform.png"));
-        staticObjectsTextureMap.put(ObjectType.BASE, getTexture("base.png"));
+        staticObjectsTextureMap.put(ObjectType.BACKGROUND_IMAGE, getSprite("background-textures.png"));
+        staticObjectsTextureMap.put(ObjectType.PLATFORM, getSprite("platform.png"));
+        staticObjectsTextureMap.put(ObjectType.BASE, getSprite("base.png"));
     }
 
     public void loadActorSprites(String id, ObjectType objectType){
@@ -244,7 +245,7 @@ public class View implements PropertyChangeListener, IView
     }
 
     public Vector2 getTextureSize(ObjectType objectType){
-        Texture texture = staticObjectsTextureMap.get(objectType);
+        Sprite texture = staticObjectsTextureMap.get(objectType);
         return new Vector2(texture.getWidth(), texture.getHeight());
     }
 

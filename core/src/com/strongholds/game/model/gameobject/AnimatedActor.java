@@ -11,9 +11,7 @@ import java.util.LinkedList;
 public class AnimatedActor extends GameObject implements IAnimatedActor {
     //private AnimatedActorState state;
     private ObjectState state;
-    private LinkedList<AnimatedActor> targets;
-
-    private boolean isEnemy;
+    private LinkedList<GameObject> targets;
 
     public AnimatedActor(World world, BodyDef bodyDef, float width, float height, ObjectType type, String id) {
         super(world, bodyDef, width, height, type, id);
@@ -65,19 +63,19 @@ public class AnimatedActor extends GameObject implements IAnimatedActor {
         body.applyLinearImpulse(impulse, body.getPosition(), true);
     }
 
-    public void addTarget(AnimatedActor target){
+    public void addTarget(GameObject target){
         if (!targets.contains(target)){
             targets.add(target);
         }
     }
 
-    public void removeTarget(AnimatedActor target){
+    public void removeTarget(GameObject target){
         if (targets.contains(target)){
             targets.remove(target);
         }
     }
 
-    public LinkedList<AnimatedActor> getTargets() {
+    public LinkedList<GameObject> getTargets() {
         return targets;
     }
 }

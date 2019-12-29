@@ -9,4 +9,6 @@ public interface IReadOnlyModel {
     IReadOnlyAnimatedActor getActor(String id);
     IReadOnlyGameObject getGameObject(String id);
     long getMoney();
+    int getBaseHealth();
+    int getEnemyBaseHealth();
 }

@@ -1,4 +1,4 @@
-package com.strongholds.game.model.gameobject;
+package com.strongholds.game.gameobject;
 
 public interface IGameObject extends IReadOnlyGameObject{
     void setId(String id);

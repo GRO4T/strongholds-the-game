@@ -9,6 +9,7 @@ import com.badlogic.gdx.math.Vector2;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -21,9 +22,12 @@ import com.strongholds.game.GameSingleton;
 import com.strongholds.game.GameSingleton.ObjectType;
 import com.strongholds.game.GameSingleton.ObjectState;
 import com.strongholds.game.controller.IViewController;
+import com.strongholds.game.controller.ViewEvent;
 import com.strongholds.game.model.IReadOnlyModel;
-import com.strongholds.game.model.gameobject.IReadOnlyAnimatedActor;
-import com.strongholds.game.model.gameobject.IReadOnlyGameObject;
+import com.strongholds.game.gameobject.IReadOnlyAnimatedActor;
+import com.strongholds.game.gameobject.IReadOnlyGameObject;
+import com.strongholds.game.net.TcpClient;
+import com.strongholds.game.net.TcpServer;
 
 public class View implements PropertyChangeListener, IView
 {
@@ -98,6 +102,7 @@ public class View implements PropertyChangeListener, IView
                     //controller.addEvent()
                 }
             });
+
     }
 
     private void createButton(float x, float y, String label, TextButton buttonRef, ClickListener clickListener){

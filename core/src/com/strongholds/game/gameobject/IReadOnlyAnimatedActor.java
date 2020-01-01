@@ -1,4 +1,4 @@
-package com.strongholds.game.model.gameobject;
+package com.strongholds.game.gameobject;
 
 import com.strongholds.game.GameSingleton.ObjectState;
 

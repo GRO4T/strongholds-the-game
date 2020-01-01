@@ -68,7 +68,7 @@ public class GameSingleton {
         return actorsTextureInfo.get(objectType);
     }
 
-    public String toString(ObjectType objectType){
+    public static String toString(ObjectType objectType){
         if (objectType == ObjectType.SWORDSMAN)
             return "ObjectType.SWORDSMAN";
         return "toString not defined for this objectType";

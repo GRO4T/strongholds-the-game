@@ -1,9 +1,7 @@
-package com.strongholds.game.model.gameobject;
+package com.strongholds.game.gameobject;
 
 import com.strongholds.game.GameSingleton;
 
-import java.util.LinkedList;
-import java.util.List;
 public class AnimatedActorState {//implements ListenableState {
     //private List<StateChangedListener> listenerList;
     private GameSingleton.ObjectState state;

@@ -1,7 +1,7 @@
 package com.strongholds.game.model;
 
-import com.strongholds.game.model.gameobject.IReadOnlyAnimatedActor;
-import com.strongholds.game.model.gameobject.IReadOnlyGameObject;
+import com.strongholds.game.gameobject.IReadOnlyAnimatedActor;
+import com.strongholds.game.gameobject.IReadOnlyGameObject;
 
 public interface IReadOnlyModel {
     Object[] getGameObjects();

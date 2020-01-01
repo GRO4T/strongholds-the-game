@@ -7,7 +7,7 @@ public interface IModel extends IReadOnlyModel{
     void update(float timeStep);
     void dispose();
     void createObject(String id, ObjectType objectType, Vector2 position, Vector2 size);
-    void createUnit(String id, ObjectType objectType, Vector2 position, Vector2 size);
+    void createUnit(String id, ObjectType objectType, Vector2 position, Vector2 size, boolean isEnemy);
 
     void addMoney(long value);
 }

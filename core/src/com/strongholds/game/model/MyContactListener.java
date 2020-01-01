@@ -1,12 +1,11 @@
 package com.strongholds.game.model;
 
-import com.badlogic.gdx.Game;
 import com.badlogic.gdx.physics.box2d.Contact;
 import com.badlogic.gdx.physics.box2d.ContactImpulse;
 import com.badlogic.gdx.physics.box2d.ContactListener;
 import com.badlogic.gdx.physics.box2d.Manifold;
-import com.strongholds.game.model.gameobject.AnimatedActor;
-import com.strongholds.game.model.gameobject.GameObject;
+import com.strongholds.game.gameobject.AnimatedActor;
+import com.strongholds.game.gameobject.GameObject;
 
 public class MyContactListener implements ContactListener {
     @Override

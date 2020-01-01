@@ -6,8 +6,7 @@ import com.badlogic.gdx.physics.box2d.*;
 import java.util.*;
 
 import com.strongholds.game.GameSingleton.ObjectType;
-import com.strongholds.game.controller.StrongholdsGame;
-import com.strongholds.game.model.gameobject.*;
+import com.strongholds.game.gameobject.*;
 
 public class Model implements IModel
 {
@@ -72,9 +71,10 @@ public class Model implements IModel
         gameObjectsMap.put(id, newObject);
     }
 
-    public void createUnit(String id, ObjectType objectType, Vector2 position, Vector2 size) {
-        IUnit newObject = (IUnit)gameObjectsFactory.createObject(id, objectType, position, size);
-        actorsMap.put(id, newObject);
+    public void createUnit(String id, ObjectType objectType, Vector2 position, Vector2 size, boolean isEnemy) {
+        Unit newObject = (Unit)gameObjectsFactory.createObject(id, objectType, position, size);
+        newObject.setIsOnEnemySide(isEnemy);
+        actorsMap.put(id, (IUnit)newObject);
     }
 
     public Object[] getGameObjects() {

@@ -1,5 +1,6 @@
 package com.strongholds.game.net;
 
+import com.strongholds.game.GameSingleton;
 import com.strongholds.game.controller.ViewEvent;
 
 import java.io.IOException;
@@ -15,18 +16,17 @@ public class TcpServer implements INetworkController{
     LinkedBlockingQueue<Object> receivedObjects;
     ObjectReceivedListener controller;
 
+    final int port = 46000; // 1035 , 46000 + 46001
+
     public TcpServer(){
         try{
-            socket = new ServerSocket(1035);
+            socket = new ServerSocket(46001);
         }
         catch (IOException e){
             e.printStackTrace();
         }
         objectsToSend = new LinkedBlockingQueue<>();
         receivedObjects = new LinkedBlockingQueue<>();
-    }
-
-    public void send(ViewEvent viewEvent) throws IOException {
     }
 
     @Override
@@ -96,7 +96,7 @@ public class TcpServer implements INetworkController{
 
                 Socket s = null;
                 try {
-                    s = new Socket("localhost", 1035);
+                    s = new Socket("localhost", 46001);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

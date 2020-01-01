@@ -1,15 +1,11 @@
 package com.strongholds.game.view;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.math.Vector2;
 
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,38 +22,22 @@ import com.strongholds.game.controller.ViewEvent;
 import com.strongholds.game.model.IReadOnlyModel;
 import com.strongholds.game.gameobject.IReadOnlyAnimatedActor;
 import com.strongholds.game.gameobject.IReadOnlyGameObject;
-import com.strongholds.game.net.TcpClient;
-import com.strongholds.game.net.TcpServer;
 
-public class View implements PropertyChangeListener, IView
+public class GameView extends AbstractView implements IGameView
 {
     private IReadOnlyModel model;
     private IViewController controller;
 
-    private Stage UIstage;
-
     private float pixels_per_meter;
-    private float screenX;
-    private float screenY;
 
     private OrthographicCamera cam;
-    private final int cameraSpeed = 10;
+    //private final int cameraSpeed = 10;
     private final float cameraZoom = 1.0f;
 
-    private SpriteBatch spriteBatch;
-    Map<ObjectType, Sprite> staticObjectsTextureMap;
-    Map<String, Animator> actorsMap;
+    private Map<ObjectType, Sprite> staticObjectsTextureMap;
+    private Map<String, Animator> actorsMap;
 
-    BitmapFont font;
-//    TextButton button;
-    TextButton.TextButtonStyle textButtonStyle;
-    Skin skin;
-    TextureAtlas buttonAtlas;
-
-    TextButton addSwordsmanButton;
-    TextButton addArcherButton;
-
-    public View(IReadOnlyModel model, final IViewController controller)
+    public GameView(IReadOnlyModel model, final IViewController controller)
     {
         this.model = model;
         this.controller = controller;
@@ -69,8 +49,8 @@ public class View implements PropertyChangeListener, IView
         staticObjectsTextureMap = new HashMap<>();
         actorsMap = new HashMap<>();
         spriteBatch = new SpriteBatch();
-        UIstage = new Stage();
-        Gdx.input.setInputProcessor(UIstage);
+        stage = new Stage();
+        Gdx.input.setInputProcessor(stage);
 
         cam = new OrthographicCamera(controller.getScreenWidth(), controller.getScreenHeight());
         cam.position.set(screenX / 2, screenY / 2, 0);
@@ -87,6 +67,9 @@ public class View implements PropertyChangeListener, IView
         textButtonStyle.down = skin.getDrawable("button_off");
         textButtonStyle.checked = skin.getDrawable("button_on");
 
+        TextButton addSwordsmanButton = null;
+        TextButton addArcherButton = null;
+
         createButton(-80, screenY - 200, "add Swordsman", addSwordsmanButton,
             new ClickListener(){
                 @Override
@@ -102,23 +85,11 @@ public class View implements PropertyChangeListener, IView
                     //controller.addEvent()
                 }
             });
-
-    }
-
-    private void createButton(float x, float y, String label, TextButton buttonRef, ClickListener clickListener){
-        buttonRef = new TextButton(label, textButtonStyle);
-        buttonRef.setPosition(x, y);
-        if (clickListener != null){
-            buttonRef.addListener(clickListener);
-        }
-        UIstage.addActor(buttonRef);
     }
 
     public void update()
     {
-        //returns true (How to check class of the object)
-        //System.out.println(this.getClass().equals(com.strongholds.game.view.View.class));
-        handleInput();
+        //handleInput();
         cam.update();
         spriteBatch.setProjectionMatrix(cam.combined);
     }
@@ -147,7 +118,7 @@ public class View implements PropertyChangeListener, IView
         spriteBatch.end();
 
         //draw UI
-        UIstage.draw();
+        stage.draw();
     }
 
     private void drawGameObject(IReadOnlyGameObject gameObject){
@@ -181,20 +152,6 @@ public class View implements PropertyChangeListener, IView
         else {
             spriteBatch.draw(textureRegion, x, y);
         }
-    }
-
-    public void dispose(){
-
-    }
-
-    private Texture getTexture(String filename){
-
-        return (Texture)controller.getAssetManager().get(filename);
-    }
-
-    private Sprite getSprite(String filename){
-
-        return new Sprite((Texture)controller.getAssetManager().get(filename));
     }
 
     public void loadTextures(){
@@ -248,6 +205,17 @@ public class View implements PropertyChangeListener, IView
 
         actorsMap.put(id, new Animator(idle, move, attack));
     }
+    /*
+    private void handleInput(){
+        if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
+            cam.translate(-cameraSpeed, 0, 0);
+        }
+        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
+            cam.translate(cameraSpeed, 0, 0);
+        }
+    }*/
+
+        /* GETTERS AND SETTERS */
 
     public Vector2 getTextureSize(ObjectType objectType){
         Sprite texture = staticObjectsTextureMap.get(objectType);
@@ -260,23 +228,20 @@ public class View implements PropertyChangeListener, IView
             texture = actorsMap.get(id).getCurrentFrame();
         }
         catch(NullPointerException e){
-            //System.out.println("animation not set for actor of type " +
-             //       GameSingleton.getGameSingleton().toString(model.getActor().getType()));
+            System.out.println("animation not set for actor of type " +
+                    GameSingleton.getGameSingleton().toString(model.getActor(id).getType()));
         }
         return new Vector2(texture.getRegionWidth(), texture.getRegionHeight());
     }
 
-    private void handleInput(){
-        if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
-            cam.translate(-cameraSpeed, 0, 0);
-        }
-        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
-            cam.translate(cameraSpeed, 0, 0);
-        }
+    private Texture getTexture(String filename){
+
+        return (Texture)controller.getAssetManager().get(filename);
     }
 
-    @Override
-    public void propertyChange(PropertyChangeEvent propertyChangeEvent) {
+    private Sprite getSprite(String filename){
 
+        return new Sprite((Texture)controller.getAssetManager().get(filename));
     }
+
 }

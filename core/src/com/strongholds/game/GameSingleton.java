@@ -37,6 +37,9 @@ public class GameSingleton {
         }
     }
 
+    public final int inPort = 1035;
+    public final int outPort = 631;
+
     public static final short GAME_OBJECT_COLLISION_MASK = 0x0001;
     public static final short ACTOR_COLLISION_MASK = 0x0002;
     public static final short SENSOR_COLLISION_MASK = 0x0004;

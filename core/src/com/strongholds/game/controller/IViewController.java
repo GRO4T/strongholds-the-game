@@ -7,4 +7,5 @@ public interface IViewController {
     int getScreenHeight();
     AssetManager getAssetManager();
     void addEvent(ViewEvent event);
+    //void startNetworkController();
 }

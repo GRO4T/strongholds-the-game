@@ -2,7 +2,6 @@ package com.strongholds.game.controller;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Vector2;
@@ -11,15 +10,13 @@ import com.strongholds.game.GameSingleton;
 import com.strongholds.game.GameSingleton.ObjectType;
 import com.strongholds.game.model.IModel;
 import com.strongholds.game.model.Model;
-import com.strongholds.game.gameobject.AnimatedActor;
 import com.strongholds.game.gameobject.GameObject;
 import com.strongholds.game.net.INetworkController;
 import com.strongholds.game.net.ObjectReceivedListener;
 import com.strongholds.game.net.TcpServer;
-import com.strongholds.game.view.IView;
-import com.strongholds.game.view.View;
+import com.strongholds.game.view.IGameView;
+import com.strongholds.game.view.GameView;
 
-import java.io.IOException;
 import java.util.concurrent.LinkedBlockingQueue;
 
 // It's our game controller
@@ -36,12 +33,16 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 
 
 	private IModel model;
-	private IView view;
+	private IGameView view;
 
-	LinkedBlockingQueue<ViewEvent> viewEventsQueue;
-	//PriorityQueue<ModelEvent> modelEvents;
+	private LinkedBlockingQueue<ViewEvent> viewEventsQueue;
 
-	INetworkController networkController;
+	private INetworkController networkController;
+
+	public void startNetworkController(){
+		Thread networkThread = new Thread(networkController);
+		networkThread.start();
+	}
 
 	public StrongholdsGame(int screenWidth, int screenHeight) {
 		gameSingleton = GameSingleton.getGameSingleton();
@@ -52,7 +53,7 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 	@Override
 	public void create () {
 		model = new Model();
-		view = new View(model, this);
+		view = new GameView(model, this);
 
 		viewEventsQueue = new LinkedBlockingQueue<>();
 
@@ -87,7 +88,6 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 	@Override
 	public void dispose () {
 		model.dispose();
-		view.dispose();
 		assetManager.dispose();
 	}
 
@@ -164,7 +164,6 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 	public void addEvent(ViewEvent viewEvent){
 		viewEventsQueue.add(viewEvent);
 	}
-
 
 	@Override
 	public void notify(LinkedBlockingQueue<Object> receivedObjects) {

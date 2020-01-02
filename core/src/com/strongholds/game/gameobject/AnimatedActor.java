@@ -55,11 +55,12 @@ public class AnimatedActor extends GameObject implements IAnimatedActor {
     public void gotHit(int damage){
         System.out.println(getId() + " got hit for " + damage);
         Vector2 impulse;
+        float knockbackMultiplier = 15.0f;
         if (isOnEnemySide()){
-            impulse = new Vector2(200.0f, 0);
+            impulse = new Vector2(damage * knockbackMultiplier, 0);
         }
         else
-            impulse = new Vector2(-200.0f, 0);
+            impulse = new Vector2(-damage * knockbackMultiplier, 0);
         body.applyLinearImpulse(impulse, body.getPosition(), true);
     }
 

@@ -24,14 +24,13 @@ public class AbstractView {
     protected float screenX;
     protected float screenY;
 
-    protected Sprite backgroundTexture;
-
-    protected void createButton(float x, float y, String label, TextButton buttonRef, ClickListener clickListener){
-        buttonRef = new TextButton(label, textButtonStyle);
-        buttonRef.setPosition(x, y);
+    protected void createButton(float x, float y, int width, int height, String label, ClickListener clickListener){
+        TextButton newButton = new TextButton(label, textButtonStyle);
+        newButton.setSize(width, height);
+        newButton.setPosition(x, y);
         if (clickListener != null){
-            buttonRef.addListener(clickListener);
+            newButton.addListener(clickListener);
         }
-        stage.addActor(buttonRef);
+        stage.addActor(newButton);
     }
 }

@@ -10,4 +10,5 @@ public interface IGameView {
     void loadActorSprites(String id, ObjectType objectType);
     Vector2 getTextureSize(ObjectType objectType);
     Vector2 getTextureSize(String id);
+    void init();
 }

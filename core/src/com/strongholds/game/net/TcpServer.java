@@ -16,11 +16,13 @@ public class TcpServer implements INetworkController{
     LinkedBlockingQueue<Object> receivedObjects;
     ObjectReceivedListener controller;
 
-    final int port = 46000; // 1035 , 46000 + 46001
+    final int defaultCommunicationPort = 46000; // this port will be used to set up rest of the network communication
+    int inPort = -1; //these are to be set by users
+    int outPort = -1;
 
     public TcpServer(){
         try{
-            socket = new ServerSocket(46001);
+            socket = new ServerSocket(46000);
         }
         catch (IOException e){
             e.printStackTrace();
@@ -31,6 +33,8 @@ public class TcpServer implements INetworkController{
 
     @Override
     public void run() {
+        setPorts();
+        connect();
         //send objects
         Thread senderThread = new Thread(new ObjectSender());
         senderThread.start();
@@ -42,9 +46,26 @@ public class TcpServer implements INetworkController{
                 controller.notify(receivedObjects);
         }
     }
+
+    private void setPorts(){
+
+    }
+
+    private void connect(){
+
+    }
+
+
     @Override
     public void addObjectRequest(Object object) {
         objectsToSend.add(object);
+    }
+
+    public void setInPort(int port){
+        inPort = port;
+    }
+    public void setOutPort(int port){
+        outPort = port;
     }
 
     @Override
@@ -96,7 +117,7 @@ public class TcpServer implements INetworkController{
 
                 Socket s = null;
                 try {
-                    s = new Socket("localhost", 46001);
+                    s = new Socket("localhost", 46000);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

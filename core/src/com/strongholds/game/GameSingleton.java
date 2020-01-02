@@ -11,6 +11,9 @@ public class GameSingleton {
             "Knight/idle.png", "Knight/move.png", "Knight/attack.png"};
     private HashMap<ObjectType, TextureInfo[]> actorsTextureInfo;
 
+    public final String menuBackgroundTexture = "background-textures.png";
+
+
     private HashMap<ObjectType, Long> costLedger;
 
     public enum ObjectType{

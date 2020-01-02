@@ -8,13 +8,15 @@ import com.strongholds.game.GameSingleton;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class Unit extends AnimatedActor{
+public class Unit extends AnimatedActor implements IReadOnlyUnit{
     float speed = 200.0f;
     boolean canAttack = true;
     int attackSpeed = 700;
     int timeBetweenAttacks = 1000;
 
     int damage = 10;
+    int health = 100;
+    int maxHealth = 100;
 
     Timer attackTimer;
 
@@ -35,4 +37,14 @@ public class Unit extends AnimatedActor{
             canAttack = true;
         }
     }
+
+    @Override
+    public void gotHit(int damage){
+        health -= damage;
+        if (health < 0)
+            health = 0;
+    }
+
+    public int getHealth(){ return health; }
+    public int getMaxHealth(){ return maxHealth; }
 }

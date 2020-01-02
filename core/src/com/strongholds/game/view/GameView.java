@@ -1,9 +1,12 @@
 package com.strongholds.game.view;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.*;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
 import java.util.HashMap;
@@ -19,6 +22,7 @@ import com.strongholds.game.GameSingleton.ObjectType;
 import com.strongholds.game.GameSingleton.ObjectState;
 import com.strongholds.game.controller.IViewController;
 import com.strongholds.game.controller.ViewEvent;
+import com.strongholds.game.gameobject.IReadOnlyUnit;
 import com.strongholds.game.model.IReadOnlyModel;
 import com.strongholds.game.gameobject.IReadOnlyAnimatedActor;
 import com.strongholds.game.gameobject.IReadOnlyGameObject;
@@ -50,12 +54,11 @@ public class GameView extends AbstractView implements IGameView
         actorsMap = new HashMap<>();
         spriteBatch = new SpriteBatch();
         stage = new Stage();
-        Gdx.input.setInputProcessor(stage);
 
         cam = new OrthographicCamera(controller.getScreenWidth(), controller.getScreenHeight());
         cam.position.set(screenX / 2, screenY / 2, 0);
         cam.zoom = cameraZoom;
-
+/*
         //create button
         font = new BitmapFont();
         skin = new Skin();
@@ -67,17 +70,26 @@ public class GameView extends AbstractView implements IGameView
         textButtonStyle.down = skin.getDrawable("button_off");
         textButtonStyle.checked = skin.getDrawable("button_on");
 
-        TextButton addSwordsmanButton = null;
-        TextButton addArcherButton = null;
+ */
+       //load application skin
+        font = new BitmapFont();
+        skin = new Skin(Gdx.files.internal("Craftacular_UI_Skin/craftacular-ui.json"));
 
-        createButton(-80, screenY - 200, "add Swordsman", addSwordsmanButton,
+        buttonAtlas = new TextureAtlas(Gdx.files.internal("Craftacular_UI_Skin/craftacular-ui.atlas"));
+        textButtonStyle = new TextButton.TextButtonStyle();
+        textButtonStyle.font = font;
+        textButtonStyle.up = skin.getDrawable("button");
+        textButtonStyle.down = skin.getDrawable("button-hover");
+        textButtonStyle.checked = skin.getDrawable("button");
+
+        createButton(0, screenY, 50, 10, "add Swordsman",
             new ClickListener(){
                 @Override
                 public void clicked(InputEvent event, float x, float y){
                     controller.addEvent(new ViewEvent(true, ObjectType.SWORDSMAN));
                 }
             });
-        createButton(300,  screenY - 200, "add Archer", addArcherButton,
+        createButton(100,  screenY, 50, 10, "add Archer",
             new ClickListener(){
                 @Override
                 public void clicked(InputEvent event, float x, float y){
@@ -85,6 +97,10 @@ public class GameView extends AbstractView implements IGameView
                     //controller.addEvent()
                 }
             });
+    }
+
+    public void init(){
+        Gdx.input.setInputProcessor(stage);
     }
 
     public void update()
@@ -99,8 +115,8 @@ public class GameView extends AbstractView implements IGameView
         spriteBatch.begin();
         Sprite backgroundTexture = staticObjectsTextureMap.get(ObjectType.BACKGROUND_IMAGE);
         spriteBatch.draw(backgroundTexture, 0, 0);
-        spriteBatch.draw(backgroundTexture, -1200, 0);
-        spriteBatch.draw(backgroundTexture, 1200, 0);
+        //spriteBatch.draw(backgroundTexture, -1200, 0);
+        //spriteBatch.draw(backgroundTexture, 1200, 0);
 
         // draw non-animated objects
         for (Object gameObject : model.getGameObjects())
@@ -147,11 +163,35 @@ public class GameView extends AbstractView implements IGameView
         if (gameObject.isOnEnemySide()){
             textureRegion.flip(true, false);
             spriteBatch.draw(textureRegion, x, y);
+            if (gameObject.getType() == ObjectType.SWORDSMAN){
+                drawHealthBar((IReadOnlyUnit)gameObject, x, y);
+            }
             textureRegion.flip(true, false);
         }
         else {
             spriteBatch.draw(textureRegion, x, y);
+            if (gameObject.getType() == ObjectType.SWORDSMAN){
+                drawHealthBar((IReadOnlyUnit)gameObject, x, y);
+            }
         }
+    }
+
+    private void drawHealthBar(IReadOnlyUnit actor, float x, float y){
+        float healthBarWidth = 35;
+        float healthBarHeight = 5;
+        float effectiveHealthBarWidth = (float)actor.getHealth() / (float)actor.getMaxHealth() * healthBarWidth;
+        float offsetY = getTextureSize(actor.getId()).y;
+
+        spriteBatch.end();
+        ShapeRenderer shapeRenderer = new ShapeRenderer();
+        shapeRenderer.setProjectionMatrix(spriteBatch.getProjectionMatrix());
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        shapeRenderer.setColor(Color.WHITE);
+        shapeRenderer.rect(x, y + offsetY, healthBarWidth, healthBarHeight);
+        shapeRenderer.setColor(Color.RED);
+        shapeRenderer.rect(x, y + offsetY, effectiveHealthBarWidth, healthBarHeight);
+        shapeRenderer.end();
+        spriteBatch.begin();
     }
 
     public void loadTextures(){

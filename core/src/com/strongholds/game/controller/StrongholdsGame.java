@@ -16,12 +16,13 @@ import com.strongholds.game.net.ObjectReceivedListener;
 import com.strongholds.game.net.TcpServer;
 import com.strongholds.game.view.IGameView;
 import com.strongholds.game.view.GameView;
+import com.strongholds.game.view.MenuView;
 
 import java.util.concurrent.LinkedBlockingQueue;
 
 // It's our game controller
 
-public class StrongholdsGame extends ApplicationAdapter implements IViewController, IModelController, ObjectReceivedListener {
+public class StrongholdsGame extends ApplicationAdapter implements IViewController, IModelController, IMenuController, ObjectReceivedListener {
 	GameSingleton gameSingleton;
 	private AssetManager assetManager;
 
@@ -29,13 +30,18 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 	private int screenWidth;
 	private int screenHeight;
 
+	public boolean startGame;
+
 	int nextId = 0;
 
 
 	private IModel model;
-	private IGameView view;
+	private IGameView gameView;
+
+	private MenuView menu;
 
 	private LinkedBlockingQueue<ViewEvent> viewEventsQueue;
+	//private LinkedBlockingQueue<ModelEvent> modelEventsQueue;
 
 	private INetworkController networkController;
 
@@ -52,38 +58,48 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 
 	@Override
 	public void create () {
-		model = new Model();
-		view = new GameView(model, this);
-
 		viewEventsQueue = new LinkedBlockingQueue<>();
 
 		assetManager = new AssetManager();
 		loadAssets();
-		view.loadTextures();
 
-		createObject("base", ObjectType.BASE, new Vector2(0, 60));
-		createObject("enemyBase", ObjectType.BASE, new Vector2(1100, 60));
-		GameObject base = (GameObject)model.getGameObject("enemyBase");
-		base.setIsOnEnemySide(true);
-		createObject(ObjectType.PLATFORM, new Vector2(0, 0));
+		menu = new MenuView(this, assetManager, screenWidth, screenHeight);
+		model = new Model();
+		gameView = new GameView(model, this);
+		gameView.loadTextures();
 
-		//createUnit("player", ObjectType.SWORDSMAN, new Vector2(100, 100));
-		//createActor("player", ObjectType.DEBUG_NO_OBJECT, new Vector2(600, 400));
+		createMap();
 
 		networkController = new TcpServer();
 		networkController.registerController(this);
 		Thread networkThread = new Thread(networkController);
 		networkThread.start();
+
+		menu.init();
+	}
+
+	private void createMap(){
+		createObject("base", ObjectType.BASE, new Vector2(0, 60));
+		createObject("enemyBase", ObjectType.BASE, new Vector2(1100, 60));
+		GameObject base = (GameObject)model.getGameObject("enemyBase");
+		base.setIsOnEnemySide(true);
+		createObject(ObjectType.PLATFORM, new Vector2(0, 0));
 	}
 
 	@Override
 	public void render () {
+		if (!startGame){
+			menu.draw();
+			return;
+		}
+
 		earlyUpdate();
-		view.update();
+		gameView.update();
 		update();
 		model.update(1.0f / Fps);
-		view.draw(Gdx.graphics.getDeltaTime());
+		gameView.draw(Gdx.graphics.getDeltaTime());
 	}
+
 
 	@Override
 	public void dispose () {
@@ -101,22 +117,23 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 			viewEvent = viewEventsQueue.poll();
 			if (viewEvent.toTrainUnit()){
 				ObjectType unitType = viewEvent.getUnitType();
-				long unitCost = gameSingleton.getCost(unitType);
-				if (model.getMoney() >= unitCost){
-					boolean isEnemy = viewEvent.getIsEnemy();
-					if (isEnemy){
-						createUnit(unitType, new Vector2(1000, 60), isEnemy);
-					}
-					else{
+
+				boolean isEnemy = viewEvent.getIsEnemy();
+				if (isEnemy){
+					createUnit(unitType, new Vector2(1000, 60), isEnemy);
+				}
+				else{
+					long unitCost = gameSingleton.getCost(unitType);
+					if (model.getMoney() >= unitCost) {
 						createUnit(unitType, new Vector2(150, 60), isEnemy);
 						//notify the opponent that you trained the unit
 						viewEvent.setIsEnemy(true);
 						networkController.addObjectRequest(viewEvent);
 						model.addMoney(-unitCost);
 					}
+					else
+						System.out.println("not enough money!");
 				}
-				else
-					System.out.println("not enough money!");
 			}
 		}
 
@@ -147,7 +164,7 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 	}
 
 	private void createObject(String id, ObjectType objectType, Vector2 position){
-		model.createObject(id, objectType, position, view.getTextureSize(objectType));
+		model.createObject(id, objectType, position, gameView.getTextureSize(objectType));
 	}
 
 	private void createUnit(ObjectType objectType, Vector2 position, boolean isEnemy){
@@ -156,8 +173,8 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 	}
 
 	private void createUnit(String id, ObjectType objectType, Vector2 position, boolean isEnemy){
-		view.loadActorSprites(id, objectType);
-		Vector2 unitSize = view.getTextureSize(id);
+		gameView.loadActorSprites(id, objectType);
+		Vector2 unitSize = gameView.getTextureSize(id);
 		model.createUnit(id, objectType, position, unitSize, isEnemy);
 	}
 
@@ -174,5 +191,31 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 				viewEventsQueue.add((ViewEvent)receivedObj);
 			}
 		}
+	}
+
+	@Override
+	public void startGame() {
+		startGame = true;
+		gameView.init();
+	}
+
+	@Override
+	public void setIp(String ip) {
+		//networkController.setIp();
+	}
+
+	@Override
+	public void setInPort(int port) {
+		networkController.setInPort(port);
+	}
+
+	@Override
+	public void setOutPort(int port) {
+		networkController.setOutPort(port);
+	}
+
+	@Override
+	public void setUsername(String username) {
+
 	}
 }

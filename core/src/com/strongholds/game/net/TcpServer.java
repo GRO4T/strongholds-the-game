@@ -2,6 +2,7 @@ package com.strongholds.game.net;
 
 import com.strongholds.game.GameSingleton;
 import com.strongholds.game.controller.ViewEvent;
+import com.strongholds.game.exception.CannotConnectException;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -11,18 +12,18 @@ import java.net.Socket;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class TcpServer implements INetworkController{
-    ServerSocket socket;
+    ServerSocket receivingSocket;
     LinkedBlockingQueue<Object> objectsToSend;
     LinkedBlockingQueue<Object> receivedObjects;
     ObjectReceivedListener controller;
 
-    final int defaultCommunicationPort = 46000; // this port will be used to set up rest of the network communication
-    int inPort = -1; //these are to be set by users
-    int outPort = -1;
+    int inPort = 46000;
+    int outPort = 46000;
+    String ip = "127.0.0.1";
 
     public TcpServer(){
         try{
-            socket = new ServerSocket(46000);
+            receivingSocket = new ServerSocket(inPort);
         }
         catch (IOException e){
             e.printStackTrace();
@@ -33,8 +34,8 @@ public class TcpServer implements INetworkController{
 
     @Override
     public void run() {
-        setPorts();
-        connect();
+        if (!connect())
+            throw new CannotConnectException("can't connect");
         //send objects
         Thread senderThread = new Thread(new ObjectSender());
         senderThread.start();
@@ -47,16 +48,11 @@ public class TcpServer implements INetworkController{
         }
     }
 
-    private void setPorts(){
-
-    }
-
-    private void connect(){
-
+    private boolean connect(){
+        return true;
     }
 
 
-    @Override
     public void addObjectRequest(Object object) {
         objectsToSend.add(object);
     }
@@ -64,8 +60,13 @@ public class TcpServer implements INetworkController{
     public void setInPort(int port){
         inPort = port;
     }
+
     public void setOutPort(int port){
         outPort = port;
+    }
+
+    public void setTargetIp(String ip) {
+        this.ip = ip;
     }
 
     @Override
@@ -80,11 +81,10 @@ public class TcpServer implements INetworkController{
                 if (objectsToSend.size() > 0){
                     System.out.println("objects to send!");
 
-
                     Object objToSend = objectsToSend.poll();
                     Socket s = null;
                     try {
-                        s = socket.accept();
+                        s = receivingSocket.accept();
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -117,7 +117,7 @@ public class TcpServer implements INetworkController{
 
                 Socket s = null;
                 try {
-                    s = new Socket("localhost", 46000);
+                    s = new Socket(ip, outPort);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

@@ -8,6 +8,7 @@ import com.badlogic.gdx.math.Vector2;
 
 import com.strongholds.game.GameSingleton;
 import com.strongholds.game.GameSingleton.ObjectType;
+import com.strongholds.game.exception.CannotConnectException;
 import com.strongholds.game.model.IModel;
 import com.strongholds.game.model.Model;
 import com.strongholds.game.gameobject.GameObject;
@@ -44,6 +45,7 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 	//private LinkedBlockingQueue<ModelEvent> modelEventsQueue;
 
 	private INetworkController networkController;
+	private Thread networkThread;
 
 	public void startNetworkController(){
 		Thread networkThread = new Thread(networkController);
@@ -72,8 +74,7 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 
 		networkController = new TcpServer();
 		networkController.registerController(this);
-		Thread networkThread = new Thread(networkController);
-		networkThread.start();
+		networkThread = new Thread(networkController);
 
 		menu.init();
 	}
@@ -200,8 +201,20 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 	}
 
 	@Override
+	public boolean connect() {
+		try{
+			networkThread.start();
+		}
+		catch(CannotConnectException e){
+			e.printStackTrace();
+			return false;
+		}
+		return true;
+	}
+
+	@Override
 	public void setIp(String ip) {
-		//networkController.setIp();
+		networkController.setTargetIp(ip);
 	}
 
 	@Override

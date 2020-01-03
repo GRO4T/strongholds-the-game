@@ -6,4 +6,5 @@ public interface INetworkController extends Runnable{
     void registerController(ObjectReceivedListener controller);
     void setInPort(int port);
     void setOutPort(int port);
+    void setTargetIp(String ip);
 }

@@ -58,19 +58,7 @@ public class GameView extends AbstractView implements IGameView
         cam = new OrthographicCamera(controller.getScreenWidth(), controller.getScreenHeight());
         cam.position.set(screenX / 2, screenY / 2, 0);
         cam.zoom = cameraZoom;
-/*
-        //create button
-        font = new BitmapFont();
-        skin = new Skin();
-        buttonAtlas = new TextureAtlas(Gdx.files.internal("buttons/buttons.pack"));
-        skin.addRegions(buttonAtlas);
-        textButtonStyle = new TextButton.TextButtonStyle();
-        textButtonStyle.font = font;
-        textButtonStyle.up = skin.getDrawable("button_on");
-        textButtonStyle.down = skin.getDrawable("button_off");
-        textButtonStyle.checked = skin.getDrawable("button_on");
 
- */
        //load application skin
         font = new BitmapFont();
         skin = new Skin(Gdx.files.internal("Craftacular_UI_Skin/craftacular-ui.json"));
@@ -82,21 +70,25 @@ public class GameView extends AbstractView implements IGameView
         textButtonStyle.down = skin.getDrawable("button-hover");
         textButtonStyle.checked = skin.getDrawable("button");
 
-        createButton(0, screenY, 50, 10, "add Swordsman",
-            new ClickListener(){
-                @Override
-                public void clicked(InputEvent event, float x, float y){
-                    controller.addEvent(new ViewEvent(true, ObjectType.SWORDSMAN));
-                }
-            });
-        createButton(100,  screenY, 50, 10, "add Archer",
-            new ClickListener(){
-                @Override
-                public void clicked(InputEvent event, float x, float y){
-                    System.out.println("archer added!");
-                    //controller.addEvent()
-                }
-            });
+        createUI();
+    }
+
+    private void createUI(){
+        stage.addActor(createButton(20, screenY - 70, 100, 50, "swordsman",
+                new ClickListener(){
+                    @Override
+                    public void clicked(InputEvent event, float x, float y){
+                        controller.addEvent(new ViewEvent(true, ObjectType.SWORDSMAN));
+                    }
+                }));
+        stage.addActor(createButton(140,  screenY - 70, 100, 50, "archer",
+                new ClickListener(){
+                    @Override
+                    public void clicked(InputEvent event, float x, float y){
+                        System.out.println("archer added!");
+                        //controller.addEvent()
+                    }
+                }));
     }
 
     public void init(){

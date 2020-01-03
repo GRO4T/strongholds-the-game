@@ -5,6 +5,8 @@ import java.util.HashMap;
 public class GameSingleton {
     private static volatile GameSingleton INSTANCE;
 
+    public final int basicCommunicationPort = 46000;
+
     private final float pixels_per_meter = 16.0f;
     private String textureFilenames[] = {
             "platform.png", "base.png", "background-textures.png",
@@ -12,6 +14,7 @@ public class GameSingleton {
     private HashMap<ObjectType, TextureInfo[]> actorsTextureInfo;
 
     public final String menuBackgroundTexture = "background-textures.png";
+
 
 
     private HashMap<ObjectType, Long> costLedger;

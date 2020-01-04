@@ -23,7 +23,9 @@ public class MenuView extends AbstractView{
     private TextField outPortField;
     private TextField inPortField;
 
-    String errorMessage = "";
+    String message = "";
+
+    private boolean connected = false;
 
     public MenuView(IMenuController controller, AssetManager assetManager, int screenX, int screenY){
         this.assetManager = assetManager;
@@ -48,7 +50,6 @@ public class MenuView extends AbstractView{
         textButtonStyle.checked = skin.getDrawable("button");
 
         createUI();
-
     }
 
     private void createUI(){
@@ -99,17 +100,34 @@ public class MenuView extends AbstractView{
                     @Override
                     public void clicked(InputEvent event, float x, float y){
                         System.out.println("connecting");
-                        int outPort = Integer.parseInt(outPortField.getText());
-                        /*
-                        if (GameSingleton.getGameSingleton().basicCommunicationPort == outPort){
-                            System.out.println("restricted port!");
-                            errorMessage = "RESTRICTED PORT!";
-                            return;
-                        }*/
-                        int inPort = Integer.parseInt(inPortField.getText());
+                        int outPort = 0;
+                        try{
+                            outPort = Integer.parseInt(outPortField.getText());
+                        }
+                        catch(NumberFormatException e){
+                            e.printStackTrace();
+                        }
+
+                        int inPort = 0;
+                        try{
+                            inPort = Integer.parseInt(inPortField.getText());
+                        }
+                        catch(NumberFormatException e){
+                            e.printStackTrace();
+                        }
+
                         controller.setOutPort(outPort);
                         controller.setInPort(inPort);
                         controller.setIp(ipField.getText());
+
+                        if (controller.connect()){
+                            connected = true;
+                            message = "connected";
+                        }
+                        else{
+                            connected = false;
+                            message = "can't connect";
+                        }
                     }
                 }));
     }
@@ -125,11 +143,9 @@ public class MenuView extends AbstractView{
     public void draw(){
         spriteBatch.begin();
         spriteBatch.draw(background, 0, 0);
-        //font.draw(spriteBatch, "IP ADDRESS", screenX / 2 + 160, screenY - 325);
-        //font.draw(spriteBatch, "PORT", screenX / 2 + 160, screenY - 380);
 
-        if (errorMessage != ""){
-            font.draw(spriteBatch, errorMessage, screenX / 2 - errorMessage.length() * 5, screenY - 500);
+        if (message != ""){
+            font.draw(spriteBatch, message, screenX / 2 - message.length() * 5, screenY - 500);
         }
 
             spriteBatch.end();

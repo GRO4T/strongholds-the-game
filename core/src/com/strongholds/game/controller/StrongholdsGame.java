@@ -77,6 +77,8 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 		networkThread = new Thread(networkController);
 
 		menu.init();
+
+		networkThread.start();
 	}
 
 	private void createMap(){

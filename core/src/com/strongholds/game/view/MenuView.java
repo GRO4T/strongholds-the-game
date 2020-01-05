@@ -105,7 +105,6 @@ public class MenuView extends AbstractView{
                             outPort = Integer.parseInt(outPortField.getText());
                         }
                         catch(NumberFormatException e){
-                            e.printStackTrace();
                         }
 
                         int inPort = 0;
@@ -113,7 +112,6 @@ public class MenuView extends AbstractView{
                             inPort = Integer.parseInt(inPortField.getText());
                         }
                         catch(NumberFormatException e){
-                            e.printStackTrace();
                         }
 
                         controller.setOutPort(outPort);
@@ -145,7 +143,7 @@ public class MenuView extends AbstractView{
         spriteBatch.draw(background, 0, 0);
 
         if (message != ""){
-            font.draw(spriteBatch, message, screenX / 2 - message.length() * 5, screenY - 500);
+            font.draw(spriteBatch, message, screenX / 2 - message.length() * 5, screenY - 200);
         }
 
             spriteBatch.end();

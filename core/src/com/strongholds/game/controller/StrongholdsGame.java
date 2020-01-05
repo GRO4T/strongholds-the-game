@@ -8,7 +8,6 @@ import com.badlogic.gdx.math.Vector2;
 
 import com.strongholds.game.GameSingleton;
 import com.strongholds.game.GameSingleton.ObjectType;
-import com.strongholds.game.exception.CannotConnectException;
 import com.strongholds.game.model.IModel;
 import com.strongholds.game.model.Model;
 import com.strongholds.game.gameobject.GameObject;
@@ -77,8 +76,6 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 		networkThread = new Thread(networkController);
 
 		menu.init();
-
-		networkThread.start();
 	}
 
 	private void createMap(){
@@ -200,18 +197,12 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 	public void startGame() {
 		startGame = true;
 		gameView.init();
+		startNetworkController();
 	}
 
 	@Override
-	public boolean connect() {
-		try{
-			networkThread.start();
-		}
-		catch(CannotConnectException e){
-			e.printStackTrace();
-			return false;
-		}
-		return true;
+	public boolean connect(){
+		return networkController.connect();
 	}
 
 	@Override

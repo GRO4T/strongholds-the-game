@@ -7,4 +7,5 @@ public interface INetworkController extends Runnable{
     void setInPort(int port);
     void setOutPort(int port);
     void setTargetIp(String ip);
+    boolean connect();
 }

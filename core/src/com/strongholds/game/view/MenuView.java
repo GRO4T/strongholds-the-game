@@ -61,7 +61,10 @@ public class MenuView extends AbstractView{
                 new ClickListener(){
                     @Override
                     public void clicked(InputEvent event, float x, float y){
-                        startGame();
+                        if (connected)
+                            startGame();
+                        else
+                            message = "You need to be connected in order to start the game";
                     }
                 }));
 
@@ -99,12 +102,13 @@ public class MenuView extends AbstractView{
                 new ClickListener(){
                     @Override
                     public void clicked(InputEvent event, float x, float y){
-                        System.out.println("connecting");
                         int outPort = 0;
                         try{
                             outPort = Integer.parseInt(outPortField.getText());
                         }
                         catch(NumberFormatException e){
+                            message = "out port must be a number!";
+                            return;
                         }
 
                         int inPort = 0;
@@ -112,6 +116,14 @@ public class MenuView extends AbstractView{
                             inPort = Integer.parseInt(inPortField.getText());
                         }
                         catch(NumberFormatException e){
+                            message = "in port must be a number!";
+                            return;
+                        }
+
+                        String ip = ipField.getText();
+                        if (ip.equals("")){
+                            message = "ip address cannot be an empty string!";
+                            return;
                         }
 
                         controller.setOutPort(outPort);
@@ -120,11 +132,11 @@ public class MenuView extends AbstractView{
 
                         if (controller.connect()){
                             connected = true;
-                            message = "connected";
+                            message = "Connection established";
                         }
                         else{
                             connected = false;
-                            message = "can't connect";
+                            message = "Can't establish the connection";
                         }
                     }
                 }));
@@ -143,10 +155,10 @@ public class MenuView extends AbstractView{
         spriteBatch.draw(background, 0, 0);
 
         if (message != ""){
-            font.draw(spriteBatch, message, screenX / 2 - message.length() * 5, screenY - 200);
+            font.draw(spriteBatch, message, screenX / 2 - message.length() * 3, screenY - 200);
         }
 
-            spriteBatch.end();
+        spriteBatch.end();
         stage.draw();
     }
 

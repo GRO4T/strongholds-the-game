@@ -8,6 +8,8 @@ import com.badlogic.gdx.math.Vector2;
 
 import com.strongholds.game.GameSingleton;
 import com.strongholds.game.GameSingleton.ObjectType;
+import com.strongholds.game.event.ErrorEvent;
+import com.strongholds.game.event.ViewEvent;
 import com.strongholds.game.model.IModel;
 import com.strongholds.game.model.Model;
 import com.strongholds.game.gameobject.GameObject;
@@ -34,22 +36,19 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 
 	int nextId = 0;
 
-
 	private IModel model;
 	private IGameView gameView;
+	private MenuView menuView;
 
-	private MenuView menu;
+	private String message = "";
 
-	private LinkedBlockingQueue<ViewEvent> viewEventsQueue;
+	private LinkedBlockingQueue<ViewEvent> queueOfViewEvents;
+	private LinkedBlockingQueue<ErrorEvent> queueOfErrorEvents;
 	//private LinkedBlockingQueue<ModelEvent> modelEventsQueue;
 
 	private INetworkController networkController;
 	private Thread networkThread;
 
-	public void startNetworkController(){
-		Thread networkThread = new Thread(networkController);
-		networkThread.start();
-	}
 
 	public StrongholdsGame(int screenWidth, int screenHeight) {
 		gameSingleton = GameSingleton.getGameSingleton();
@@ -59,12 +58,12 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 
 	@Override
 	public void create () {
-		viewEventsQueue = new LinkedBlockingQueue<>();
+		queueOfViewEvents = new LinkedBlockingQueue<>();
 
 		assetManager = new AssetManager();
 		loadAssets();
 
-		menu = new MenuView(this, assetManager, screenWidth, screenHeight);
+		menuView = new MenuView(this, assetManager, screenWidth, screenHeight);
 		model = new Model();
 		gameView = new GameView(model, this);
 		gameView.loadTextures();
@@ -75,7 +74,7 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 		networkController.registerController(this);
 		networkThread = new Thread(networkController);
 
-		menu.init();
+		menuView.init();
 	}
 
 	private void createMap(){
@@ -89,7 +88,7 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 	@Override
 	public void render () {
 		if (!startGame){
-			menu.draw();
+			menuView.draw();
 			return;
 		}
 
@@ -105,6 +104,9 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 	public void dispose () {
 		model.dispose();
 		assetManager.dispose();
+		networkThread.interrupt();
+		networkController.dispose();
+		menuView.dispose();
 	}
 
 	private void earlyUpdate(){
@@ -113,8 +115,8 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 
 	private void update(){
 		ViewEvent viewEvent;
-		while (viewEventsQueue.size() > 0){
-			viewEvent = viewEventsQueue.poll();
+		while (queueOfViewEvents.size() > 0){
+			viewEvent = queueOfViewEvents.poll();
 			if (viewEvent.toTrainUnit()){
 				ObjectType unitType = viewEvent.getUnitType();
 
@@ -132,32 +134,21 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 						model.addMoney(-unitCost);
 					}
 					else
-						System.out.println("not enough money!");
+						message = "NOT ENOUGH MONEY";
 				}
 			}
 		}
 
 	}
 
-	public AssetManager getAssetManager() {
-		return assetManager;
-	}
 
 	private void loadAssets(){
 		for (String filename : GameSingleton.getGameSingleton().getTextureFilenames()){
 			assetManager.load(filename, Texture.class);
 		}
 		assetManager.finishLoading();
-		System.out.println("finished loading assets");
 	}
 
-	public int getScreenWidth() {
-		return screenWidth;
-	}
-
-	public int getScreenHeight() {
-		return screenHeight;
-	}
 
 	private void createObject(ObjectType objectType, Vector2 position){
 		createObject(Integer.toString(nextId++), objectType, position);
@@ -178,50 +169,77 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 		model.createUnit(id, objectType, position, unitSize, isEnemy);
 	}
 
+	/* IViewController */
+
 	public void addEvent(ViewEvent viewEvent){
-		viewEventsQueue.add(viewEvent);
+		queueOfViewEvents.add(viewEvent);
 	}
 
-	@Override
+	public String getMessage() {
+		return message;
+	}
+
+	/* ObjectReceivedListener interface */
+
 	public void notify(LinkedBlockingQueue<Object> receivedObjects) {
 		while (receivedObjects.size() > 0){
 			Object receivedObj = receivedObjects.poll();
 			if (receivedObj instanceof ViewEvent){
 				System.out.println("new event added");
-				viewEventsQueue.add((ViewEvent)receivedObj);
+				queueOfViewEvents.add((ViewEvent)receivedObj);
 			}
 		}
 	}
 
-	@Override
+	public void notifyOnError(ErrorEvent errorEvent) {
+		queueOfErrorEvents.add(errorEvent);
+	}
+
+	/* IMenuController */
+
 	public void startGame() {
 		startGame = true;
 		gameView.init();
 		startNetworkController();
 	}
 
-	@Override
+	private void startNetworkController(){
+		networkThread = new Thread(networkController);
+		networkThread.start();
+	}
+
 	public boolean connect(){
 		return networkController.connect();
 	}
 
-	@Override
+	/* GETTERS AND SETTERS */
+
 	public void setIp(String ip) {
 		networkController.setTargetIp(ip);
 	}
 
-	@Override
 	public void setInPort(int port) {
 		networkController.setInPort(port);
 	}
 
-	@Override
 	public void setOutPort(int port) {
 		networkController.setOutPort(port);
 	}
 
-	@Override
 	public void setUsername(String username) {
 
 	}
+
+	public int getScreenWidth() {
+		return screenWidth;
+	}
+
+	public int getScreenHeight() {
+		return screenHeight;
+	}
+
+	public AssetManager getAssetManager() {
+		return assetManager;
+	}
 }
+

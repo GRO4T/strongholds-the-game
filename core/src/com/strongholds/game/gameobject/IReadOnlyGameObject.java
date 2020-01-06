@@ -6,7 +6,7 @@ import com.strongholds.game.GameSingleton;
 public interface IReadOnlyGameObject {
     Vector2 getPosition();
     Vector2 getVelocity();
-    boolean isOnEnemySide();
+    boolean isEnemy();
     float getWidth();
     float getHeight();
     GameSingleton.ObjectType getType();

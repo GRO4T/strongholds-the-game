@@ -4,9 +4,8 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import com.strongholds.game.GameSingleton;
 
-import java.io.Serializable;
-
 public class GameObject implements IGameObject{
+    GameSingleton gameSingleton;
     World world;
     protected Body body;
     private GameSingleton.ObjectType type;
@@ -17,14 +16,22 @@ public class GameObject implements IGameObject{
 
     int health = 1000;
 
-    private boolean isOnEnemySide = false;
+    private boolean isEnemy = false;
 
-    public GameObject(World world, BodyDef bodyDef, float width, float height, GameSingleton.ObjectType type, String id) {
-        this.world = world;
+    public GameObject(BodyDef bodyDef, float width, float height, GameSingleton.ObjectType type, String id, boolean isEnemy) {
+        gameSingleton = GameSingleton.getGameSingleton();
+        this.world = gameSingleton.getWorld();
         this.id = id;
         this.type = type;
         this.width = width;
         this.height = height;
+        this.isEnemy = isEnemy;
+
+        body = world.createBody(bodyDef);
+        createFixture();
+    }
+
+    private void createFixture(){
         //create main fixture's definition
         PolygonShape polygonShape = new PolygonShape();
         polygonShape.setAsBox(width, height);
@@ -34,19 +41,36 @@ public class GameObject implements IGameObject{
         fixtureDef.friction = 0.6f;
         fixtureDef.restitution = 0.0f;
         //create body, main fixture and its userData and collisionFilter(collisionFilter can be overridden by inheriting classes)
-        body = world.createBody(bodyDef);
         Fixture fixture = body.createFixture(fixtureDef);
         fixture.setUserData(this);
+
+        setCollisionFilter(fixture);
+    }
+
+    private void setCollisionFilter(Fixture fixture){
         Filter filter = new Filter();
 
-        if (type == GameSingleton.ObjectType.BASE)
+        if (type == GameSingleton.ObjectType.BASE){
+            filter.categoryBits = GameSingleton.BASE_COLLISION_MASK;
+            filter.maskBits = GameSingleton.GAME_OBJECT_COLLISION_MASK;
+        }
+        else if (type == GameSingleton.ObjectType.SWORDSMAN){
             filter.categoryBits = GameSingleton.ACTOR_COLLISION_MASK;
-        else
-            filter.categoryBits = GameSingleton.GAME_OBJECT_COLLISION_MASK; // 0x0001
+            filter.maskBits = GameSingleton.GAME_OBJECT_COLLISION_MASK
+                    | GameSingleton.SENSOR_COLLISION_MASK
+                    | GameSingleton.ACTOR_COLLISION_MASK;
+        }
+        else{
+            filter.categoryBits = GameSingleton.GAME_OBJECT_COLLISION_MASK;
+            filter.maskBits = GameSingleton.GAME_OBJECT_COLLISION_MASK
+                    | GameSingleton.SENSOR_COLLISION_MASK
+                    | GameSingleton.ACTOR_COLLISION_MASK
+                    | GameSingleton.BASE_COLLISION_MASK;
+        }
 
         filter.maskBits = GameSingleton.GAME_OBJECT_COLLISION_MASK
                 | GameSingleton.ACTOR_COLLISION_MASK
-                | GameSingleton.SENSOR_COLLISION_MASK; // 0x0007 = 0x0004 OR 0x0002 OR 0x0001
+                | GameSingleton.SENSOR_COLLISION_MASK;
         fixture.setFilterData(filter);
     }
 
@@ -87,9 +111,9 @@ public class GameObject implements IGameObject{
         this.id = id;
     }
 
-    public boolean isOnEnemySide(){ return isOnEnemySide; }
+    public boolean isEnemy(){ return isEnemy; }
 
-    public void setIsOnEnemySide(boolean isOnEnemySide){ this.isOnEnemySide = isOnEnemySide; }
+    public void setIsOnEnemySide(boolean isOnEnemySide){ this.isEnemy = isOnEnemySide; }
 
     public int getHealth() {
         return health;

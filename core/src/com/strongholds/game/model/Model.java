@@ -5,6 +5,7 @@ import com.badlogic.gdx.physics.box2d.*;
 
 import java.util.*;
 
+import com.strongholds.game.GameSingleton;
 import com.strongholds.game.GameSingleton.ObjectType;
 import com.strongholds.game.gameobject.*;
 
@@ -35,6 +36,7 @@ public class Model implements IModel, DeathListener
         money = startCash;
 
         world = new World(new Vector2(0, worldGravity), true);
+        GameSingleton.getGameSingleton().setWorld(world);
         contactListener = new MyContactListener();
         world.setContactListener(contactListener);
 
@@ -62,8 +64,11 @@ public class Model implements IModel, DeathListener
 
         if (listOfDeadUnitsIds.size() > 0){
             String id = listOfDeadUnitsIds.poll();
-            actorsMap.get(id).dispose();
-            actorsMap.remove(id);
+            IUnit deadActor = actorsMap.get(id);
+            if (deadActor != null){
+                actorsMap.get(id).dispose();
+                actorsMap.remove(id);
+            }
         }
     }
 
@@ -73,13 +78,12 @@ public class Model implements IModel, DeathListener
     }
 
     public void createObject(String id, ObjectType objectType, Vector2 position, Vector2 size) {
-        GameObject newObject = gameObjectsFactory.createObject(id, objectType, position, size);
+        GameObject newObject = gameObjectsFactory.createObject(id, objectType, position, size, false);
         gameObjectsMap.put(id, newObject);
     }
 
     public void createUnit(String id, ObjectType objectType, Vector2 position, Vector2 size, boolean isEnemy) {
-        Unit newObject = (Unit)gameObjectsFactory.createObject(id, objectType, position, size);
-        newObject.setIsOnEnemySide(isEnemy);
+        Unit newObject = (Unit)gameObjectsFactory.createObject(id, objectType, position, size, isEnemy);
         newObject.setDeathListener(this);
         actorsMap.put(id, (IUnit)newObject);
     }

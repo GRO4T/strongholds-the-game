@@ -13,7 +13,7 @@ public class MyContactListener implements ContactListener {
         if (contact.getFixtureA().isSensor()){
             AnimatedActor actor = (AnimatedActor) (contact.getFixtureA().getUserData());
             GameObject object = (GameObject) (contact.getFixtureB().getUserData());
-            if (actor.isOnEnemySide() != object.isOnEnemySide()){
+            if (actor.isEnemy() != object.isEnemy()){
                 actor.addTarget(object);
             }
             return;
@@ -21,7 +21,7 @@ public class MyContactListener implements ContactListener {
         if (contact.getFixtureB().isSensor()){
             AnimatedActor actor = (AnimatedActor)(contact.getFixtureB().getUserData());
             GameObject object = (GameObject) (contact.getFixtureA().getUserData());
-            if (actor.isOnEnemySide() != object.isOnEnemySide()){
+            if (actor.isEnemy() != object.isEnemy()){
                 actor.addTarget(object);
             }
             return;
@@ -35,7 +35,7 @@ public class MyContactListener implements ContactListener {
         if (contact.getFixtureA().isSensor()){
             AnimatedActor actor = (AnimatedActor)(contact.getFixtureA().getUserData());
             GameObject object = (GameObject) (contact.getFixtureB().getUserData());
-            if (actor.isOnEnemySide() != object.isOnEnemySide()){
+            if (actor.isEnemy() != object.isEnemy()){
                 actor.removeTarget(object);
             }
             return;
@@ -44,7 +44,7 @@ public class MyContactListener implements ContactListener {
         if (contact.getFixtureB().isSensor()){
             AnimatedActor actor = (AnimatedActor)(contact.getFixtureB().getUserData());
             GameObject object = (GameObject) (contact.getFixtureA().getUserData());
-            if (actor.isOnEnemySide() != object.isOnEnemySide()){
+            if (actor.isEnemy() != object.isEnemy()){
                 actor.removeTarget(object);
             }
             return;

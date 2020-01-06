@@ -2,7 +2,6 @@ package com.strongholds.game.gameobject;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef;
-import com.badlogic.gdx.physics.box2d.World;
 import com.strongholds.game.GameSingleton;
 
 import java.util.Iterator;
@@ -11,8 +10,8 @@ import java.util.TimerTask;
 public class MeleeUnit extends Unit implements IUnit{
     float range = 5.0f;
 
-    public MeleeUnit(World world, BodyDef bodyDef, float width, float height, GameSingleton.ObjectType type, String id) {
-        super(world, bodyDef, width, height, type, id);
+    public MeleeUnit(BodyDef bodyDef, float width, float height, GameSingleton.ObjectType type, String id, boolean isEnemy) {
+        super(bodyDef, width, height, type, id, isEnemy);
     }
 
     public void update(){
@@ -30,7 +29,7 @@ public class MeleeUnit extends Unit implements IUnit{
             }
         }
 
-        if (isOnEnemySide())
+        if (isEnemy())
             move(new Vector2(-1.0f, 0));
         else
             move(new Vector2(1.0f, 0));
@@ -55,7 +54,7 @@ public class MeleeUnit extends Unit implements IUnit{
             Iterator it = getTargets().iterator();
             while (it.hasNext()){
                 GameObject unit = (GameObject) it.next();
-                if (isOnEnemySide() != unit.isOnEnemySide()){
+                if (isEnemy() != unit.isEnemy()){
                     unit.gotHit(damage);
                 }
             }

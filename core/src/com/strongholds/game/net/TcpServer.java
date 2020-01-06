@@ -15,9 +15,9 @@ public class TcpServer implements INetworkController{
     private LinkedBlockingQueue<Object> receivedObjects;
     private ObjectReceivedListener controller;
 
-    private int inPort;
-    private int outPort;
-    private String ip;
+    private int inPort = 46004;
+    private int outPort = 46004;
+    private String ip = "127.0.0.1";
 
     private final int connectionWaitTimeInMillis = 2000;
     private final int connectionWaitTimeInNanos = connectionWaitTimeInMillis * 1000000;

@@ -13,8 +13,8 @@ public class AnimatedActor extends GameObject implements IAnimatedActor {
     private ObjectState state;
     private LinkedList<GameObject> targets;
 
-    public AnimatedActor(World world, BodyDef bodyDef, float width, float height, ObjectType type, String id) {
-        super(world, bodyDef, width, height, type, id);
+    public AnimatedActor(BodyDef bodyDef, float width, float height, ObjectType type, String id, boolean isEnemy) {
+        super(bodyDef, width, height, type, id, isEnemy);
         //state = new AnimatedActorState();
         targets = new LinkedList<>();
 
@@ -61,7 +61,7 @@ public class AnimatedActor extends GameObject implements IAnimatedActor {
         System.out.println(getId() + " got hit for " + damage);
         Vector2 impulse;
         float knockbackMultiplier = 15.0f;
-        if (isOnEnemySide()){
+        if (isEnemy()){
             impulse = new Vector2(damage * knockbackMultiplier, 0);
         }
         else

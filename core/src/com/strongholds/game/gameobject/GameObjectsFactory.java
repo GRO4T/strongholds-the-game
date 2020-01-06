@@ -20,7 +20,7 @@ public class GameObjectsFactory {
         gameSingleton = getGameSingleton();
     }
 
-    public GameObject createObject(String id, ObjectType objectType, Vector2 position, Vector2 size){
+    public GameObject createObject(String id, ObjectType objectType, Vector2 position, Vector2 size, boolean isEnemy){
         float pixels_per_meter = gameSingleton.getPixels_per_meter();
         Vector2 bodySize = new Vector2(size.x / (2*pixels_per_meter), size.y / (2*pixels_per_meter));
         Vector2 bodyPos = new Vector2(position.x / pixels_per_meter + bodySize.x,
@@ -31,11 +31,11 @@ public class GameObjectsFactory {
 
         if (objectType == ObjectType.PLATFORM || objectType == ObjectType.BASE){
             bodyDef.type = BodyDef.BodyType.StaticBody;
-            return new GameObject(world, bodyDef, bodySize.x, bodySize.y, objectType, id);
+            return new GameObject(bodyDef, bodySize.x, bodySize.y, objectType, id, isEnemy);
         }
         else if (objectType == ObjectType.SWORDSMAN){
             bodyDef.type = BodyDef.BodyType.DynamicBody;
-            MeleeUnit meleeUnit = new MeleeUnit(world, bodyDef, bodySize.x, bodySize.y, objectType, id);
+            MeleeUnit meleeUnit = new MeleeUnit(bodyDef, bodySize.x, bodySize.y, objectType, id, isEnemy);
             meleeUnit.setState(ObjectState.IDLING);
             return meleeUnit;
         }

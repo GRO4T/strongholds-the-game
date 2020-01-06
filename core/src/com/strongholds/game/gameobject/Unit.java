@@ -23,8 +23,8 @@ public class Unit extends AnimatedActor implements IUnit{
 
     Timer attackTimer;
 
-    public Unit(World world, BodyDef bodyDef, float width, float height, GameSingleton.ObjectType type, String id) {
-        super(world, bodyDef, width, height, type, id);
+    public Unit(BodyDef bodyDef, float width, float height, GameSingleton.ObjectType type, String id, boolean isEnemy) {
+        super(bodyDef, width, height, type, id, isEnemy);
         attackTimer = new Timer(true);
     }
 

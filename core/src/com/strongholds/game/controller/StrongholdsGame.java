@@ -51,6 +51,10 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 	private INetworkController networkController;
 	private Thread networkThread;
 
+	private Vector2 friendlyBaseSpawnPoint;
+	private Vector2 enemyBaseSpawnPoint;
+	private Vector2 friendliesSpawnPoint;
+	private Vector2 enemiesSpawnPoint;
 
 	public StrongholdsGame(int screenWidth, int screenHeight) {
 		gameSingleton = GameSingleton.getGameSingleton();
@@ -78,11 +82,21 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 		networkThread = new Thread(networkController);
 
 		menuView.init();
+
+		//test
+		connect();
+		startGame();
 	}
 
 	private void createMap(){
-		createObject("base", ObjectType.BASE, new Vector2(0, 60));
-		createObject("enemyBase", ObjectType.BASE, new Vector2(1100, 60));
+		friendlyBaseSpawnPoint = new Vector2(0, 60);
+		enemyBaseSpawnPoint = new Vector2(1072, 60);
+		friendliesSpawnPoint = new Vector2(friendlyBaseSpawnPoint);
+		friendliesSpawnPoint.add(new Vector2(gameView.getTextureSize(ObjectType.BASE).x - 60,0));
+		enemiesSpawnPoint = new Vector2((enemyBaseSpawnPoint));
+		enemiesSpawnPoint.add(new Vector2(20, 0));
+		createObject("base", ObjectType.BASE, friendlyBaseSpawnPoint);
+		createObject("enemyBase", ObjectType.BASE, enemyBaseSpawnPoint);
 		GameObject base = (GameObject)model.getGameObject("base");
 		base.setHealth(100);
 		GameObject enemyBase = (GameObject)model.getGameObject("enemyBase");
@@ -98,10 +112,13 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 			return;
 		}
 
-		earlyUpdate();
-		gameView.update();
-		update();
-		model.update(1.0f / Fps);
+		//if (!paused){
+			earlyUpdate();
+			gameView.update();
+			update();
+			model.update(1.0f / Fps);
+		//}
+
 		gameView.draw(Gdx.graphics.getDeltaTime());
 	}
 
@@ -127,12 +144,12 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 
 				boolean isEnemy = viewEvent.getIsEnemy();
 				if (isEnemy){
-					createUnit(unitType, new Vector2(1000, 60), isEnemy);
+					createUnit(unitType, enemiesSpawnPoint, isEnemy);
 				}
 				else{
 					long unitCost = gameSingleton.getCost(unitType);
 					if (model.getMoney() >= unitCost) {
-						createUnit(unitType, new Vector2(150, 60), isEnemy);
+						createUnit(unitType, friendliesSpawnPoint, isEnemy);
 						//notify the opponent that you trained the unit
 						viewEvent.setIsEnemy(true);
 						networkController.addObjectRequest(viewEvent);

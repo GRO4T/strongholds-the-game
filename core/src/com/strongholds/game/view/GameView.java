@@ -137,7 +137,7 @@ public class GameView extends AbstractView implements IGameView
         Sprite texture = staticObjectsTextureMap.get(gameObject.getType());
         float x = (gameObject.getPosition().x - gameObject.getWidth()) * pixels_per_meter;
         float y = (gameObject.getPosition().y - gameObject.getHeight()) * pixels_per_meter;
-        if (gameObject.isOnEnemySide()){
+        if (gameObject.isEnemy()){
             texture.flip(true, false);
             spriteBatch.draw(texture, x, y);
             texture.flip(true, false);
@@ -156,7 +156,7 @@ public class GameView extends AbstractView implements IGameView
         float x = (gameObject.getPosition().x - gameObject.getWidth()) * pixels_per_meter;
         float y = (gameObject.getPosition().y - gameObject.getHeight()) * pixels_per_meter;
 
-        if (gameObject.isOnEnemySide()){
+        if (gameObject.isEnemy()){
             textureRegion.flip(true, false);
             spriteBatch.draw(textureRegion, x, y);
             if (gameObject.getType() == ObjectType.SWORDSMAN){

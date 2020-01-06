@@ -1,11 +1,11 @@
 package com.strongholds.game;
 
+import com.badlogic.gdx.physics.box2d.World;
+
 import java.util.HashMap;
 
 public class GameSingleton {
     private static volatile GameSingleton INSTANCE;
-
-    public final int basicCommunicationPort = 46000;
 
     private final float pixels_per_meter = 16.0f;
     private String textureFilenames[] = {
@@ -15,12 +15,11 @@ public class GameSingleton {
 
     public final String menuBackgroundTexture = "background-textures.png";
 
-
-
     private HashMap<ObjectType, Long> costLedger;
 
+    private World world;
     public enum ObjectType{
-        PLATFORM, BACKGROUND_IMAGE, BASE, SWORDSMAN, DEBUG_NO_OBJECT;
+        PLATFORM, BACKGROUND_IMAGE, BASE, SWORDSMAN;
     }
 
     public enum ObjectState{
@@ -43,12 +42,10 @@ public class GameSingleton {
         }
     }
 
-    public final int inPort = 1035;
-    public final int outPort = 631;
-
     public static final short GAME_OBJECT_COLLISION_MASK = 0x0001;
     public static final short ACTOR_COLLISION_MASK = 0x0002;
     public static final short SENSOR_COLLISION_MASK = 0x0004;
+    public static final short BASE_COLLISION_MASK = 0x0008;
 
     public float getPixels_per_meter(){ return pixels_per_meter; }
     public String[] getTextureFilenames(){ return textureFilenames; }
@@ -85,5 +82,13 @@ public class GameSingleton {
 
     public long getCost(ObjectType objectType){
         return costLedger.get(objectType).longValue();
+    }
+
+    public World getWorld() {
+        return world;
+    }
+
+    public void setWorld(World world) {
+        this.world = world;
     }
 }

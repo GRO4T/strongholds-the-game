@@ -42,6 +42,11 @@ public class AnimatedActor extends GameObject implements IAnimatedActor {
         sensor.setFilterData(sensorFilter);
     }
 
+    @Override
+    public void dispose(){
+        super.dispose();
+    }
+
     public GameSingleton.ObjectState getState(){
         return state;
     }

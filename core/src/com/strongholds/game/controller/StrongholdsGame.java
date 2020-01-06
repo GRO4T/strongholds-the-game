@@ -20,6 +20,8 @@ import com.strongholds.game.view.IGameView;
 import com.strongholds.game.view.GameView;
 import com.strongholds.game.view.MenuView;
 
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.LinkedBlockingQueue;
 
 // It's our game controller
@@ -41,9 +43,9 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 	private MenuView menuView;
 
 	private String message = "";
+	Timer clearMessageTimer;
 
 	private LinkedBlockingQueue<ViewEvent> queueOfViewEvents;
-	private LinkedBlockingQueue<ErrorEvent> queueOfErrorEvents;
 	//private LinkedBlockingQueue<ModelEvent> modelEventsQueue;
 
 	private INetworkController networkController;
@@ -54,6 +56,7 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 		gameSingleton = GameSingleton.getGameSingleton();
 		this.screenWidth = screenWidth;
 		this.screenHeight = screenHeight;
+		clearMessageTimer = new Timer(true);
 	}
 
 	@Override
@@ -80,8 +83,11 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 	private void createMap(){
 		createObject("base", ObjectType.BASE, new Vector2(0, 60));
 		createObject("enemyBase", ObjectType.BASE, new Vector2(1100, 60));
-		GameObject base = (GameObject)model.getGameObject("enemyBase");
-		base.setIsOnEnemySide(true);
+		GameObject base = (GameObject)model.getGameObject("base");
+		base.setHealth(100);
+		GameObject enemyBase = (GameObject)model.getGameObject("enemyBase");
+		enemyBase.setIsOnEnemySide(true);
+		enemyBase.setHealth(100);
 		createObject(ObjectType.PLATFORM, new Vector2(0, 0));
 	}
 
@@ -98,7 +104,6 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 		model.update(1.0f / Fps);
 		gameView.draw(Gdx.graphics.getDeltaTime());
 	}
-
 
 	@Override
 	public void dispose () {
@@ -134,7 +139,8 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 						model.addMoney(-unitCost);
 					}
 					else
-						message = "NOT ENOUGH MONEY";
+						setMessage("NOT ENOUGH MONEY");
+
 				}
 			}
 		}
@@ -179,20 +185,38 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 		return message;
 	}
 
+	private void setMessage(String message){
+		if (this.message.equals(message))
+			return;
+
+		this.message = message;
+		ClearMessageTask clearMessageTask = new ClearMessageTask();
+		int clearMessageInterval = 2000;
+		clearMessageTimer.schedule(clearMessageTask, clearMessageInterval);
+	}
+
+	private class ClearMessageTask extends TimerTask {
+		@Override
+		public void run() {
+			message = "";
+		}
+	}
+
 	/* ObjectReceivedListener interface */
 
 	public void notify(LinkedBlockingQueue<Object> receivedObjects) {
 		while (receivedObjects.size() > 0){
 			Object receivedObj = receivedObjects.poll();
 			if (receivedObj instanceof ViewEvent){
-				System.out.println("new event added");
 				queueOfViewEvents.add((ViewEvent)receivedObj);
 			}
 		}
 	}
 
 	public void notifyOnError(ErrorEvent errorEvent) {
-		queueOfErrorEvents.add(errorEvent);
+		if (errorEvent.isOpponentDisconnected()){
+			setMessage("OPPONENT DISCONNECTED");
+		}
 	}
 
 	/* IMenuController */
@@ -201,6 +225,7 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 		startGame = true;
 		gameView.init();
 		startNetworkController();
+
 	}
 
 	private void startNetworkController(){

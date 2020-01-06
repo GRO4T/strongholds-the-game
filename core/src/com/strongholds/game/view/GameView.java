@@ -122,6 +122,11 @@ public class GameView extends AbstractView implements IGameView
         font.draw(spriteBatch, model.getMoney() + " $", screenX - 50, screenY - 20);
         font.draw(spriteBatch, "base health = " + model.getBaseHealth(), screenX - 200, screenY - 20);
         font.draw(spriteBatch, "enemy base health = " + model.getEnemyBaseHealth(), screenX - 400, screenY - 20);
+
+        String msg = controller.getMessage();
+        if (!msg.equals("")){
+            font.draw(spriteBatch, msg, 50, 30);
+        }
         spriteBatch.end();
 
         //draw UI

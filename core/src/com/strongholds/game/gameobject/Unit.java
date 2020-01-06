@@ -4,11 +4,14 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.World;
 import com.strongholds.game.GameSingleton;
+import com.strongholds.game.model.DeathListener;
 
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class Unit extends AnimatedActor implements IReadOnlyUnit{
+public class Unit extends AnimatedActor implements IUnit{
+    DeathListener deathListener;
+
     float speed = 200.0f;
     boolean canAttack = true;
     int attackSpeed = 700;
@@ -25,10 +28,27 @@ public class Unit extends AnimatedActor implements IReadOnlyUnit{
         attackTimer = new Timer(true);
     }
 
+    public void dispose(){
+        super.dispose();
+    }
+
+    public void setDeathListener(DeathListener deathListener) {
+        this.deathListener = deathListener;
+    }
+
+    public void attack() {
+
+    }
+
     public void move(Vector2 direction) {
         direction.nor();
         direction.scl(speed);
         body.applyForce(direction, body.getPosition(), true);
+    }
+
+    @Override
+    public void update() {
+
     }
 
     protected class SuspendAttackTask extends TimerTask {
@@ -41,8 +61,10 @@ public class Unit extends AnimatedActor implements IReadOnlyUnit{
     @Override
     public void gotHit(int damage){
         health -= damage;
-        if (health < 0)
+        if (health < 0){
             health = 0;
+            deathListener.notifyDeadUnit(getId());
+        }
     }
 
     public int getHealth(){ return health; }

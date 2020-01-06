@@ -8,7 +8,7 @@ import java.util.*;
 import com.strongholds.game.GameSingleton.ObjectType;
 import com.strongholds.game.gameobject.*;
 
-public class Model implements IModel
+public class Model implements IModel, DeathListener
 {
     private World world;
     private final int velocityIterations = 6;
@@ -16,24 +16,23 @@ public class Model implements IModel
     private final float worldGravity = -15.0f;
 
     //Queue events;
-    Timer taskScheduler;
-    boolean addMoney = true;
-    int incomeInterval = 1000;
-    int moneyGain = 10;
+    private Timer taskScheduler;
+    private boolean addMoney = true;
+    private int incomeInterval = 1000;
+    private int moneyGain = 10;
+    private long money;
+    private final long startCash = 200L;
 
-    long money;
-    //int baseHealth = 1000;
-    //int enemyBaseHealth = 1000;
+    private GameObjectsFactory gameObjectsFactory;
+    private Map<String, GameObject> gameObjectsMap;
+    private Map<String, IUnit> actorsMap;
+    private LinkedList<String> listOfDeadUnitsIds;
 
-    GameObjectsFactory gameObjectsFactory;
-    Map<String, GameObject> gameObjectsMap;
-    Map<String, IUnit> actorsMap;
-
-    MyContactListener contactListener;
+    private MyContactListener contactListener;
 
     public Model()
     {
-        money = 200L;
+        money = startCash;
 
         world = new World(new Vector2(0, worldGravity), true);
         contactListener = new MyContactListener();
@@ -42,6 +41,7 @@ public class Model implements IModel
         gameObjectsFactory = new GameObjectsFactory(world);
         gameObjectsMap = new HashMap<>();
         actorsMap = new HashMap<>();
+        listOfDeadUnitsIds = new LinkedList<>();
 
         taskScheduler = new Timer(true);
     }
@@ -59,6 +59,12 @@ public class Model implements IModel
         }
 
         world.step(timeStep, velocityIterations, positionIterations);
+
+        if (listOfDeadUnitsIds.size() > 0){
+            String id = listOfDeadUnitsIds.poll();
+            actorsMap.get(id).dispose();
+            actorsMap.remove(id);
+        }
     }
 
     public void dispose()
@@ -74,6 +80,7 @@ public class Model implements IModel
     public void createUnit(String id, ObjectType objectType, Vector2 position, Vector2 size, boolean isEnemy) {
         Unit newObject = (Unit)gameObjectsFactory.createObject(id, objectType, position, size);
         newObject.setIsOnEnemySide(isEnemy);
+        newObject.setDeathListener(this);
         actorsMap.put(id, (IUnit)newObject);
     }
 
@@ -103,6 +110,10 @@ public class Model implements IModel
 
     public int getEnemyBaseHealth(){
         return gameObjectsMap.get("enemyBase").getHealth();
+    }
+
+    public void notifyDeadUnit(String unitId) {
+        listOfDeadUnitsIds.add(unitId);
     }
 
     private class AddMoneyTask extends TimerTask {

@@ -1,5 +1,7 @@
 package com.strongholds.game.net;
 
+import com.strongholds.game.event.ErrorEvent;
+
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -17,7 +19,7 @@ public class TcpServer implements INetworkController{
     private int outPort;
     private String ip;
 
-    private final int connectionWaitTimeInMillis = 500;
+    private final int connectionWaitTimeInMillis = 2000;
     private final int connectionWaitTimeInNanos = connectionWaitTimeInMillis * 1000000;
 
     public TcpServer(){
@@ -73,7 +75,9 @@ public class TcpServer implements INetworkController{
                     s.close();
                 } catch (IOException e) {
                     //e.printStackTrace();
-                    System.out.println("opponent disconnected");
+                    ErrorEvent opponentDisconnected = new ErrorEvent();
+                    opponentDisconnected.setOpponentDisconnected(true);
+                    controller.notifyOnError(opponentDisconnected);
                 }
                 catch (ClassNotFoundException e){
                     e.printStackTrace();
@@ -184,7 +188,6 @@ public class TcpServer implements INetworkController{
                     float endTime;
 
                     while(listeningTime < connectionWaitTimeInNanos){
-                        System.out.println("listening for " + listeningTime);
                         startTime = System.nanoTime();
 
                         Socket receiver = null;

@@ -9,6 +9,8 @@ public class ViewEvent implements Serializable {
     private GameSingleton.ObjectType unitType = GameSingleton.ObjectType.SWORDSMAN;
     private boolean isEnemy = false;
 
+    private
+
     public ViewEvent(boolean trainUnit, GameSingleton.ObjectType unitType) {
         this.trainUnit = trainUnit;
         this.unitType = unitType;

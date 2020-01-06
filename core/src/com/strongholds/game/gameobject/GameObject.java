@@ -7,6 +7,7 @@ import com.strongholds.game.GameSingleton;
 import java.io.Serializable;
 
 public class GameObject implements IGameObject{
+    World world;
     protected Body body;
     private GameSingleton.ObjectType type;
     private float width;
@@ -19,6 +20,7 @@ public class GameObject implements IGameObject{
     private boolean isOnEnemySide = false;
 
     public GameObject(World world, BodyDef bodyDef, float width, float height, GameSingleton.ObjectType type, String id) {
+        this.world = world;
         this.id = id;
         this.type = type;
         this.width = width;
@@ -46,6 +48,10 @@ public class GameObject implements IGameObject{
                 | GameSingleton.ACTOR_COLLISION_MASK
                 | GameSingleton.SENSOR_COLLISION_MASK; // 0x0007 = 0x0004 OR 0x0002 OR 0x0001
         fixture.setFilterData(filter);
+    }
+
+    public void dispose(){
+        world.destroyBody(body);
     }
 
     public Vector2 getPosition(){

@@ -84,8 +84,8 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 		menuView.init();
 
 		//test
-		connect();
-		startGame();
+		//connect();
+		//startGame();
 	}
 
 	private void createMap(){

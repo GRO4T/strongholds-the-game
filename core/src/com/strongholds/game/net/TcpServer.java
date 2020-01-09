@@ -9,6 +9,11 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 
+/**
+ * Simple Tcp server.
+ * It asynchronously sends and receives request
+ * from a host.
+ */
 public class TcpServer implements INetworkController{
     private ServerSocket opponentClientSocket;
     private LinkedBlockingQueue<Object> objectsToSend;
@@ -194,8 +199,11 @@ public class TcpServer implements INetworkController{
                         try{
                             receiver = new Socket(ip, inPort);
                             DataInputStream inputStream = new DataInputStream(receiver.getInputStream());
-                            String bytes = new String(inputStream.readNBytes(5));
-                            System.out.println("received bytes = " + bytes);
+                            //String bytes = new String(inputStream.readNBytes(5));
+                            byte[] bytes = new byte[6];
+                            inputStream.read(bytes, 0, 5);
+                            String message = new String(bytes);
+                            System.out.println("received bytes = " + message);
                             connected = true;
                             receiver.close();
                             return;

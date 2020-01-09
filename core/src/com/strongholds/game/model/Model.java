@@ -48,6 +48,7 @@ public class Model implements IModel, DeathListener
         taskScheduler = new Timer(true);
     }
 
+    @Override
     public void update(float timeStep)
     {
         for (IUnit actor : actorsMap.values()){
@@ -72,50 +73,62 @@ public class Model implements IModel, DeathListener
         }
     }
 
+    @Override
     public void dispose()
     {
         //TODO
     }
 
+    @Override
     public void createObject(String id, ObjectType objectType, Vector2 position, Vector2 size) {
         GameObject newObject = gameObjectsFactory.createObject(id, objectType, position, size, false);
         gameObjectsMap.put(id, newObject);
     }
 
+    @Override
     public void createUnit(String id, ObjectType objectType, Vector2 position, Vector2 size, boolean isEnemy) {
         Unit newObject = (Unit)gameObjectsFactory.createObject(id, objectType, position, size, isEnemy);
         newObject.setDeathListener(this);
         actorsMap.put(id, (IUnit)newObject);
     }
 
+    @Override
     public Object[] getGameObjects() {
         return gameObjectsMap.values().toArray();
     }
 
+    @Override
     public Object[] getActors(){
         return actorsMap.values().toArray();
     }
 
+    @Override
     public IReadOnlyAnimatedActor getActor(String id){ return actorsMap.get(id); }
 
+    @Override
     public IReadOnlyGameObject getGameObject(String id){ return gameObjectsMap.get(id); }
 
+    @Override
     public long getMoney(){ return money; }
 
+    @Override
     public void addMoney(long value){
         money += value;
         if (money < 0L)
             money = 0L;
     }
 
+    @Override
     public int getBaseHealth(){
         return gameObjectsMap.get("base").getHealth();
     }
 
+    @Override
     public int getEnemyBaseHealth(){
         return gameObjectsMap.get("enemyBase").getHealth();
     }
 
+    @Override
     public void notifyDeadUnit(String unitId) {
         listOfDeadUnitsIds.add(unitId);
     }

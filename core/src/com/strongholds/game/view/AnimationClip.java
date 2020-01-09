@@ -4,13 +4,24 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
+/**
+ * Stores animation clip (e.g. unit idling)
+ * and iterates through next frames.
+ */
 public class AnimationClip {
+    /**
+     * (libgdx's class)
+     * Stores a list of objects representing an animated sequence, e.g. for running or jumping.
+     * Each object in the Animation is called a key frame, and multiple key frames make up the animation.
+     */
     Animation<TextureRegion> animation;
+    /**
+     * Time (since the last reset()) animation has been running. Is used to get current frame from animation object.
+     */
     float stateTime;
 
-    /**
-     *  Constructor
-      * @param spriteSheet      texture consisting of multiple smaller frames that make up the animation
+     /**
+     * @param spriteSheet      texture consisting of multiple smaller frames that make up the animation
      * @param spriteSheetCols   number of columns in the sprite sheet
      * @param spriteSheetRows   number of rows in the sprite sheet
      * @param frames            number of relevant frames in the sprite sheet (the ones that are not empty)
@@ -36,13 +47,21 @@ public class AnimationClip {
     public AnimationClip(){}
 
     /**
-     *
-     * @param deltaTime
+     * Updates stateTime
+     * @param deltaTime time that passed since the last frame
      */
     public void update(float deltaTime){
         stateTime += deltaTime;
     }
+
+    /**
+     * Resets stateTime
+     */
     public void reset(){ stateTime = 0.0f; }
+
+    /**
+     * @return current animation frame
+     */
     TextureRegion getCurrentFrame(){
         return animation.getKeyFrame(stateTime, true);
     }

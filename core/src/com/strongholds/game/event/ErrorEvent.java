@@ -1,6 +1,8 @@
 package com.strongholds.game.event;
 
-public class ErrorEvent {
+import java.io.Serializable;
+
+public class ErrorEvent{
     private boolean opponentDisconnected;
 
     public boolean isOpponentDisconnected() {

@@ -73,6 +73,7 @@ public class GameObject implements IGameObject{
                 filter.maskBits = GameSingleton.GAME_OBJECT_COLLISION_MASK
                         | GameSingleton.SENSOR_COLLISION_MASK
                         | GameSingleton.ACTOR_COLLISION_MASK
+                        | GameSingleton.ENEMY_ACTOR_COLLISION_MASK
                         | GameSingleton.BASE_COLLISION_MASK;
             }
             else{
@@ -80,6 +81,7 @@ public class GameObject implements IGameObject{
                 filter.maskBits = GameSingleton.GAME_OBJECT_COLLISION_MASK
                         | GameSingleton.SENSOR_COLLISION_MASK
                         | GameSingleton.ENEMY_ACTOR_COLLISION_MASK
+                        | GameSingleton.ACTOR_COLLISION_MASK
                         | GameSingleton.ENEMY_BASE_COLLISION_MASK;
             }
         }

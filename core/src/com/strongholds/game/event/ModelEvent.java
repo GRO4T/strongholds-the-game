@@ -1,6 +1,8 @@
 package com.strongholds.game.event;
 
-public class ModelEvent {
+import java.io.Serializable;
+
+public class ModelEvent implements Serializable {
     private boolean unitHit;
     private String unitId;
     private int damage;

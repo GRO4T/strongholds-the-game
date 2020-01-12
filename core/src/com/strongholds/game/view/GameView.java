@@ -21,10 +21,13 @@ import com.strongholds.game.GameSingleton.ObjectType;
 import com.strongholds.game.GameSingleton.ObjectState;
 import com.strongholds.game.controller.IViewController;
 import com.strongholds.game.event.ViewEvent;
+import com.strongholds.game.gameobject.IAnimatedActor;
 import com.strongholds.game.gameobject.IReadOnlyUnit;
 import com.strongholds.game.model.IReadOnlyModel;
 import com.strongholds.game.gameobject.IReadOnlyAnimatedActor;
 import com.strongholds.game.gameobject.IReadOnlyGameObject;
+
+import javax.swing.text.View;
 
 public class GameView extends AbstractView implements IGameView
 {
@@ -80,12 +83,11 @@ public class GameView extends AbstractView implements IGameView
                         controller.addEvent(new ViewEvent(true, ObjectType.SWORDSMAN));
                     }
                 }));
-        stage.addActor(createButton(140,  screenY - 70, 100, 50, "archer",
+        stage.addActor(createButton(screenX / 2 - 50,  screenY - 70, 100, 50, "pause",
                 new ClickListener(){
                     @Override
                     public void clicked(InputEvent event, float x, float y){
-                        System.out.println("archer added!");
-                        //controller.addEvent()
+                        controller.addEvent(new ViewEvent(true));
                     }
                 }));
     }
@@ -94,14 +96,20 @@ public class GameView extends AbstractView implements IGameView
         Gdx.input.setInputProcessor(stage);
     }
 
-    public void update()
+    public void update(float deltaTime)
     {
         //handleInput();
         cam.update();
         spriteBatch.setProjectionMatrix(cam.combined);
+
+        for (Object obj : model.getActors()){
+            IReadOnlyAnimatedActor actor = (IReadOnlyAnimatedActor)obj;
+            Animator animator = actorsMap.get(actor.getId());
+            animator.update(actor.getState(), deltaTime);
+        }
     }
 
-    public void draw(float deltaTime)
+    public void draw()
     {
         spriteBatch.begin();
         Sprite backgroundTexture = staticObjectsTextureMap.get(ObjectType.BACKGROUND_IMAGE);
@@ -116,12 +124,16 @@ public class GameView extends AbstractView implements IGameView
         }
         //draw actors
         for (Object actor : model.getActors()){
-            drawGameObject((IReadOnlyAnimatedActor)actor, deltaTime);
+            drawGameObject((IReadOnlyAnimatedActor)actor);
         }
 
         font.draw(spriteBatch, model.getMoney() + " $", screenX - 50, screenY - 20);
         font.draw(spriteBatch, "base health = " + model.getBaseHealth(), screenX - 200, screenY - 20);
         font.draw(spriteBatch, "enemy base health = " + model.getEnemyBaseHealth(), screenX - 400, screenY - 20);
+        String username = controller.getUsername();
+        String opponentUsername = controller.getOpponentUsername();
+        font.draw(spriteBatch, username, 30, screenY / 2 + 40);
+        font.draw(spriteBatch, opponentUsername, screenX - 80, screenY / 2 + 40);
 
         String msg = controller.getMessage();
         if (!msg.equals("")){
@@ -147,11 +159,11 @@ public class GameView extends AbstractView implements IGameView
         }
     }
 
-    private void drawGameObject(IReadOnlyAnimatedActor gameObject, float deltaTime){
+    private void drawGameObject(IReadOnlyAnimatedActor gameObject){
         String id = gameObject.getId();
         ObjectState objectState = gameObject.getState();
         Animator animator = actorsMap.get(id);
-        animator.update(objectState, deltaTime);
+        //animator.update(objectState, deltaTime);
         TextureRegion textureRegion = animator.getCurrentFrame();
         float x = (gameObject.getPosition().x - gameObject.getWidth()) * pixels_per_meter;
         float y = (gameObject.getPosition().y - gameObject.getHeight()) * pixels_per_meter;

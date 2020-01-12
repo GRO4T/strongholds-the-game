@@ -11,4 +11,5 @@ public interface IModel extends IReadOnlyModel{
     void createObject(String id, ObjectType objectType, Vector2 position, Vector2 size, boolean isEnemy);
     void createUnit(String id, ObjectType objectType, Vector2 position, Vector2 size, boolean isEnemy);
     void addMoney(long value);
+    void unitHit(String id, int damage);
 }

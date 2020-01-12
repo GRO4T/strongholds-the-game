@@ -5,12 +5,14 @@ import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.World;
 import com.strongholds.game.GameSingleton;
 import com.strongholds.game.model.DeathListener;
+import com.strongholds.game.model.Model;
 
 import java.util.Timer;
 import java.util.TimerTask;
 
 public class Unit extends AnimatedActor implements IUnit{
     DeathListener deathListener;
+    protected Model model;
 
     float speed = 500.0f; // prev 200
     boolean canAttack = true;
@@ -26,6 +28,10 @@ public class Unit extends AnimatedActor implements IUnit{
     public Unit(BodyDef bodyDef, float width, float height, GameSingleton.ObjectType type, String id, boolean isEnemy) {
         super(bodyDef, width, height, type, id, isEnemy);
         attackTimer = new Timer(true);
+    }
+
+    public void setModel(Model model){
+        this.model = model;
     }
 
     public void dispose(){

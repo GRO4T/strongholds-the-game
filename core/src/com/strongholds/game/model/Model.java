@@ -148,6 +148,14 @@ public class Model implements IModel, DeathListener
     }
 
     public void unitHit(String id, int damage){
+        if (id.equals("enemyBase")){
+            gameObjectsMap.get("base").gotHit(damage);
+        }
+        else{
+            actorsMap.get(id).gotHit(damage);
+        }
+    }
+    public void enemyUnitHit(String id, int damage){
         controller.addEvent(new ModelEvent(true, id, damage));
     }
 }

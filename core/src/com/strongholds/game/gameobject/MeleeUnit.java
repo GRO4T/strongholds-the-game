@@ -11,17 +11,13 @@ import java.util.TimerTask;
 
 public class MeleeUnit extends Unit implements IUnit{
     float range = 5.0f;
-    private Model model;
     Random randomGenerator;
 
     public MeleeUnit(BodyDef bodyDef, float width, float height, GameSingleton.ObjectType type, String id, boolean isEnemy) {
         super(bodyDef, width, height, type, id, isEnemy);
-        randomGenerator = new Random(Date.)
+        randomGenerator = new Random();
     }
 
-    public void setModel(Model model){
-        this.model = model;
-    }
 
     public void update(){
         if (getState() != GameSingleton.ObjectState.ATTACKING){
@@ -60,12 +56,22 @@ public class MeleeUnit extends Unit implements IUnit{
     private class AttackTask extends TimerTask{
         @Override
         public void run() {
+            boolean containsUnit = false;
             Iterator it = getTargets().iterator();
             while (it.hasNext()){
                 GameObject unit = (GameObject) it.next();
-                if (isEnemy() != unit.isEnemy()){
-                    //unit.gotHit(damage);
-                    model.unitHit(unit.getId(), damage + *random);
+                //check if there was a unit
+                if (!containsUnit && unit instanceof Unit)
+                    containsUnit = true;
+
+                //attack only if it is an enemy unit or if it is an enemy base but there was no units before
+                if (unit.isEnemy() && !(unit.getId().equals("enemyBase") && containsUnit)){
+                    int sign = randomGenerator.nextBoolean() == true ? 1 : -1;
+                    int finalDamage = damage + sign * randomGenerator.nextInt(4);
+                    model.enemyUnitHit(unit.getId(), finalDamage);
+                    unit.gotHit(finalDamage);
+                    System.out.println("unit id = " + unit.getId() + " got hit for " + finalDamage);
+
                 }
             }
             if (Math.abs(getVelocity().x) < 0.5f){

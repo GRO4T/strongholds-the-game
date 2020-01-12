@@ -12,5 +12,6 @@ public interface IViewController {
     AssetManager getAssetManager();
     void addEvent(ViewEvent event);
     String getMessage();
-    //void startNetworkController();
+    String getUsername();
+    String getOpponentUsername();
 }

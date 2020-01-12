@@ -22,6 +22,7 @@ public class MenuView extends AbstractView{
     private TextField ipField;
     private TextField outPortField;
     private TextField inPortField;
+    private TextField usernameField;
 
     String message = "";
 
@@ -57,12 +58,29 @@ public class MenuView extends AbstractView{
         table.setPosition(screenX / 2 - 100, screenY / 2);
         stage.addActor(table);
 
+        usernameField = new TextField("", skin);
+        usernameField.setMaxLength(10);
+        usernameField.setPosition(-30, 90);
+        usernameField.setSize(260, 50);
+        table.addActor(usernameField);
+
+        final Label usernameLabel = new Label("USERNAME", skin);
+        usernameLabel.setPosition(10, 140);
+        table.addActor(usernameLabel);
+
         table.addActor(createButton(0,  5, 200, 80,  "START GAME",
                 new ClickListener(){
                     @Override
                     public void clicked(InputEvent event, float x, float y){
-                        if (connected)
+                        if (connected){
+                            String username = usernameField.getText();
+                            if (username.equals("")){
+                                message = "You must pick a username";
+                                return;
+                            }
+                            controller.setUsername(usernameField.getText());
                             startGame();
+                        }
                         else
                             message = "You need to be connected in order to start the game";
                     }
@@ -155,7 +173,7 @@ public class MenuView extends AbstractView{
         spriteBatch.draw(background, 0, 0);
 
         if (message != ""){
-            font.draw(spriteBatch, message, screenX / 2 - message.length() * 3, screenY - 200);
+            font.draw(spriteBatch, message, screenX / 2 - message.length() * 3, screenY - 520);
         }
 
         spriteBatch.end();

@@ -7,6 +7,8 @@ import java.util.*;
 
 import com.strongholds.game.GameSingleton;
 import com.strongholds.game.GameSingleton.ObjectType;
+import com.strongholds.game.controller.IModelController;
+import com.strongholds.game.event.ModelEvent;
 import com.strongholds.game.gameobject.*;
 
 public class Model implements IModel, DeathListener
@@ -30,9 +32,11 @@ public class Model implements IModel, DeathListener
     private LinkedList<String> listOfDeadUnitsIds;
 
     private MyContactListener contactListener;
+    private IModelController controller;
 
-    public Model()
+    public Model(IModelController controller)
     {
+        this.controller = controller;
         money = startCash;
 
         world = new World(new Vector2(0, worldGravity), true);
@@ -80,16 +84,17 @@ public class Model implements IModel, DeathListener
     }
 
     @Override
-    public void createObject(String id, ObjectType objectType, Vector2 position, Vector2 size) {
-        GameObject newObject = gameObjectsFactory.createObject(id, objectType, position, size, false);
+    public void createObject(String id, ObjectType objectType, Vector2 position, Vector2 size, boolean isEnemy) {
+        GameObject newObject = gameObjectsFactory.createObject(id, objectType, position, size, isEnemy);
         gameObjectsMap.put(id, newObject);
     }
 
     @Override
     public void createUnit(String id, ObjectType objectType, Vector2 position, Vector2 size, boolean isEnemy) {
-        Unit newObject = (Unit)gameObjectsFactory.createObject(id, objectType, position, size, isEnemy);
-        newObject.setDeathListener(this);
-        actorsMap.put(id, (IUnit)newObject);
+        Unit newUnit = (Unit)gameObjectsFactory.createObject(id, objectType, position, size, isEnemy);
+        newUnit.setDeathListener(this);
+        newUnit.setModel(this);
+        actorsMap.put(id, newUnit);
     }
 
     @Override
@@ -140,5 +145,9 @@ public class Model implements IModel, DeathListener
             addMoney(moneyGain);
             addMoney = true;
         }
+    }
+
+    public void unitHit(String id, int damage){
+        controller.addEvent(new ModelEvent(true, id, damage));
     }
 }

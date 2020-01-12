@@ -46,6 +46,8 @@ public class GameSingleton {
     public static final short ACTOR_COLLISION_MASK = 0x0002;
     public static final short SENSOR_COLLISION_MASK = 0x0004;
     public static final short BASE_COLLISION_MASK = 0x0008;
+    public static final short ENEMY_BASE_COLLISION_MASK = 0x0010;
+    public static final short ENEMY_ACTOR_COLLISION_MASK = 0x0020;
 
     public float getPixels_per_meter(){ return pixels_per_meter; }
     public String[] getTextureFilenames(){ return textureFilenames; }

@@ -9,6 +9,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.strongholds.game.GameSingleton;
 import com.strongholds.game.GameSingleton.ObjectType;
 import com.strongholds.game.event.ErrorEvent;
+import com.strongholds.game.event.ModelEvent;
 import com.strongholds.game.event.ViewEvent;
 import com.strongholds.game.model.IModel;
 import com.strongholds.game.model.Model;
@@ -27,26 +28,26 @@ import java.util.concurrent.LinkedBlockingQueue;
 // It's our game controller
 
 public class StrongholdsGame extends ApplicationAdapter implements IViewController, IModelController, IMenuController, ObjectReceivedListener {
-	GameSingleton gameSingleton;
+	private GameSingleton gameSingleton;
 	private AssetManager assetManager;
 
-	final float Fps = 60.0f;
+	private final float Fps = 60.0f;
 	private int screenWidth;
 	private int screenHeight;
 
-	public boolean startGame;
+	private boolean startGame;
 
-	int nextId = 0;
+	private int nextId = 0;
 
 	private IModel model;
 	private IGameView gameView;
 	private MenuView menuView;
 
 	private String message = "";
-	Timer clearMessageTimer;
+	private Timer clearMessageTimer;
 
 	private LinkedBlockingQueue<ViewEvent> queueOfViewEvents;
-	//private LinkedBlockingQueue<ModelEvent> modelEventsQueue;
+	private LinkedBlockingQueue<ModelEvent> queueOfModelEvents;
 
 	private INetworkController networkController;
 	private Thread networkThread;
@@ -66,12 +67,13 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 	@Override
 	public void create () {
 		queueOfViewEvents = new LinkedBlockingQueue<>();
+		queueOfModelEvents = new LinkedBlockingQueue<>();
 
 		assetManager = new AssetManager();
 		loadAssets();
 
 		menuView = new MenuView(this, assetManager, screenWidth, screenHeight);
-		model = new Model();
+		model = new Model(this);
 		gameView = new GameView(model, this);
 		gameView.loadTextures();
 
@@ -84,8 +86,8 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 		menuView.init();
 
 		//test
-		//connect();
-		//startGame();
+		connect();
+		startGame();
 	}
 
 	private void createMap(){
@@ -95,14 +97,13 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 		friendliesSpawnPoint.add(new Vector2(gameView.getTextureSize(ObjectType.BASE).x - 60,0));
 		enemiesSpawnPoint = new Vector2((enemyBaseSpawnPoint));
 		enemiesSpawnPoint.add(new Vector2(20, 0));
-		createObject("base", ObjectType.BASE, friendlyBaseSpawnPoint);
-		createObject("enemyBase", ObjectType.BASE, enemyBaseSpawnPoint);
+		createObject("base", ObjectType.BASE, friendlyBaseSpawnPoint, false);
+		createObject("enemyBase", ObjectType.BASE, enemyBaseSpawnPoint, true);
 		GameObject base = (GameObject)model.getGameObject("base");
 		base.setHealth(100);
 		GameObject enemyBase = (GameObject)model.getGameObject("enemyBase");
-		enemyBase.setIsOnEnemySide(true);
 		enemyBase.setHealth(100);
-		createObject(ObjectType.PLATFORM, new Vector2(0, 0));
+		createObject(ObjectType.PLATFORM, new Vector2(0, 0), false);
 	}
 
 	@Override
@@ -144,12 +145,12 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 
 				boolean isEnemy = viewEvent.getIsEnemy();
 				if (isEnemy){
-					createUnit(unitType, enemiesSpawnPoint, isEnemy);
+					createUnit(unitType, enemiesSpawnPoint, true);
 				}
 				else{
 					long unitCost = gameSingleton.getCost(unitType);
 					if (model.getMoney() >= unitCost) {
-						createUnit(unitType, friendliesSpawnPoint, isEnemy);
+						createUnit(unitType, friendliesSpawnPoint, false);
 						//notify the opponent that you trained the unit
 						viewEvent.setIsEnemy(true);
 						networkController.addObjectRequest(viewEvent);
@@ -173,12 +174,12 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 	}
 
 
-	private void createObject(ObjectType objectType, Vector2 position){
-		createObject(Integer.toString(nextId++), objectType, position);
+	private void createObject(ObjectType objectType, Vector2 position, boolean isEnemy){
+		createObject(Integer.toString(nextId++), objectType, position, isEnemy);
 	}
 
-	private void createObject(String id, ObjectType objectType, Vector2 position){
-		model.createObject(id, objectType, position, gameView.getTextureSize(objectType));
+	private void createObject(String id, ObjectType objectType, Vector2 position, boolean isEnemy){
+		model.createObject(id, objectType, position, gameView.getTextureSize(objectType), isEnemy);
 	}
 
 	private void createUnit(ObjectType objectType, Vector2 position, boolean isEnemy){
@@ -196,6 +197,10 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 
 	public void addEvent(ViewEvent viewEvent){
 		queueOfViewEvents.add(viewEvent);
+	}
+
+	public void addEvent(ModelEvent modelEvent){
+		queueOfModelEvents.add(modelEvent);
 	}
 
 	public String getMessage() {

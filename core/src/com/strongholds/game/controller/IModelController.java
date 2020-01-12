@@ -1,5 +1,7 @@
 package com.strongholds.game.controller;
 
-public interface IModelController {
+import com.strongholds.game.event.ModelEvent;
 
+public interface IModelController {
+    void addEvent(ModelEvent modelEvent);
 }

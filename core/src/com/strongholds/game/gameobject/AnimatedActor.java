@@ -17,7 +17,7 @@ public class AnimatedActor extends GameObject implements IAnimatedActor {
         super(bodyDef, width, height, type, id, isEnemy);
         //state = new AnimatedActorState();
         targets = new LinkedList<>();
-
+/*
         //set main fixture's collisionFilter
         Filter filter = new Filter();
         filter.categoryBits = GameSingleton.ACTOR_COLLISION_MASK; // 0x0002
@@ -25,6 +25,8 @@ public class AnimatedActor extends GameObject implements IAnimatedActor {
                 | GameSingleton.ACTOR_COLLISION_MASK
                 | GameSingleton.SENSOR_COLLISION_MASK; // 0x0007 = 0x0004 OR 0x0002 OR 0x0001
         body.getFixtureList().first().setFilterData(filter);
+
+ */
 
         //create sensor definition
         CircleShape sensorShape = new CircleShape();
@@ -38,7 +40,15 @@ public class AnimatedActor extends GameObject implements IAnimatedActor {
         sensor.setUserData(this);
         Filter sensorFilter = new Filter();
         sensorFilter.categoryBits = GameSingleton.SENSOR_COLLISION_MASK;
-        sensorFilter.maskBits = GameSingleton.ACTOR_COLLISION_MASK;
+        if (isEnemy){
+            sensorFilter.maskBits = GameSingleton.ACTOR_COLLISION_MASK
+                    | GameSingleton.BASE_COLLISION_MASK;
+
+        }
+        else{
+            sensorFilter.maskBits = GameSingleton.ENEMY_ACTOR_COLLISION_MASK
+                    | GameSingleton.ENEMY_BASE_COLLISION_MASK;
+        }
         sensor.setFilterData(sensorFilter);
     }
 

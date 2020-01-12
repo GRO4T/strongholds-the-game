@@ -12,7 +12,7 @@ import java.util.TimerTask;
 public class Unit extends AnimatedActor implements IUnit{
     DeathListener deathListener;
 
-    float speed = 200.0f;
+    float speed = 500.0f; // prev 200
     boolean canAttack = true;
     int attackSpeed = 700;
     int timeBetweenAttacks = 1000;
@@ -61,7 +61,7 @@ public class Unit extends AnimatedActor implements IUnit{
     @Override
     public void gotHit(int damage){
         health -= damage;
-        if (health < 0){
+        if (health <= 0){
             health = 0;
             deathListener.notifyDeadUnit(getId());
         }

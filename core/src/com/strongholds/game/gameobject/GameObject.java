@@ -1,5 +1,6 @@
 package com.strongholds.game.gameobject;
 
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import com.strongholds.game.GameSingleton;
@@ -51,26 +52,47 @@ public class GameObject implements IGameObject{
         Filter filter = new Filter();
 
         if (type == GameSingleton.ObjectType.BASE){
-            filter.categoryBits = GameSingleton.BASE_COLLISION_MASK;
-            filter.maskBits = GameSingleton.GAME_OBJECT_COLLISION_MASK;
+            if (isEnemy){
+                System.out.println("im an enemy base");
+                filter.categoryBits = GameSingleton.ENEMY_BASE_COLLISION_MASK;
+                filter.maskBits = GameSingleton.GAME_OBJECT_COLLISION_MASK
+                        | GameSingleton.SENSOR_COLLISION_MASK
+                        | GameSingleton.ACTOR_COLLISION_MASK;
+            }
+            else{
+                filter.categoryBits = GameSingleton.BASE_COLLISION_MASK;
+                filter.maskBits = GameSingleton.GAME_OBJECT_COLLISION_MASK
+                        | GameSingleton.SENSOR_COLLISION_MASK
+                        | GameSingleton.ENEMY_ACTOR_COLLISION_MASK;
+            }
         }
         else if (type == GameSingleton.ObjectType.SWORDSMAN){
-            filter.categoryBits = GameSingleton.ACTOR_COLLISION_MASK;
-            filter.maskBits = GameSingleton.GAME_OBJECT_COLLISION_MASK
-                    | GameSingleton.SENSOR_COLLISION_MASK
-                    | GameSingleton.ACTOR_COLLISION_MASK;
+            if (isEnemy){
+                System.out.println("hey");
+                filter.categoryBits = GameSingleton.ENEMY_ACTOR_COLLISION_MASK;
+                filter.maskBits = GameSingleton.GAME_OBJECT_COLLISION_MASK
+                        | GameSingleton.SENSOR_COLLISION_MASK
+                        | GameSingleton.ACTOR_COLLISION_MASK
+                        | GameSingleton.BASE_COLLISION_MASK;
+            }
+            else{
+                filter.categoryBits = GameSingleton.ACTOR_COLLISION_MASK;
+                filter.maskBits = GameSingleton.GAME_OBJECT_COLLISION_MASK
+                        | GameSingleton.SENSOR_COLLISION_MASK
+                        | GameSingleton.ENEMY_ACTOR_COLLISION_MASK
+                        | GameSingleton.ENEMY_BASE_COLLISION_MASK;
+            }
         }
         else{
             filter.categoryBits = GameSingleton.GAME_OBJECT_COLLISION_MASK;
             filter.maskBits = GameSingleton.GAME_OBJECT_COLLISION_MASK
                     | GameSingleton.SENSOR_COLLISION_MASK
                     | GameSingleton.ACTOR_COLLISION_MASK
-                    | GameSingleton.BASE_COLLISION_MASK;
+                    | GameSingleton.ENEMY_ACTOR_COLLISION_MASK
+                    | GameSingleton.BASE_COLLISION_MASK
+                    | GameSingleton.ENEMY_BASE_COLLISION_MASK;
         }
 
-        filter.maskBits = GameSingleton.GAME_OBJECT_COLLISION_MASK
-                | GameSingleton.ACTOR_COLLISION_MASK
-                | GameSingleton.SENSOR_COLLISION_MASK;
         fixture.setFilterData(filter);
     }
 

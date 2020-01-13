@@ -129,6 +129,7 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 		}
 		else{
 			handleViewEvents();
+			setMessage(getMessage());
 		}
 
 		gameView.draw();
@@ -144,8 +145,15 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 	}
 
 	private void earlyUpdate(){
-		if (model.getBaseHealth() <= 0){
-			startGame = false;
+		if (model.getEnemyBaseHealth() <= 0){
+			running = false;
+			setMessage(username + " WON!");
+			gameView.gameFinished();
+		}
+		else if (model.getBaseHealth() <= 0){
+			running = false;
+			setMessage(opponentUsername + " WON!");
+			gameView.gameFinished();
 		}
 	}
 
@@ -185,10 +193,16 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 				setOpponentUsername(viewEvent.getUsername());
 			}
 			if (viewEvent.isTogglePaused()){
-				if (running)
+				if (running){
 					running = false;
+					setMessage("GAME PAUSED");
+				}
 				else
 					running = true;
+			}
+			if (viewEvent.isRestart()){
+				startGame = false;
+				menuView.init();
 			}
 		}
 	}
@@ -288,7 +302,6 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 	/* IMenuController */
 
 	public void startGame() {
-
 		Random random = new Random();
 		int idRange = 60000;
 		playerId = random.nextInt(idRange);
@@ -348,10 +361,6 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 
 	public AssetManager getAssetManager() {
 		return assetManager;
-	}
-
-	public void pause(){
-		running = false;
 	}
 }
 

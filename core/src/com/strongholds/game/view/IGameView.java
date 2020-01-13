@@ -11,4 +11,5 @@ public interface IGameView {
     Vector2 getTextureSize(ObjectType objectType);
     Vector2 getTextureSize(String id);
     void init();
+    void gameFinished();
 }

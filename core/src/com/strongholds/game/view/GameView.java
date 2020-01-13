@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 
+import java.util.EventListener;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -16,6 +17,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.utils.Array;
 import com.strongholds.game.GameSingleton;
 import com.strongholds.game.GameSingleton.ObjectType;
 import com.strongholds.game.GameSingleton.ObjectState;
@@ -42,6 +44,12 @@ public class GameView extends AbstractView implements IGameView
 
     private Map<ObjectType, Sprite> staticObjectsTextureMap;
     private Map<String, Animator> actorsMap;
+
+    TextButton pauseButton;
+    ClickListener pauseListener;
+    ClickListener restartListener;
+
+    private Vector2 msgPosition = new Vector2(50, 30);
 
     public GameView(IReadOnlyModel model, final IViewController controller)
     {
@@ -83,17 +91,38 @@ public class GameView extends AbstractView implements IGameView
                         controller.addEvent(new ViewEvent(true, ObjectType.SWORDSMAN));
                     }
                 }));
-        stage.addActor(createButton(screenX / 2 - 50,  screenY - 70, 100, 50, "pause",
-                new ClickListener(){
-                    @Override
-                    public void clicked(InputEvent event, float x, float y){
-                        controller.addEvent(new ViewEvent(true));
-                    }
-                }));
+
+        pauseListener = new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y){
+                controller.addEvent(new ViewEvent(true));
+            }};
+
+        pauseButton = createButton(screenX / 2 - 50,  screenY - 70, 100, 50, "pause", pauseListener);
+
+        stage.addActor(pauseButton);
+
+        restartListener = new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                ViewEvent restartEvent = new ViewEvent();
+                restartEvent.setRestart();
+                controller.addEvent(restartEvent);
+            }
+        };
     }
 
     public void init(){
         Gdx.input.setInputProcessor(stage);
+        msgPosition = new Vector2(50, 30);
+    }
+
+    @Override
+    public void gameFinished() {
+        pauseButton.removeListener(pauseListener);
+        pauseButton.setText("restart");
+        pauseButton.addListener(restartListener);
+        msgPosition = new Vector2(screenX / 2, screenY / 2);
     }
 
     public void update(float deltaTime)
@@ -112,10 +141,9 @@ public class GameView extends AbstractView implements IGameView
     public void draw()
     {
         spriteBatch.begin();
+
         Sprite backgroundTexture = staticObjectsTextureMap.get(ObjectType.BACKGROUND_IMAGE);
         spriteBatch.draw(backgroundTexture, 0, 0);
-        //spriteBatch.draw(backgroundTexture, -1200, 0);
-        //spriteBatch.draw(backgroundTexture, 1200, 0);
 
         // draw non-animated objects
         for (Object gameObject : model.getGameObjects())
@@ -130,18 +158,16 @@ public class GameView extends AbstractView implements IGameView
         font.draw(spriteBatch, model.getMoney() + " $", screenX - 50, screenY - 20);
         font.draw(spriteBatch, "base health = " + model.getBaseHealth(), screenX - 200, screenY - 20);
         font.draw(spriteBatch, "enemy base health = " + model.getEnemyBaseHealth(), screenX - 400, screenY - 20);
-        String username = controller.getUsername();
-        String opponentUsername = controller.getOpponentUsername();
-        font.draw(spriteBatch, username, 30, screenY / 2 + 40);
-        font.draw(spriteBatch, opponentUsername, screenX - 80, screenY / 2 + 40);
+        font.draw(spriteBatch, controller.getUsername(), 30, screenY / 2 + 40);
+        font.draw(spriteBatch, controller.getOpponentUsername(), screenX - 80, screenY / 2 + 40);
 
         String msg = controller.getMessage();
         if (!msg.equals("")){
-            font.draw(spriteBatch, msg, 50, 30);
+            font.draw(spriteBatch, msg, msgPosition.x, msgPosition.y);
         }
+
         spriteBatch.end();
 
-        //draw UI
         stage.draw();
     }
 
@@ -149,6 +175,7 @@ public class GameView extends AbstractView implements IGameView
         Sprite texture = staticObjectsTextureMap.get(gameObject.getType());
         float x = (gameObject.getPosition().x - gameObject.getWidth()) * pixels_per_meter;
         float y = (gameObject.getPosition().y - gameObject.getHeight()) * pixels_per_meter;
+
         if (gameObject.isEnemy()){
             texture.flip(true, false);
             spriteBatch.draw(texture, x, y);
@@ -161,9 +188,7 @@ public class GameView extends AbstractView implements IGameView
 
     private void drawGameObject(IReadOnlyAnimatedActor gameObject){
         String id = gameObject.getId();
-        ObjectState objectState = gameObject.getState();
         Animator animator = actorsMap.get(id);
-        //animator.update(objectState, deltaTime);
         TextureRegion textureRegion = animator.getCurrentFrame();
         float x = (gameObject.getPosition().x - gameObject.getWidth()) * pixels_per_meter;
         float y = (gameObject.getPosition().y - gameObject.getHeight()) * pixels_per_meter;
@@ -209,59 +234,39 @@ public class GameView extends AbstractView implements IGameView
     }
 
     public void loadActorSprites(String id, ObjectType objectType){
-        AnimationClip idle, move, attack;
+        AnimationClip idle = null, move = null, attack = null;
         GameSingleton.TextureInfo textureInfos[] = GameSingleton.getGameSingleton().getActorTextureInfo(objectType);
-        try{
-            idle = new AnimationClip(
-                    getTexture(textureInfos[0].filename),
-                    textureInfos[0].cols,
-                    textureInfos[0].rows,
-                    textureInfos[0].filledFrames,
-                    textureInfos[0].interval
-            );
-        }
-        catch (NullPointerException e){
-            System.out.println("IDLE TextureInfo not set " + GameSingleton.getGameSingleton().toString(objectType));
-            idle = new AnimationClip();
-        }
-        try{
-            move = new AnimationClip(
-                    getTexture(textureInfos[1].filename),
-                    textureInfos[1].cols,
-                    textureInfos[1].rows,
-                    textureInfos[1].filledFrames,
-                    textureInfos[1].interval
-            );
-        }
-        catch (NullPointerException e){
-            System.out.println("MOVE TextureInfo not set " + GameSingleton.getGameSingleton().toString(objectType));
-            move = new AnimationClip();
-        }
-        try{
-            attack = new AnimationClip(
-                    getTexture(textureInfos[2].filename),
-                    textureInfos[2].cols,
-                    textureInfos[2].rows,
-                    textureInfos[2].filledFrames,
-                    textureInfos[2].interval
-            );
-        }
-        catch (NullPointerException e){
-            System.out.println("ATTACK TextureInfo not set " + GameSingleton.getGameSingleton().toString(objectType));
-            attack = new AnimationClip();
-        }
+
+        idle = loadAnimationClip(textureInfos[0], "IDLE TextureInfo not set " + GameSingleton.getGameSingleton().toString(objectType));
+        move = loadAnimationClip(textureInfos[1], "MOVE TextureInfo not set " + GameSingleton.getGameSingleton().toString(objectType));
+        attack = loadAnimationClip(textureInfos[2], "ATTACK TextureInfo not set " + GameSingleton.getGameSingleton().toString(objectType));
 
         actorsMap.put(id, new Animator(idle, move, attack));
     }
-    /*
-    private void handleInput(){
-        if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
-            cam.translate(-cameraSpeed, 0, 0);
+
+    /**
+     *
+     * @param textureInfo
+     * @param msgOnNull
+     * @return
+     */
+    private AnimationClip loadAnimationClip(GameSingleton.TextureInfo textureInfo, String msgOnNull){
+        AnimationClip clip;
+        try{
+            clip = new AnimationClip(
+                    getTexture(textureInfo.filename),
+                    textureInfo.cols,
+                    textureInfo.rows,
+                    textureInfo.filledFrames,
+                    textureInfo.interval
+            );
         }
-        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
-            cam.translate(cameraSpeed, 0, 0);
+        catch (NullPointerException e){
+            System.out.println(msgOnNull);
+            clip = new AnimationClip();
         }
-    }*/
+        return clip;
+    }
 
         /* GETTERS AND SETTERS */
 
@@ -276,7 +281,7 @@ public class GameView extends AbstractView implements IGameView
             texture = actorsMap.get(id).getCurrentFrame();
         }
         catch(NullPointerException e){
-            System.out.println("animation not set for actor of type " +
+            System.out.println("Animator not set for actor of type " +
                     GameSingleton.getGameSingleton().toString(model.getActor(id).getType()));
         }
         return new Vector2(texture.getRegionWidth(), texture.getRegionHeight());

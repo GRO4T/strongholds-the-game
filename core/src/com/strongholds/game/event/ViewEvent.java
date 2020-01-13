@@ -15,6 +15,10 @@ public class ViewEvent implements Serializable {
 
     private boolean togglePaused = false;
 
+    private boolean restart = false;
+
+    public ViewEvent(){}
+
     public ViewEvent(boolean trainUnit, GameSingleton.ObjectType unitType) {
         this.trainUnit = trainUnit;
         this.unitType = unitType;
@@ -52,5 +56,13 @@ public class ViewEvent implements Serializable {
 
     public boolean isTogglePaused() {
         return togglePaused;
+    }
+
+    public boolean isRestart() {
+        return restart;
+    }
+
+    public void setRestart() {
+        restart = true;
     }
 }

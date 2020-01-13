@@ -87,8 +87,11 @@ public class Model implements IModel, DeathListener
     @Override
     public void createObject(String id, ObjectType objectType, Vector2 position, Vector2 size, boolean isEnemy) {
         GameObject newObject = gameObjectsFactory.createObject(id, objectType, position, size, isEnemy);
-        if (objectType == ObjectType.BASE)
+        if (objectType == ObjectType.BASE){
             newObject.setHealth(baseInitialHealth);
+            newObject.setMaxHealth(baseInitialHealth);
+        }
+
         gameObjectsMap.put(id, newObject);
     }
 

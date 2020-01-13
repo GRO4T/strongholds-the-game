@@ -15,7 +15,8 @@ public class GameObject implements IGameObject{
 
     private String id;
 
-    int health;
+    protected int health;
+    protected int maxHealth;
 
     private boolean isEnemy;
 
@@ -138,7 +139,15 @@ public class GameObject implements IGameObject{
         return health;
     }
 
+    public int getMaxHealth(){
+        return maxHealth;
+    }
+
     public void setHealth(int health) {
         this.health = health;
+    }
+
+    public void setMaxHealth(int value) {
+        maxHealth = value;
     }
 }

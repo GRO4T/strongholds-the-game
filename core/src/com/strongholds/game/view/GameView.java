@@ -17,19 +17,14 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
-import com.badlogic.gdx.utils.Array;
 import com.strongholds.game.GameSingleton;
 import com.strongholds.game.GameSingleton.ObjectType;
-import com.strongholds.game.GameSingleton.ObjectState;
 import com.strongholds.game.controller.IViewController;
 import com.strongholds.game.event.ViewEvent;
-import com.strongholds.game.gameobject.IAnimatedActor;
 import com.strongholds.game.gameobject.IReadOnlyUnit;
 import com.strongholds.game.model.IReadOnlyModel;
 import com.strongholds.game.gameobject.IReadOnlyAnimatedActor;
 import com.strongholds.game.gameobject.IReadOnlyGameObject;
-
-import javax.swing.text.View;
 
 public class GameView extends AbstractView implements IGameView
 {
@@ -50,6 +45,7 @@ public class GameView extends AbstractView implements IGameView
     ClickListener restartListener;
 
     private Vector2 msgPosition = new Vector2(50, 30);
+
 
     public GameView(IReadOnlyModel model, final IViewController controller)
     {
@@ -115,6 +111,8 @@ public class GameView extends AbstractView implements IGameView
     public void init(){
         Gdx.input.setInputProcessor(stage);
         msgPosition = new Vector2(50, 30);
+
+
     }
 
     @Override
@@ -156,10 +154,8 @@ public class GameView extends AbstractView implements IGameView
         }
 
         font.draw(spriteBatch, model.getMoney() + " $", screenX - 50, screenY - 20);
-        font.draw(spriteBatch, "base health = " + model.getBaseHealth(), screenX - 200, screenY - 20);
-        font.draw(spriteBatch, "enemy base health = " + model.getEnemyBaseHealth(), screenX - 400, screenY - 20);
-        font.draw(spriteBatch, controller.getUsername(), 30, screenY / 2 + 40);
-        font.draw(spriteBatch, controller.getOpponentUsername(), screenX - 80, screenY / 2 + 40);
+        font.draw(spriteBatch, controller.getUsername(), 30, screenY / 2 + 60);
+        font.draw(spriteBatch, controller.getOpponentUsername(), screenX - 80, screenY / 2 + 60);
 
         String msg = controller.getMessage();
         if (!msg.equals("")){
@@ -184,6 +180,10 @@ public class GameView extends AbstractView implements IGameView
         else {
             spriteBatch.draw(texture, x, y);
         }
+
+        if (gameObject.getType() == ObjectType.BASE){
+            drawHealthBar(gameObject, x, y);
+        }
     }
 
     private void drawGameObject(IReadOnlyAnimatedActor gameObject){
@@ -196,33 +196,51 @@ public class GameView extends AbstractView implements IGameView
         if (gameObject.isEnemy()){
             textureRegion.flip(true, false);
             spriteBatch.draw(textureRegion, x, y);
-            if (gameObject.getType() == ObjectType.SWORDSMAN){
-                drawHealthBar((IReadOnlyUnit)gameObject, x, y);
-            }
             textureRegion.flip(true, false);
         }
         else {
             spriteBatch.draw(textureRegion, x, y);
-            if (gameObject.getType() == ObjectType.SWORDSMAN){
-                drawHealthBar((IReadOnlyUnit)gameObject, x, y);
-            }
+        }
+
+        if (gameObject.getType() == ObjectType.SWORDSMAN){
+            drawHealthBar(gameObject, x , y);
         }
     }
 
-    private void drawHealthBar(IReadOnlyUnit actor, float x, float y){
-        float healthBarWidth = 35;
-        float healthBarHeight = 5;
+    private void drawHealthBar(IReadOnlyGameObject actor, float x, float y){
+        float healthBarWidth;
+        float healthBarHeight;
+        float offsetY;
+        float offsetX;
+
+        if (actor.getType() == ObjectType.BASE){
+            healthBarWidth = 100;
+            healthBarHeight = 10;
+            offsetY = 265.0f;
+            if (actor.isEnemy()){
+                offsetX = 10.0f;
+            }
+            else{
+                offsetX = 20.0f;
+            }
+        }
+        else{
+            healthBarWidth = 35;
+            healthBarHeight = 5;
+            offsetX = 0.0f;
+            offsetY = getTextureSize(actor.getId()).y;
+        }
+
         float effectiveHealthBarWidth = (float)actor.getHealth() / (float)actor.getMaxHealth() * healthBarWidth;
-        float offsetY = getTextureSize(actor.getId()).y;
 
         spriteBatch.end();
         ShapeRenderer shapeRenderer = new ShapeRenderer();
         shapeRenderer.setProjectionMatrix(spriteBatch.getProjectionMatrix());
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         shapeRenderer.setColor(Color.WHITE);
-        shapeRenderer.rect(x, y + offsetY, healthBarWidth, healthBarHeight);
+        shapeRenderer.rect(x + offsetX, y + offsetY, healthBarWidth, healthBarHeight);
         shapeRenderer.setColor(Color.RED);
-        shapeRenderer.rect(x, y + offsetY, effectiveHealthBarWidth, healthBarHeight);
+        shapeRenderer.rect(x + offsetX, y + offsetY, effectiveHealthBarWidth, healthBarHeight);
         shapeRenderer.end();
         spriteBatch.begin();
     }

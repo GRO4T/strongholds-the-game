@@ -11,4 +11,6 @@ public interface IReadOnlyGameObject {
     float getHeight();
     GameSingleton.ObjectType getType();
     String getId();
+    int getHealth();
+    int getMaxHealth();
 }

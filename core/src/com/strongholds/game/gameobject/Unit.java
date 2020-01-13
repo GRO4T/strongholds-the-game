@@ -14,7 +14,7 @@ public class Unit extends AnimatedActor implements IUnit{
     DeathListener deathListener;
     protected Model model;
 
-    float speed = 500.0f; // prev 200
+    float speed = 200.0f; // prev 200
     boolean canAttack = true;
     int attackSpeed = 700;
     int timeBetweenAttacks = 1000;

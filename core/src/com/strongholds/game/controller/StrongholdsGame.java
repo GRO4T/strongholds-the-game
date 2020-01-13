@@ -79,22 +79,27 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 		assetManager = new AssetManager();
 		loadAssets();
 
-		model = new Model(this);
 		menuView = new MenuView(this, assetManager, screenWidth, screenHeight);
-		gameView = new GameView(model, this);
-		gameView.loadTextures();
-
-		createMap();
 
 		networkController = new TcpServer();
 		networkController.registerController(this);
-		networkThread = new Thread(networkController);
+		//networkThread = new Thread(networkController);
+		//networkThread.start();
 
 		menuView.init();
 
 		//test
-		connect();
-		startGame();
+		//connect();
+		//startGame();
+	}
+
+	private void initGame(){
+		running = true;
+		message = "";
+		model = new Model(this);
+		gameView = new GameView(model, this);
+		gameView.loadTextures();
+		createMap();
 	}
 
 	private void createMap(){
@@ -106,10 +111,6 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 		enemiesSpawnPoint.add(new Vector2(20, 0));
 		createObject("base", ObjectType.BASE, friendlyBaseSpawnPoint, false);
 		createObject("enemyBase", ObjectType.BASE, enemyBaseSpawnPoint, true);
-		GameObject base = (GameObject)model.getGameObject("base");
-		base.setHealth(100);
-		GameObject enemyBase = (GameObject)model.getGameObject("enemyBase");
-		enemyBase.setHealth(100);
 		createObject(ObjectType.PLATFORM, new Vector2(0, 0), false);
 	}
 
@@ -147,12 +148,14 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 	private void earlyUpdate(){
 		if (model.getEnemyBaseHealth() <= 0){
 			running = false;
-			setMessage(username + " WON!");
+			//setMessage(username + " WON!");
+			message = username + " WON!";
 			gameView.gameFinished();
 		}
 		else if (model.getBaseHealth() <= 0){
 			running = false;
-			setMessage(opponentUsername + " WON!");
+			message = opponentUsername + " WON!";
+			//setMessage(opponentUsername + " WON!");
 			gameView.gameFinished();
 		}
 	}
@@ -202,6 +205,7 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 			}
 			if (viewEvent.isRestart()){
 				startGame = false;
+				networkController.stop();
 				menuView.init();
 			}
 		}
@@ -227,7 +231,7 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 
 
 	private void createObject(ObjectType objectType, Vector2 position, boolean isEnemy){
-		String id = Integer.toString(nextId++) + Integer.toString(playerId);
+		String id = Integer.toString(nextId++) + playerId;
 		createObject(id, objectType, position, isEnemy);
 	}
 
@@ -236,7 +240,7 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 	}
 
 	private String createUnit(ObjectType objectType, Vector2 position, boolean isEnemy){
-		String id = Integer.toString(nextId++) + Integer.toString(playerId);
+		String id = Integer.toString(nextId++) + playerId;
 		return createUnit(id, objectType, position, isEnemy);
 	}
 
@@ -302,6 +306,8 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 	/* IMenuController */
 
 	public void startGame() {
+		initGame();
+
 		Random random = new Random();
 		int idRange = 60000;
 		playerId = random.nextInt(idRange);
@@ -314,6 +320,7 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 	private void startNetworkController(){
 		networkThread = new Thread(networkController);
 		networkThread.start();
+		networkController.start();
 	}
 
 	public boolean connect(){

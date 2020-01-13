@@ -50,4 +50,14 @@ public interface INetworkController extends Runnable{
      * Should be called before server is destroyed.
      */
     void dispose();
+
+    /**
+     *
+     */
+    void stop();
+
+    /**
+     *
+     */
+    void start();
 }

@@ -24,6 +24,8 @@ public class TcpServer implements INetworkController{
     private int outPort = 46004;
     private String ip = "127.0.0.1";
 
+    private boolean running = false;
+
     private final int connectionWaitTimeInMillis = 2000;
     private final int connectionWaitTimeInNanos = connectionWaitTimeInMillis * 1000000;
 
@@ -48,7 +50,7 @@ public class TcpServer implements INetworkController{
     private class ObjectSender implements Runnable{
         @Override
         public void run() {
-            while(true){
+            while(running){
                 if (objectsToSend.size() > 0){
                     Object objToSend = objectsToSend.poll();
                     ObjectOutputStream out;
@@ -69,7 +71,7 @@ public class TcpServer implements INetworkController{
     private class ObjectReceiver implements Runnable{
         @Override
         public void run(){
-            while(true){
+            while(running){
                 Socket s;
                 ObjectInputStream in;
                 Object receivedObj = null;
@@ -79,7 +81,6 @@ public class TcpServer implements INetworkController{
                     receivedObj = in.readObject();
                     s.close();
                 } catch (IOException e) {
-                    //e.printStackTrace();
                     ErrorEvent opponentDisconnected = new ErrorEvent();
                     opponentDisconnected.setOpponentDisconnected(true);
                     controller.notifyOnError(opponentDisconnected);
@@ -117,6 +118,14 @@ public class TcpServer implements INetworkController{
                 e.printStackTrace();
             }
         }
+    }
+
+    public void stop(){
+        running = false;
+    }
+
+    public void start(){
+        running = true;
     }
 
     public void registerController(ObjectReceivedListener controller) {
@@ -198,6 +207,7 @@ public class TcpServer implements INetworkController{
                         Socket receiver = null;
                         try{
                             receiver = new Socket(ip, inPort);
+                            receiver.setSoTimeout(10000);
                             DataInputStream inputStream = new DataInputStream(receiver.getInputStream());
                             //String bytes = new String(inputStream.readNBytes(5));
                             byte[] bytes = new byte[6];
@@ -209,7 +219,7 @@ public class TcpServer implements INetworkController{
                             return;
                         }
                         catch(IOException e){
-                            //e.printStackTrace();
+                            e.printStackTrace();
                             System.out.println("receiver error");
                             if (receiver != null) {
                                 try {

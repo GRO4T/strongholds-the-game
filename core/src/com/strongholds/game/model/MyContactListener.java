@@ -26,8 +26,6 @@ public class MyContactListener implements ContactListener {
             }
             return;
         }
-        //GameObject objectA = (GameObject) (contact.getFixtureA().getUserData());
-        //GameObject objectB = (GameObject) (contact.getFixtureB().getUserData());
     }
 
     @Override

@@ -24,7 +24,7 @@ public class MenuView extends AbstractView{
     private TextField inPortField;
     private TextField usernameField;
 
-    String message = "";
+    private String message = "";
 
     private boolean connected = false;
 
@@ -165,6 +165,8 @@ public class MenuView extends AbstractView{
     }
 
     public void init(){
+        message = "";
+        connected = false;
         Gdx.input.setInputProcessor(stage);
     }
 

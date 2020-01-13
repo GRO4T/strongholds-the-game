@@ -9,24 +9,12 @@ import com.strongholds.game.GameSingleton.ObjectState;
 import java.util.LinkedList;
 
 public class AnimatedActor extends GameObject implements IAnimatedActor {
-    //private AnimatedActorState state;
     private ObjectState state;
     private LinkedList<GameObject> targets;
 
     public AnimatedActor(BodyDef bodyDef, float width, float height, ObjectType type, String id, boolean isEnemy) {
         super(bodyDef, width, height, type, id, isEnemy);
-        //state = new AnimatedActorState();
         targets = new LinkedList<>();
-/*
-        //set main fixture's collisionFilter
-        Filter filter = new Filter();
-        filter.categoryBits = GameSingleton.ACTOR_COLLISION_MASK; // 0x0002
-        filter.maskBits = GameSingleton.GAME_OBJECT_COLLISION_MASK
-                | GameSingleton.ACTOR_COLLISION_MASK
-                | GameSingleton.SENSOR_COLLISION_MASK; // 0x0007 = 0x0004 OR 0x0002 OR 0x0001
-        body.getFixtureList().first().setFilterData(filter);
-
- */
 
         //create sensor definition
         CircleShape sensorShape = new CircleShape();
@@ -43,7 +31,6 @@ public class AnimatedActor extends GameObject implements IAnimatedActor {
         if (isEnemy){
             sensorFilter.maskBits = GameSingleton.ACTOR_COLLISION_MASK
                     | GameSingleton.BASE_COLLISION_MASK;
-
         }
         else{
             sensorFilter.maskBits = GameSingleton.ENEMY_ACTOR_COLLISION_MASK
@@ -68,7 +55,6 @@ public class AnimatedActor extends GameObject implements IAnimatedActor {
 
     @Override
     public void gotHit(int damage){
-        System.out.println(getId() + " got hit for " + damage);
         Vector2 impulse;
         float knockbackMultiplier = 15.0f;
         if (isEnemy()){

@@ -18,7 +18,6 @@ public class Model implements IModel, DeathListener
     private final int positionIterations = 2;
     private final float worldGravity = -15.0f;
 
-    //Queue events;
     private Timer taskScheduler;
     private boolean addMoney = true;
     private int incomeInterval = 1000;
@@ -33,6 +32,8 @@ public class Model implements IModel, DeathListener
 
     private MyContactListener contactListener;
     private IModelController controller;
+
+    private final int baseInitialHealth = 10;
 
     public Model(IModelController controller)
     {
@@ -86,6 +87,8 @@ public class Model implements IModel, DeathListener
     @Override
     public void createObject(String id, ObjectType objectType, Vector2 position, Vector2 size, boolean isEnemy) {
         GameObject newObject = gameObjectsFactory.createObject(id, objectType, position, size, isEnemy);
+        if (objectType == ObjectType.BASE)
+            newObject.setHealth(baseInitialHealth);
         gameObjectsMap.put(id, newObject);
     }
 

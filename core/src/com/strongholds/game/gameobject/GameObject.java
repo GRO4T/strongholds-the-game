@@ -6,8 +6,8 @@ import com.badlogic.gdx.physics.box2d.*;
 import com.strongholds.game.GameSingleton;
 
 public class GameObject implements IGameObject{
-    GameSingleton gameSingleton;
-    World world;
+    private GameSingleton gameSingleton;
+    private World world;
     protected Body body;
     private GameSingleton.ObjectType type;
     private float width;
@@ -15,9 +15,9 @@ public class GameObject implements IGameObject{
 
     private String id;
 
-    int health = 1000;
+    int health;
 
-    private boolean isEnemy = false;
+    private boolean isEnemy;
 
     public GameObject(BodyDef bodyDef, float width, float height, GameSingleton.ObjectType type, String id, boolean isEnemy) {
         gameSingleton = GameSingleton.getGameSingleton();
@@ -53,7 +53,6 @@ public class GameObject implements IGameObject{
 
         if (type == GameSingleton.ObjectType.BASE){
             if (isEnemy){
-                System.out.println("im an enemy base");
                 filter.categoryBits = GameSingleton.ENEMY_BASE_COLLISION_MASK;
                 filter.maskBits = GameSingleton.GAME_OBJECT_COLLISION_MASK
                         | GameSingleton.SENSOR_COLLISION_MASK
@@ -68,7 +67,6 @@ public class GameObject implements IGameObject{
         }
         else if (type == GameSingleton.ObjectType.SWORDSMAN){
             if (isEnemy){
-                System.out.println("hey");
                 filter.categoryBits = GameSingleton.ENEMY_ACTOR_COLLISION_MASK;
                 filter.maskBits = GameSingleton.GAME_OBJECT_COLLISION_MASK
                         | GameSingleton.SENSOR_COLLISION_MASK
@@ -121,7 +119,6 @@ public class GameObject implements IGameObject{
     }
 
     public void gotHit(int damage){
-        System.out.println("base hit for " + damage);
         health -= damage;
         if (health < 0)
             health = 0;
@@ -136,8 +133,6 @@ public class GameObject implements IGameObject{
     }
 
     public boolean isEnemy(){ return isEnemy; }
-
-    public void setIsOnEnemySide(boolean isOnEnemySide){ this.isEnemy = isOnEnemySide; }
 
     public int getHealth() {
         return health;

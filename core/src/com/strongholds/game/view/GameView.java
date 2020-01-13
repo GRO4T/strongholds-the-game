@@ -8,7 +8,6 @@ import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 
-import java.util.EventListener;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -21,7 +20,6 @@ import com.strongholds.game.GameSingleton;
 import com.strongholds.game.GameSingleton.ObjectType;
 import com.strongholds.game.controller.IViewController;
 import com.strongholds.game.event.ViewEvent;
-import com.strongholds.game.gameobject.IReadOnlyUnit;
 import com.strongholds.game.model.IReadOnlyModel;
 import com.strongholds.game.gameobject.IReadOnlyAnimatedActor;
 import com.strongholds.game.gameobject.IReadOnlyGameObject;

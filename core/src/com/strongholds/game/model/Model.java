@@ -33,7 +33,7 @@ public class Model implements IModel, DeathListener
     private MyContactListener contactListener;
     private IModelController controller;
 
-    private final int baseInitialHealth = 10;
+    private final int baseInitialHealth = 100;
 
     public Model(IModelController controller)
     {

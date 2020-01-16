@@ -26,7 +26,8 @@ public class MenuView extends AbstractView{
 
     private String message = "";
 
-    private boolean connected = false;
+    private boolean connected;
+    private boolean opponentStarted;
 
     public MenuView(IMenuController controller, AssetManager assetManager, int screenX, int screenY){
         this.assetManager = assetManager;
@@ -79,6 +80,7 @@ public class MenuView extends AbstractView{
                                 return;
                             }
                             controller.setUsername(usernameField.getText());
+
                             startGame();
                         }
                         else
@@ -167,7 +169,12 @@ public class MenuView extends AbstractView{
     public void init(){
         message = "";
         connected = false;
+        opponentStarted = false;
         Gdx.input.setInputProcessor(stage);
+    }
+
+    public void update(){
+
     }
 
     public void draw(){

@@ -17,6 +17,10 @@ public class ViewEvent implements Serializable {
 
     private boolean restart = false;
 
+    private boolean start = false;
+
+    private boolean fromNetwork = false;
+
     public ViewEvent(){}
 
     public ViewEvent(boolean trainUnit, GameSingleton.ObjectType unitType) {
@@ -64,5 +68,21 @@ public class ViewEvent implements Serializable {
 
     public void setRestart() {
         restart = true;
+    }
+
+    public boolean isStart() {
+        return start;
+    }
+
+    public void setStart() {
+        start = true;
+    }
+
+    public boolean isFromNetwork(){
+        return fromNetwork;
+    }
+
+    public void setFromNetwork(){
+        fromNetwork = true;
     }
 }

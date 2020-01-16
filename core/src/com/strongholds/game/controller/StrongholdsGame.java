@@ -13,7 +13,6 @@ import com.strongholds.game.event.ModelEvent;
 import com.strongholds.game.event.ViewEvent;
 import com.strongholds.game.model.IModel;
 import com.strongholds.game.model.Model;
-import com.strongholds.game.gameobject.GameObject;
 import com.strongholds.game.net.INetworkController;
 import com.strongholds.game.net.ObjectReceivedListener;
 import com.strongholds.game.net.TcpServer;
@@ -36,8 +35,9 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 	private int screenWidth;
 	private int screenHeight;
 
-	//private boolean startGame;
-	public boolean startGame;
+	private boolean startGame;
+	private boolean opponentStartGame;
+
 	private boolean running = true;
 
 	private int nextId = 0;
@@ -83,8 +83,6 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 
 		networkController = new TcpServer();
 		networkController.registerController(this);
-		//networkThread = new Thread(networkController);
-		//networkThread.start();
 
 		menuView.init();
 
@@ -94,7 +92,9 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 	}
 
 	private void initGame(){
-		running = true;
+		running = false;
+		startGame = false;
+		opponentStartGame = false;
 		message = "";
 		model = new Model(this);
 		gameView = new GameView(model, this);
@@ -130,7 +130,7 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 		}
 		else{
 			handleViewEvents();
-			setMessage(getMessage());
+			setMessageAndClearAfterTime(getMessage());
 		}
 
 		gameView.draw();
@@ -148,14 +148,12 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 	private void earlyUpdate(){
 		if (model.getEnemyBaseHealth() <= 0){
 			running = false;
-			//setMessage(username + " WON!");
 			message = username + " WON!";
 			gameView.gameFinished();
 		}
 		else if (model.getBaseHealth() <= 0){
 			running = false;
 			message = opponentUsername + " WON!";
-			//setMessage(opponentUsername + " WON!");
 			gameView.gameFinished();
 		}
 	}
@@ -169,45 +167,64 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 		ViewEvent viewEvent;
 		while (queueOfViewEvents.size() > 0){
 			viewEvent = queueOfViewEvents.poll();
-			if (viewEvent.toTrainUnit()){
-				ObjectType unitType = viewEvent.getUnitType();
-
-				boolean isEnemy = viewEvent.getIsEnemy();
-				if (isEnemy){
-					createUnit(viewEvent.getUnitId(), unitType, enemiesSpawnPoint, true);
+			if (opponentStartGame){
+				if (viewEvent.toTrainUnit() && running){
+					handleUnitTraining(viewEvent);
 				}
-				else{
-					long unitCost = gameSingleton.getCost(unitType);
-					if (model.getMoney() >= unitCost) {
-						String id = createUnit(unitType, friendliesSpawnPoint, false);
-						//notify the opponent that you trained the unit
-						System.out.println(id);
-						viewEvent.setEnemy(true);
-						viewEvent.setUnitId(id);
+				if (viewEvent.isTogglePaused()){
+					if (!viewEvent.isFromNetwork()){
+						viewEvent.setFromNetwork();
 						networkController.addObjectRequest(viewEvent);
-						model.addMoney(-unitCost);
 					}
-					else
-						setMessage("NOT ENOUGH MONEY");
-
+					if (running){
+						running = false;
+						message = "GAME PAUSED";
+					}
+					else{
+						running = true;
+						message = "";
+					}
+				}
+				if (viewEvent.isRestart()){
+					startGame = false;
+					networkController.stop();
+					menuView.init();
 				}
 			}
-			if (viewEvent.isSetUsername()){
-				setOpponentUsername(viewEvent.getUsername());
-			}
-			if (viewEvent.isTogglePaused()){
-				if (running){
-					running = false;
-					setMessage("GAME PAUSED");
+			else{
+				if (viewEvent.isSetUsername()){
+					setOpponentUsername(viewEvent.getUsername());
 				}
-				else
+				if (viewEvent.isStart()){
 					running = true;
+					startGame = true;
+					opponentStartGame = true;
+					message = "";
+				}
 			}
-			if (viewEvent.isRestart()){
-				startGame = false;
-				networkController.stop();
-				menuView.init();
+		}
+	}
+
+	private void handleUnitTraining(ViewEvent viewEvent){
+		ObjectType unitType = viewEvent.getUnitType();
+
+		boolean isEnemy = viewEvent.getIsEnemy();
+		if (isEnemy){
+			createUnit(viewEvent.getUnitId(), unitType, enemiesSpawnPoint, true);
+		}
+		else{
+			long unitCost = gameSingleton.getCost(unitType);
+			if (model.getMoney() >= unitCost) {
+				String id = createUnit(unitType, friendliesSpawnPoint, false);
+				//notify the opponent that you trained the unit
+				viewEvent.setEnemy(true);
+				viewEvent.setUnitId(id);
+				networkController.addObjectRequest(viewEvent);
+				model.addMoney(-unitCost);
 			}
+			else
+				setMessageAndClearAfterTime("NOT ENOUGH MONEY");
+
 		}
 	}
 
@@ -265,7 +282,7 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 		return message;
 	}
 
-	private void setMessage(String message){
+	private void setMessageAndClearAfterTime(String message){
 		if (this.message.equals(message))
 			return;
 
@@ -299,22 +316,32 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 
 	public void notifyOnError(ErrorEvent errorEvent) {
 		if (errorEvent.isOpponentDisconnected()){
-			setMessage("OPPONENT DISCONNECTED");
+			if (opponentStartGame){
+				setMessageAndClearAfterTime("OPPONENT DISCONNECTED");
+				running = false;
+				gameView.gameFinished();
+			}
 		}
 	}
 
 	/* IMenuController */
 
 	public void startGame() {
-		initGame();
+		startNetworkController();
 
+		initGame();
 		Random random = new Random();
 		int idRange = 60000;
 		playerId = random.nextInt(idRange);
+
 		gameView.init();
-		startNetworkController();
+
+		ViewEvent startGameEvent = new ViewEvent();
+		startGameEvent.setStart();
+		networkController.addObjectRequest(startGameEvent);
 
 		startGame = true;
+		message = "Waiting for the opponent...";
 	}
 
 	private void startNetworkController(){

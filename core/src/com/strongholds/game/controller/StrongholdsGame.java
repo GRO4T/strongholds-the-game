@@ -18,6 +18,7 @@ import com.strongholds.game.net.ObjectReceivedListener;
 import com.strongholds.game.net.TcpServer;
 import com.strongholds.game.view.IGameView;
 import com.strongholds.game.view.GameView;
+import com.strongholds.game.view.IMenuView;
 import com.strongholds.game.view.MenuView;
 
 import java.util.Random;
@@ -26,30 +27,57 @@ import java.util.TimerTask;
 import java.util.concurrent.LinkedBlockingQueue;
 
 /**
- * Game Controller
- * Has references
+ * game controller
  */
 public class StrongholdsGame extends ApplicationAdapter implements IViewController, IModelController, IMenuController, ObjectReceivedListener {
+	/**
+	 * reference to global GameSingleton
+	 */
 	private GameSingleton gameSingleton;
+	/**
+	 * instance of libgdx's AssetManager
+	 */
 	private AssetManager assetManager;
 
 	private final float Fps = 60.0f;
 	private int screenWidth;
 	private int screenHeight;
 
+	/**
+	 * flag saying that we started the game (not necessarily our opponent)
+	 */
 	private boolean startGame;
+	/**
+	 * flag saying that our opponent started the game
+	 */
 	private boolean opponentStartGame;
 
+	/**
+	 * flag saying that the game is running
+	 */
 	private boolean running = true;
 
+	/**
+	 * integer used to create unique object ids
+	 */
 	private int nextId = 0;
+	/**
+	 * unique player id
+	 */
 	private int playerId;
 
 	private IModel model;
 	private IGameView gameView;
 	private IMenuView menuView;
 
+	/**
+	 * current game message displayed on screen
+	 * It is also used to display game errors.
+	 */
 	private String message = "";
+	/**
+	 * used to clear message after some time
+	 */
 	private Timer clearMessageTimer;
 
 	private LinkedBlockingQueue<ViewEvent> queueOfViewEvents;
@@ -66,6 +94,11 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 	private Vector2 friendliesSpawnPoint;
 	private Vector2 enemiesSpawnPoint;
 
+	/**
+	 * Constructor
+	 * @param screenWidth screen width
+	 * @param screenHeight screen height
+	 */
 	public StrongholdsGame(int screenWidth, int screenHeight) {
 		gameSingleton = GameSingleton.getGameSingleton();
 		this.screenWidth = screenWidth;
@@ -93,6 +126,10 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 		//startGame();
 	}
 
+	/**
+	 * Initializes a new game
+	 * Called every time player clicks start game in the menu.
+	 */
 	private void initGame(){
 		running = false;
 		startGame = false;
@@ -149,6 +186,10 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 		menuView.dispose();
 	}
 
+	/**
+	 * Handles changes made by model.update() in previous frame.
+	 * Called before gameView.update().
+	 */
 	private void earlyUpdate(){
 		if (model.getEnemyBaseHealth() <= 0){
 			running = false;
@@ -162,6 +203,10 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 		}
 	}
 
+	/**
+	 * Handles events that came from views and network controller.
+	 * Called after gameView.update().
+	 */
 	private void update(){
 		handleViewEvents();
 		handleModelEvents();
@@ -196,10 +241,10 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 				}
 			}
 			else{
-				if (viewEvent.isSetUsername()){
+				if (viewEvent.isSetUsername() && viewEvent.isFromNetwork()){
 					setOpponentUsername(viewEvent.getUsername());
 				}
-				if (viewEvent.isStart()){
+				if (viewEvent.isStart() && viewEvent.isFromNetwork()){
 					running = true;
 					startGame = true;
 					opponentStartGame = true;
@@ -209,6 +254,10 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 		}
 	}
 
+	/**
+	 * Helper method. Handles ViewEvents considering unit training.
+	 * @param viewEvent viewEvent with trainUnit set to true
+	 */
 	private void handleUnitTraining(ViewEvent viewEvent){
 		ObjectType unitType = viewEvent.getUnitType();
 
@@ -232,6 +281,9 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 		}
 	}
 
+	/**
+	 * Handles ModelEvents
+	 */
 	private void handleModelEvents(){
 		ModelEvent modelEvent;
 		while (queueOfModelEvents.size() > 0){
@@ -242,7 +294,9 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 		}
 	}
 
-
+	/**
+	 * Preloads the assets. (doesn't initialise view's textures)
+	 */
 	private void loadAssets(){
 		for (String filename : GameSingleton.getGameSingleton().getTextureFilenames()){
 			assetManager.load(filename, Texture.class);
@@ -250,26 +304,52 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 		assetManager.finishLoading();
 	}
 
-
+	/**
+	 * Tells model to create a game object (random id)
+	 * @param objectType object type
+	 * @param position position
+	 * @param isEnemy whether game object is on enemy side
+	 */
 	private void createObject(ObjectType objectType, Vector2 position, boolean isEnemy){
 		String id = Integer.toString(nextId++) + playerId;
 		createObject(id, objectType, position, isEnemy);
 	}
 
+	/**
+	 * Tells model to create a game object (defined id)
+	 * @param id object's id
+	 * @param objectType object type
+	 * @param position position
+	 * @param isEnemy whether game object is on enemy side
+	 */
 	private void createObject(String id, ObjectType objectType, Vector2 position, boolean isEnemy){
 		model.createObject(id, objectType, position, gameView.getTextureSize(objectType), isEnemy);
 	}
 
+	/**
+	 * Tells model to create a unit (random id)
+	 * @param objectType object type
+	 * @param position position
+	 * @param isEnemy whether is enemy
+	 * @return the random id that was set for the unit
+	 */
 	private String createUnit(ObjectType objectType, Vector2 position, boolean isEnemy){
 		String id = Integer.toString(nextId++) + playerId;
-		return createUnit(id, objectType, position, isEnemy);
+		createUnit(id, objectType, position, isEnemy);
+		return id;
 	}
 
-	private String createUnit(String id, ObjectType objectType, Vector2 position, boolean isEnemy){
+	/**
+	 * Tells model to create a unit (defined id)
+	 * @param id unit id
+	 * @param objectType object type
+	 * @param position position
+	 * @param isEnemy whether is enemy
+	 */
+	private void createUnit(String id, ObjectType objectType, Vector2 position, boolean isEnemy){
 		gameView.loadActorSprites(id, objectType);
 		Vector2 unitSize = gameView.getTextureSize(id);
 		model.createUnit(id, objectType, position, unitSize, isEnemy);
-		return id;
 	}
 
 	/* IViewController */
@@ -342,6 +422,7 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 
 		ViewEvent startGameEvent = new ViewEvent();
 		startGameEvent.setStart();
+		startGameEvent.setFromNetwork();
 		networkController.addObjectRequest(startGameEvent);
 
 		startGame = true;
@@ -360,43 +441,85 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 
 	/* GETTERS AND SETTERS */
 
+	/**
+	 * Sets target ip address
+	 * @param ip value of the ip address
+	 */
 	public void setIp(String ip) {
 		networkController.setTargetIp(ip);
 	}
 
+	/**
+	 * Sets input port
+	 * @param port value of the input port
+	 */
 	public void setInPort(int port) {
 		networkController.setInPort(port);
 	}
 
+	/**
+	 * Sets output port
+	 * @param port value of the output port
+	 */
 	public void setOutPort(int port) {
 		networkController.setOutPort(port);
 	}
 
+	/**
+	 * Sets host username
+	 * @param username username
+	 */
 	public void setUsername(String username) {
 		this.username = username;
-		networkController.addObjectRequest(new ViewEvent(true, username));
+		ViewEvent setUsernameEvent = new ViewEvent(username);
+		setUsernameEvent.setFromNetwork();
+		networkController.addObjectRequest(setUsernameEvent);
 	}
 
+	/**
+	 * Sets opponent username
+	 * @param opponentUsername
+	 */
 	public void setOpponentUsername(String opponentUsername){
 		this.opponentUsername = opponentUsername;
 	}
 
+	/**
+	 * Returns host username
+	 * @return username
+	 */
 	public String getUsername() {
 		return username;
 	}
 
+	/**
+	 * Returns opponent username
+	 * @return username
+	 */
 	public String getOpponentUsername() {
 		return opponentUsername;
 	}
 
+	/**
+	 * Returns screen width
+	 * @return screen width
+	 */
 	public int getScreenWidth() {
 		return screenWidth;
 	}
 
+	/**
+	 * Returns screen height
+	 * @return screen height
+	 */
 	public int getScreenHeight() {
 		return screenHeight;
 	}
 
+	/**
+	 * Returns instance of libgdx AssetManager
+	 * @return asset manager
+	 */
 	public AssetManager getAssetManager() {
 		return assetManager;
 	}

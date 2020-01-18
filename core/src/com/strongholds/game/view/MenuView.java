@@ -14,7 +14,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.strongholds.game.GameSingleton;
 import com.strongholds.game.controller.IMenuController;
 
-public class MenuView extends AbstractView{
+public class MenuView extends AbstractView implements IMenuView{
     private Sprite background;
     private IMenuController controller;
 
@@ -166,12 +166,7 @@ public class MenuView extends AbstractView{
     public void init(){
         message = "";
         connected = false;
-        opponentStarted = false;
         Gdx.input.setInputProcessor(stage);
-    }
-
-    public void update(){
-
     }
 
     public void draw(){

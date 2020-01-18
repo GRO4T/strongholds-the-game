@@ -162,6 +162,6 @@ public class Model implements IModel, DeathListener
         }
     }
     public void enemyUnitHit(String id, int damage){
-        controller.addEvent(new ModelEvent(true, id, damage));
+        controller.addEvent(new ModelEvent(id, damage));
     }
 }

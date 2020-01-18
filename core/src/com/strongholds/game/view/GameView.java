@@ -82,7 +82,7 @@ public class GameView extends AbstractView implements IGameView
                 new ClickListener(){
                     @Override
                     public void clicked(InputEvent event, float x, float y){
-                        controller.addEvent(new ViewEvent(true, ObjectType.SWORDSMAN));
+                        controller.addEvent(new ViewEvent(ObjectType.SWORDSMAN));
                     }
                 }));
 

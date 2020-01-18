@@ -52,12 +52,12 @@ public interface INetworkController extends Runnable{
     void dispose();
 
     /**
-     *
+     * Stops the server
      */
     void stop();
 
     /**
-     *
+     * Resumes the server
      */
-    void start();
+    void resume();
 }

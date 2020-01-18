@@ -39,8 +39,19 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 	 */
 	private AssetManager assetManager;
 
+	/**
+	 * game's target fps
+	 */
 	private final float Fps = 60.0f;
+
+	/**
+	 * screen width
+	 */
 	private int screenWidth;
+
+	/**
+	 * screen height
+	 */
 	private int screenHeight;
 
 	/**
@@ -66,8 +77,17 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 	 */
 	private int playerId;
 
+	/**
+	 * model
+	 */
 	private IModel model;
+	/**
+	 * game screen
+	 */
 	private IGameView gameView;
+	/**
+	 * menu screen
+	 */
 	private IMenuView menuView;
 
 	/**
@@ -80,18 +100,48 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 	 */
 	private Timer clearMessageTimer;
 
+	/**
+	 * queue of ViewEvents
+	 */
 	private LinkedBlockingQueue<ViewEvent> queueOfViewEvents;
+	/**
+	 * queue of ModelEvents
+	 */
 	private LinkedBlockingQueue<ModelEvent> queueOfModelEvents;
 
+	/**
+	 * network controller
+	 */
 	private INetworkController networkController;
+	/**
+	 * thread that runs network controller
+	 */
 	private Thread networkThread;
 
+	/**
+	 * host username
+	 */
 	private String username = "";
+	/**
+	 * opponent username
+	 */
 	private String opponentUsername = "";
 
+	/**
+	 * position at which friendly base is situated
+	 */
 	private Vector2 friendlyBaseSpawnPoint;
+	/**
+	 * position at which enemy base is situated
+	 */
 	private Vector2 enemyBaseSpawnPoint;
+	/**
+	 * friendly units spawn point
+	 */
 	private Vector2 friendliesSpawnPoint;
+	/**
+	 * enemy units spawn point
+	 */
 	private Vector2 enemiesSpawnPoint;
 
 	/**
@@ -106,6 +156,9 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 		clearMessageTimer = new Timer(true);
 	}
 
+	/**
+	 * Called when the Application is first started
+	 */
 	@Override
 	public void create () {
 		queueOfViewEvents = new LinkedBlockingQueue<>();
@@ -141,6 +194,9 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 		createMap();
 	}
 
+	/**
+	 * Creates map
+	 */
 	private void createMap(){
 		friendlyBaseSpawnPoint = new Vector2(0, 60);
 		enemyBaseSpawnPoint = new Vector2(1072, 60);
@@ -153,6 +209,9 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 		createObject(ObjectType.PLATFORM, new Vector2(0, 0), false);
 	}
 
+	/**
+	 * Called when the Application should render itself
+	 */
 	@Override
 	public void render () {
 		if (!startGame){
@@ -175,6 +234,9 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 		gameView.draw();
 	}
 
+	/**
+	 * Called when the Application is destroyed
+	 */
 	@Override
 	public void dispose () {
 		if (model != null)
@@ -212,6 +274,9 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 		handleModelEvents();
 	}
 
+	/**
+	 * Handles ViewEvents
+	 */
 	private void handleViewEvents(){
 		ViewEvent viewEvent;
 		while (queueOfViewEvents.size() > 0){
@@ -401,7 +466,8 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 	public void notifyOnError(ErrorEvent errorEvent) {
 		if (errorEvent.isOpponentDisconnected()){
 			if (opponentStartGame){
-				setMessageAndClearAfterTime("OPPONENT DISCONNECTED");
+				//setMessageAndClearAfterTime("OPPONENT DISCONNECTED");
+				message = "OPPONENT DISCONNECTED!";
 				running = false;
 				gameView.gameFinished();
 			}
@@ -429,10 +495,13 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 		message = "Waiting for the opponent...";
 	}
 
+	/**
+	 * Starts network controller thread
+	 */
 	private void startNetworkController(){
 		networkThread = new Thread(networkController);
 		networkThread.start();
-		networkController.start();
+		networkController.resume();
 	}
 
 	public boolean connect(){

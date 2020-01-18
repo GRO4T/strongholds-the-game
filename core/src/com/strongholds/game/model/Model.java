@@ -161,6 +161,12 @@ public class Model implements IModel, DeathListener
             actorsMap.get(id).gotHit(damage);
         }
     }
+
+    /**
+     * Called by a unit when it dealt damage to the enemy
+     * @param id hit unit id
+     * @param damage damage dealt to the unit
+     */
     public void enemyUnitHit(String id, int damage){
         controller.addEvent(new ModelEvent(id, damage));
     }

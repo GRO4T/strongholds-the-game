@@ -8,10 +8,28 @@ import com.strongholds.game.GameSingleton.ObjectState;
 
 import java.util.LinkedList;
 
+/**
+ * Represents any animated object with the circular sensor around it (for detecting when something approaches the actor)
+ */
 public class AnimatedActor extends GameObject implements IAnimatedActor {
+    /**
+     * current state of the object (e.g. walking, running..)
+     */
     private ObjectState state;
+    /**
+     * list of nearby objects
+     */
     private LinkedList<GameObject> targets;
 
+    /**
+     * Creates new AnimatedActor with circular sensor for collision detection
+     * @param bodyDef box2d body definition
+     * @param width actor width (in meters)
+     * @param height actor height (in meters)
+     * @param type actor type
+     * @param id actor id
+     * @param isEnemy whether actor is an enemy
+     */
     public AnimatedActor(BodyDef bodyDef, float width, float height, ObjectType type, String id, boolean isEnemy) {
         super(bodyDef, width, height, type, id, isEnemy);
         targets = new LinkedList<>();
@@ -65,18 +83,30 @@ public class AnimatedActor extends GameObject implements IAnimatedActor {
         body.applyLinearImpulse(impulse, body.getPosition(), true);
     }
 
+    /**
+     * Adds a new target. Called after something collided with actor's circular sensor
+     * @param target new target
+     */
     public void addTarget(GameObject target){
         if (!targets.contains(target)){
             targets.add(target);
         }
     }
 
+    /**
+     * Removes target from the list
+     * @param target target to be removed
+     */
     public void removeTarget(GameObject target){
         if (targets.contains(target)){
             targets.remove(target);
         }
     }
 
+    /**
+     * Returns list of targets
+     * @return list of targets
+     */
     public LinkedList<GameObject> getTargets() {
         return targets;
     }

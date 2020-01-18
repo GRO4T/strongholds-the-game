@@ -124,7 +124,7 @@ public class TcpServer implements INetworkController{
         running = false;
     }
 
-    public void start(){
+    public void resume(){
         running = true;
     }
 
@@ -158,11 +158,21 @@ public class TcpServer implements INetworkController{
         return connectionEstablisher.isConnected();
     }
 
+    /**
+     * Tries to establish the connection between the players
+     */
     private class ConnectionEstablisher implements Runnable{
+        /**
+         * flag telling whether connection has been established
+         */
         private volatile boolean connected = false;
         private final ExecutorService threadPool;
         private final int poolSize = 2;
 
+        /**
+         * Default constructor.
+         * Initializes thread pool
+         */
         public ConnectionEstablisher(){
             threadPool = Executors.newFixedThreadPool(poolSize);
         }
@@ -172,6 +182,15 @@ public class TcpServer implements INetworkController{
             connect();
         }
 
+        /**
+         * Tries to connect the players.
+         * Spawns two threads.
+         * One trying to send a stream of bytes.
+         * Second listening on input port trying to catch the stream of bytes.
+         * When bytes are received, connected is set to true and threads return.
+         * In a case when hosts cannot connect
+         * Threads finish their work after exceeding connectionWaitTimeInMilliseconds.
+         */
         private void connect(){
             threadPool.execute(new Runnable() {
                 Socket sender = null;

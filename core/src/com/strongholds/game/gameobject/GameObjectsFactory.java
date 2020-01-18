@@ -11,15 +11,37 @@ import static com.strongholds.game.GameSingleton.getGameSingleton;
 import com.strongholds.game.GameSingleton.ObjectState;
 import com.strongholds.game.exception.ObjectTypeNotDefinedException;
 
+/**
+ * Factory for creating game object
+ */
 public class GameObjectsFactory {
+    /**
+     * reference to an instance of box2d world
+     */
     World world;
+    /**
+     * reference to an instance of GameSingleton
+     */
     GameSingleton gameSingleton;
 
+    /**
+     * Initializes the factory
+     * @param world box2d world
+     */
     public GameObjectsFactory(World world) {
         this.world = world;
         gameSingleton = getGameSingleton();
     }
 
+    /**
+     * creates a new object
+     * @param id object id
+     * @param objectType object type
+     * @param position object position (in pixels)
+     * @param size object size (in pixels)
+     * @param isEnemy whether object is on enemy side
+     * @return created object of the right type
+     */
     public GameObject createObject(String id, ObjectType objectType, Vector2 position, Vector2 size, boolean isEnemy){
         float pixels_per_meter = gameSingleton.getPixels_per_meter();
         Vector2 bodySize = new Vector2(size.x / (2*pixels_per_meter), size.y / (2*pixels_per_meter));

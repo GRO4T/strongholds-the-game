@@ -25,8 +25,10 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.LinkedBlockingQueue;
 
-// It's our game controller
-
+/**
+ * Game Controller
+ * Has references
+ */
 public class StrongholdsGame extends ApplicationAdapter implements IViewController, IModelController, IMenuController, ObjectReceivedListener {
 	private GameSingleton gameSingleton;
 	private AssetManager assetManager;
@@ -45,7 +47,7 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 
 	private IModel model;
 	private IGameView gameView;
-	private MenuView menuView;
+	private IMenuView menuView;
 
 	private String message = "";
 	private Timer clearMessageTimer;

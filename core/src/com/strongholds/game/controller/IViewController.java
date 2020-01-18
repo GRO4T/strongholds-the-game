@@ -3,7 +3,8 @@ package com.strongholds.game.controller;
 import com.badlogic.gdx.assets.AssetManager;
 import com.strongholds.game.event.ViewEvent;
 
-/** Interface for gameView->controller communication
+/**
+ * Interface for gameView->controller communication
  */
 public interface IViewController {
     /**

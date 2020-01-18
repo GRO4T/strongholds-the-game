@@ -15,7 +15,6 @@ import com.strongholds.game.GameSingleton;
 import com.strongholds.game.controller.IMenuController;
 
 public class MenuView extends AbstractView{
-    private AssetManager assetManager;
     private Sprite background;
     private IMenuController controller;
 
@@ -27,10 +26,8 @@ public class MenuView extends AbstractView{
     private String message = "";
 
     private boolean connected;
-    private boolean opponentStarted;
 
     public MenuView(IMenuController controller, AssetManager assetManager, int screenX, int screenY){
-        this.assetManager = assetManager;
         this.controller = controller;
         this.screenX = screenX;
         this.screenY = screenY;

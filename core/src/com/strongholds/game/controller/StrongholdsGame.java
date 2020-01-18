@@ -138,9 +138,11 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 
 	@Override
 	public void dispose () {
-		model.dispose();
+		if (model != null)
+			model.dispose();
 		assetManager.dispose();
-		networkThread.interrupt();
+		if (networkThread != null)
+			networkThread.interrupt();
 		networkController.dispose();
 		menuView.dispose();
 	}

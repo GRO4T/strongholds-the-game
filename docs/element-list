@@ -1,6 +1,5 @@
 com.strongholds.game
 com.strongholds.game.controller
-com.strongholds.game.desktop
 com.strongholds.game.event
 com.strongholds.game.exception
 com.strongholds.game.gameobject

@@ -14,27 +14,76 @@ import com.strongholds.game.gameobject.*;
 public class Model implements IModel, DeathListener
 {
     private World world;
+    /**
+     * defines how accurately bodies' velocities will be calculated
+     */
     private final int velocityIterations = 6;
+    /**
+     * defines how accurately bodies' positions will be calculated
+     */
     private final int positionIterations = 2;
     private final float worldGravity = -15.0f;
 
+    /**
+     * timer used to schedule add money task
+     */
     private Timer taskScheduler;
+    /**
+     * flag telling whether we can schedule next add money task
+     */
     private boolean addMoney = true;
+    /**
+     * income at which money will be added (in milliseconds)
+     */
     private int incomeInterval = 1000;
+    /**
+     * how much money gained on each iteration
+     */
     private int moneyGain = 10;
+    /**
+     * current money
+     */
     private long money;
+    /**
+     * money at the start of the game
+     */
     private final long startCash = 200L;
 
+    /**
+     * game objects factory
+     */
     private GameObjectsFactory gameObjectsFactory;
+    /**
+     * map of non-animated game objects
+     */
     private Map<String, GameObject> gameObjectsMap;
+    /**
+     * map of units
+     */
     private Map<String, IUnit> actorsMap;
+    /**
+     * list of dead units to be handled by model
+     */
     private LinkedList<String> listOfDeadUnitsIds;
 
+    /**
+     * custom contact listener
+     */
     private MyContactListener contactListener;
+    /**
+     * reference to controller
+     */
     private IModelController controller;
 
+    /**
+     * base's initial health
+     */
     private final int baseInitialHealth = 100;
 
+    /**
+     * Creates a new model
+     * @param controller reference to controller
+     */
     public Model(IModelController controller)
     {
         this.controller = controller;
@@ -53,7 +102,6 @@ public class Model implements IModel, DeathListener
         taskScheduler = new Timer(true);
     }
 
-    @Override
     public void update(float timeStep)
     {
         for (IUnit actor : actorsMap.values()){
@@ -78,13 +126,11 @@ public class Model implements IModel, DeathListener
         }
     }
 
-    @Override
     public void dispose()
     {
         //TODO
     }
 
-    @Override
     public void createObject(String id, ObjectType objectType, Vector2 position, Vector2 size, boolean isEnemy) {
         GameObject newObject = gameObjectsFactory.createObject(id, objectType, position, size, isEnemy);
         if (objectType == ObjectType.BASE){
@@ -144,6 +190,9 @@ public class Model implements IModel, DeathListener
         listOfDeadUnitsIds.add(unitId);
     }
 
+    /**
+     * Scheduled task used to periodically add money
+     */
     private class AddMoneyTask extends TimerTask {
 
         @Override

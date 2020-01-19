@@ -24,27 +24,69 @@ import com.strongholds.game.model.IReadOnlyModel;
 import com.strongholds.game.gameobject.IReadOnlyAnimatedActor;
 import com.strongholds.game.gameobject.IReadOnlyGameObject;
 
+/**
+ * View displayed when the game started
+ */
 public class GameView extends AbstractView implements IGameView
 {
+    /**
+     * reference to a model via its read-only interface
+     */
     private IReadOnlyModel model;
+    /**
+     * reference to a controller via its dedicated interface
+     */
     private IViewController controller;
 
+    /**
+     * game's scale stored in GameSingleton
+     */
     private float pixels_per_meter;
 
+    /**
+     * libgdx camera
+     */
     private OrthographicCamera cam;
     //private final int cameraSpeed = 10;
+    /**
+     * camera zoom
+     */
     private final float cameraZoom = 1.0f;
 
+    /**
+     * map of all static textures (without animation)
+     */
     private Map<ObjectType, Sprite> staticObjectsTextureMap;
+    /**
+     * map of Animators (structures storing actor's all animation clips and keeping track of them)
+     */
     private Map<String, Animator> actorsMap;
 
+    /**
+     * reference to a pause button as we will need to change its ClickListener
+     */
     TextButton pauseButton;
+    /**
+     * click listener when the game is running. It pauses the game
+     */
     ClickListener pauseListener;
+    /**
+     * click listener when the game is finished. It restarts the game
+     */
     ClickListener restartListener;
 
+    /**
+     * position of the game message
+     * It starts in the left-bottom corner.
+     * Goes to the middle when the game is finished.
+     */
     private Vector2 msgPosition = new Vector2(50, 30);
 
-
+    /**
+     * Creates a new game view
+     * @param model reference to model
+     * @param controller reference to controller
+     */
     public GameView(IReadOnlyModel model, final IViewController controller)
     {
         this.model = model;
@@ -77,6 +119,9 @@ public class GameView extends AbstractView implements IGameView
         createUI();
     }
 
+    /**
+     * Creates UI
+     */
     private void createUI(){
         stage.addActor(createButton(20, screenY - 70, 100, 50, "swordsman",
                 new ClickListener(){
@@ -109,8 +154,6 @@ public class GameView extends AbstractView implements IGameView
     public void init(){
         Gdx.input.setInputProcessor(stage);
         msgPosition = new Vector2(50, 30);
-
-
     }
 
     @Override
@@ -123,7 +166,6 @@ public class GameView extends AbstractView implements IGameView
 
     public void update(float deltaTime)
     {
-        //handleInput();
         cam.update();
         spriteBatch.setProjectionMatrix(cam.combined);
 
@@ -165,6 +207,10 @@ public class GameView extends AbstractView implements IGameView
         stage.draw();
     }
 
+    /**
+     * Draws game object
+     * @param gameObject game object to draw
+     */
     private void drawGameObject(IReadOnlyGameObject gameObject){
         Sprite texture = staticObjectsTextureMap.get(gameObject.getType());
         float x = (gameObject.getPosition().x - gameObject.getWidth()) * pixels_per_meter;
@@ -184,6 +230,10 @@ public class GameView extends AbstractView implements IGameView
         }
     }
 
+    /**
+     * Draws animated actor
+     * @param gameObject actor to draw
+     */
     private void drawGameObject(IReadOnlyAnimatedActor gameObject){
         String id = gameObject.getId();
         Animator animator = actorsMap.get(id);
@@ -205,6 +255,12 @@ public class GameView extends AbstractView implements IGameView
         }
     }
 
+    /**
+     * Draws health bar
+     * @param actor actor whose health will be on the bar
+     * @param x actor X position (in pixels)
+     * @param y actor Y position (in pixels)
+     */
     private void drawHealthBar(IReadOnlyGameObject actor, float x, float y){
         float healthBarWidth;
         float healthBarHeight;
@@ -261,10 +317,10 @@ public class GameView extends AbstractView implements IGameView
     }
 
     /**
-     *
-     * @param textureInfo
-     * @param msgOnNull
-     * @return
+     * Loads animation clip
+     * @param textureInfo structure containing information about the clip
+     * @param msgOnNull message displayed when there is no texture for this clip
+     * @return newly created animation clip
      */
     private AnimationClip loadAnimationClip(GameSingleton.TextureInfo textureInfo, String msgOnNull){
         AnimationClip clip;
@@ -303,11 +359,21 @@ public class GameView extends AbstractView implements IGameView
         return new Vector2(texture.getRegionWidth(), texture.getRegionHeight());
     }
 
+    /**
+     * Obtains texture with given filename from game asset manager
+     * @param filename filename of the texture
+     * @return texture
+     */
     private Texture getTexture(String filename){
 
         return (Texture)controller.getAssetManager().get(filename);
     }
 
+    /**
+     * Obtains texture from the asset manager and returns new Sprite with this texture
+     * @param filename filename of the texture
+     * @return sprite with this texture
+     */
     private Sprite getSprite(String filename){
 
         return new Sprite((Texture)controller.getAssetManager().get(filename));

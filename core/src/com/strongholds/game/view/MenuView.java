@@ -15,18 +15,49 @@ import com.strongholds.game.GameSingleton;
 import com.strongholds.game.controller.IMenuController;
 
 public class MenuView extends AbstractView implements IMenuView{
+    /**
+     * background sprite
+     */
     private Sprite background;
+    /**
+     * reference to controller via its dedicated interface
+     */
     private IMenuController controller;
 
+    /**
+     * text field where ip is written
+     */
     private TextField ipField;
+    /**
+     * text field where output port is written
+     */
     private TextField outPortField;
+    /**
+     * text field where input port is written
+     */
     private TextField inPortField;
+    /**
+     * text field where username is written
+     */
     private TextField usernameField;
 
+    /**
+     * status message (e.g. connected, you must provide a port...)
+     */
     private String message = "";
 
+    /**
+     * flag telling whether we successfully connected to the opponent
+     */
     private boolean connected;
 
+    /**
+     * Creates a new menu view
+     * @param controller reference to controller
+     * @param assetManager reference to asset manager
+     * @param screenX screen width
+     * @param screenY screen height
+     */
     public MenuView(IMenuController controller, AssetManager assetManager, int screenX, int screenY){
         this.controller = controller;
         this.screenX = screenX;
@@ -51,6 +82,9 @@ public class MenuView extends AbstractView implements IMenuView{
         createUI();
     }
 
+    /**
+     * Creates UI
+     */
     private void createUI(){
         Table table = new Table();
         table.setPosition(screenX / 2 - 100, screenY / 2);
@@ -159,6 +193,9 @@ public class MenuView extends AbstractView implements IMenuView{
                 }));
     }
 
+    /**
+     * Called when start game button is clicked
+     */
     private void startGame(){
         controller.startGame();
     }

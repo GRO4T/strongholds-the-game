@@ -11,6 +11,9 @@ import com.strongholds.game.controller.IModelController;
 import com.strongholds.game.event.ModelEvent;
 import com.strongholds.game.gameobject.*;
 
+/**
+ * Game model
+ */
 public class Model implements IModel, DeathListener
 {
     private World world;

@@ -7,7 +7,14 @@ import com.badlogic.gdx.physics.box2d.Manifold;
 import com.strongholds.game.gameobject.AnimatedActor;
 import com.strongholds.game.gameobject.GameObject;
 
+/**
+ * Custom contact listener
+ */
 public class MyContactListener implements ContactListener {
+    /**
+     * Called when two fixtures begin to touch
+     * @param contact object containing information about contact
+     */
     @Override
     public void beginContact(Contact contact) {
         if (contact.getFixtureA().isSensor()){
@@ -28,6 +35,10 @@ public class MyContactListener implements ContactListener {
         }
     }
 
+    /**
+     * Called when two fixtures cease to touch
+     * @param contact object containing information about contact
+     */
     @Override
     public void endContact(Contact contact) {
         if (contact.getFixtureA().isSensor()){
@@ -49,11 +60,21 @@ public class MyContactListener implements ContactListener {
         }
     }
 
+    /**
+     * not used
+     * @param contact
+     * @param oldManifold
+     */
     @Override
     public void preSolve(Contact contact, Manifold oldManifold) {
 
     }
 
+    /**
+     * not used
+     * @param contact
+     * @param impulse
+     */
     @Override
     public void postSolve(Contact contact, ContactImpulse impulse) {
 

@@ -431,6 +431,10 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 		return message;
 	}
 
+	/**
+	 * Sets game message and clears it after X milliseconds
+	 * @param message message to be set to
+	 */
 	private void setMessageAndClearAfterTime(String message){
 		if (this.message.equals(message))
 			return;
@@ -441,6 +445,9 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 		clearMessageTimer.schedule(clearMessageTask, clearMessageInterval);
 	}
 
+	/**
+	 * Task used to schedule message clear
+	 */
 	private class ClearMessageTask extends TimerTask {
 		@Override
 		public void run() {

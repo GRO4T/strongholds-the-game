@@ -3,6 +3,9 @@ package com.strongholds.game.view;
 import com.badlogic.gdx.math.Vector2;
 import com.strongholds.game.GameSingleton.ObjectType;
 
+/**
+ * Interface for game screen
+ */
 public interface IGameView {
     /**
      * Updates the view

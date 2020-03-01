@@ -191,6 +191,13 @@ public class MenuView extends AbstractView implements IMenuView{
                         }
                     }
                 }));
+
+                // for testing purposes
+
+                usernameField.setText("Player");
+                inPortField.setText("46000");
+                outPortField.setText("46000");
+                ipField.setText("127.0.0.1");
     }
 
     /**

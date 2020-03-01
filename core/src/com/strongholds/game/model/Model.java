@@ -81,7 +81,7 @@ public class Model implements IModel, DeathListener
     /**
      * base's initial health
      */
-    private final int baseInitialHealth = 100;
+    private final int baseInitialHealth = 1; // 100
 
     /**
      * Creates a new model

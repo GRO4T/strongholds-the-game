@@ -23,7 +23,7 @@ public class Unit extends AnimatedActor implements IUnit{
     /**
      * unit speed
      */
-    protected float speed = 200.0f; // prev 200
+    protected float speed = 1000.0f; // prev 200
     /**
      * flag telling whether unit can perform an attack
      */

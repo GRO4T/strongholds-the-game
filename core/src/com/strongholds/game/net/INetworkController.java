@@ -17,9 +17,9 @@ public interface INetworkController extends Runnable{
 
     /**
      * Registers a new listener. This listener will be then notified every time a new object arrived.
-     * @param controller
+     * @param networkListener
      */
-    void registerController(ObjectReceivedListener controller);
+    void registerNetworkListener(NetworkListener networkListener);
 
     /**
      * Sets a port on which we want to receive requests.
@@ -38,6 +38,8 @@ public interface INetworkController extends Runnable{
      * @param ip - ip address
      */
     void setTargetIp(String ip);
+
+    void setLastSyncedTime(double lastSyncedTime);
 
     /**
      * Tries to connect to the host.

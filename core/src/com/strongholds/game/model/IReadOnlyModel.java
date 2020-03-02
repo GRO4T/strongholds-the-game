@@ -11,13 +11,13 @@ public interface IReadOnlyModel {
      * Returns array of all non-animated game objects
      * @return an array of game objects
      */
-    Object[] getGameObjects();
+    Object[] getGameObjectArray();
 
     /**
      * Returns array of all actors
      * @return an array of actors
      */
-    Object[] getActors();
+    Object[] getActorArray();
 
     /**
      * Returns an actor with given id

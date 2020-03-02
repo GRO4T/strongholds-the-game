@@ -10,11 +10,12 @@ import com.strongholds.game.GameSingleton;
 import com.strongholds.game.GameSingleton.ObjectType;
 import com.strongholds.game.event.ErrorEvent;
 import com.strongholds.game.event.ModelEvent;
+import com.strongholds.game.event.SyncEvent;
 import com.strongholds.game.event.ViewEvent;
 import com.strongholds.game.model.IModel;
 import com.strongholds.game.model.Model;
 import com.strongholds.game.net.INetworkController;
-import com.strongholds.game.net.ObjectReceivedListener;
+import com.strongholds.game.net.NetworkListener;
 import com.strongholds.game.net.TcpServer;
 import com.strongholds.game.view.IGameView;
 import com.strongholds.game.view.GameView;
@@ -29,65 +30,30 @@ import java.util.concurrent.LinkedBlockingQueue;
 /**
  * game controller
  */
-public class StrongholdsGame extends ApplicationAdapter implements IViewController, IModelController, IMenuController, ObjectReceivedListener {
-	/**
-	 * reference to global GameSingleton
-	 */
+public class StrongholdsGame extends ApplicationAdapter implements IViewController, IModelController, IMenuController, NetworkListener {
 	private GameSingleton gameSingleton;
-	/**
-	 * instance of libgdx's AssetManager
-	 */
 	private AssetManager assetManager;
 
-	/**
-	 * game's target fps
-	 */
 	private final float Fps = 60.0f;
 
-	/**
-	 * screen width
-	 */
-	private int screenWidth;
+	private boolean catchingUp;
+	private double gameTime; // how long this game has been running
+	private double opponentGameTime;
+	private final double simulationDisparityTolerance = 0.1f;
 
-	/**
-	 * screen height
-	 */
+	private int screenWidth;
 	private int screenHeight;
 
-	/**
-	 * flag saying that we started the game (not necessarily our opponent)
-	 */
-	private boolean startGame;
-	/**
-	 * flag saying that our opponent started the game
-	 */
-	private boolean opponentStartGame;
+	private boolean gameStarted;
+	private boolean opponentGameStarted;
 
-	/**
-	 * flag saying that the game is running
-	 */
-	private boolean running = true;
+	private boolean gameRunning = true;
 
-	/**
-	 * integer used to create unique object ids
-	 */
-	private int nextId = 0;
-	/**
-	 * unique player id
-	 */
+	private int nextObjectId = 0;
 	private int playerId;
 
-	/**
-	 * model
-	 */
 	private IModel model;
-	/**
-	 * game screen
-	 */
 	private IGameView gameView;
-	/**
-	 * menu screen
-	 */
 	private IMenuView menuView;
 
 	/**
@@ -100,55 +66,20 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 	 */
 	private Timer clearMessageTimer;
 
-	/**
-	 * queue of ViewEvents
-	 */
 	private LinkedBlockingQueue<ViewEvent> queueOfViewEvents;
-	/**
-	 * queue of ModelEvents
-	 */
 	private LinkedBlockingQueue<ModelEvent> queueOfModelEvents;
 
-	/**
-	 * network controller
-	 */
 	private INetworkController networkController;
-	/**
-	 * thread that runs network controller
-	 */
 	private Thread networkThread;
 
-	/**
-	 * host username
-	 */
 	private String username = "";
-	/**
-	 * opponent username
-	 */
 	private String opponentUsername = "";
 
-	/**
-	 * position at which friendly base is situated
-	 */
 	private Vector2 friendlyBaseSpawnPoint;
-	/**
-	 * position at which enemy base is situated
-	 */
 	private Vector2 enemyBaseSpawnPoint;
-	/**
-	 * friendly units spawn point
-	 */
 	private Vector2 friendliesSpawnPoint;
-	/**
-	 * enemy units spawn point
-	 */
 	private Vector2 enemiesSpawnPoint;
 
-	/**
-	 * Constructor
-	 * @param screenWidth screen width
-	 * @param screenHeight screen height
-	 */
 	public StrongholdsGame(int screenWidth, int screenHeight) {
 		gameSingleton = GameSingleton.getGameSingleton();
 		this.screenWidth = screenWidth;
@@ -170,7 +101,7 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 		menuView = new MenuView(this, assetManager, screenWidth, screenHeight);
 
 		networkController = new TcpServer();
-		networkController.registerController(this);
+		networkController.registerNetworkListener(this);
 
 		menuView.init();
 
@@ -184,9 +115,12 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 	 * Called every time player clicks start game in the menu.
 	 */
 	private void initGame(){
-		running = false;
-		startGame = false;
-		opponentStartGame = false;
+		gameTime = 0.0f;
+		opponentGameTime = 0.0f;
+		gameRunning = false;
+		gameStarted = false;
+		catchingUp = false;
+		opponentGameStarted = false;
 		message = "";
 		model = new Model(this);
 		gameView = new GameView(model, this);
@@ -194,9 +128,6 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 		createMap();
 	}
 
-	/**
-	 * Creates map
-	 */
 	private void createMap(){
 		friendlyBaseSpawnPoint = new Vector2(0, 60);
 		enemyBaseSpawnPoint = new Vector2(1072, 60);
@@ -214,17 +145,36 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 	 */
 	@Override
 	public void render () {
-		if (!startGame){
+		if (!gameStarted){
 			menuView.draw();
 			return;
 		}
 
-		if (running){
+		if (gameRunning){
 			float deltaTime = Gdx.graphics.getDeltaTime();
+			float timeStep = 1.0f / Fps;
+			if (deltaTime > 2 * timeStep){
+				model.catchUp(deltaTime);
+				gameTime += deltaTime;
+				while (deltaTime > timeStep){
+					deltaTime -= timeStep;
+					model.update(timeStep);
+				}
+				return;
+			}
+
 			earlyUpdate();
 			gameView.update(deltaTime);
 			update();
-			model.update(1.0f / Fps);
+			model.update(timeStep);
+			gameTime += deltaTime;
+
+			if (catchingUp && gameTime - simulationDisparityTolerance > opponentGameTime){
+				catchingUp = false;
+				ViewEvent pauseEvent = new ViewEvent(true);
+				pauseEvent.setFromNetwork();
+				networkController.addObjectRequest(pauseEvent);
+			}
 		}
 		else{
 			handleViewEvents();
@@ -254,12 +204,12 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 	 */
 	private void earlyUpdate(){
 		if (model.getEnemyBaseHealth() <= 0){
-			running = false;
+			gameRunning = false;
 			message = username + " WON!";
 			gameView.gameFinished();
 		}
 		else if (model.getBaseHealth() <= 0){
-			running = false;
+			gameRunning = false;
 			message = opponentUsername + " WON!";
 			gameView.gameFinished();
 		}
@@ -281,8 +231,8 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 		ViewEvent viewEvent;
 		while (queueOfViewEvents.size() > 0){
 			viewEvent = queueOfViewEvents.poll();
-			if (opponentStartGame){
-				if (viewEvent.toTrainUnit() && running){
+			if (opponentGameStarted){
+				if (viewEvent.toTrainUnit() && gameRunning){
 					handleUnitTraining(viewEvent);
 				}
 				if (viewEvent.isTogglePaused()){
@@ -290,17 +240,17 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 						viewEvent.setFromNetwork();
 						networkController.addObjectRequest(viewEvent);
 					}
-					if (running){
-						running = false;
+					if (gameRunning){
+						gameRunning = false;
 						message = "GAME PAUSED";
 					}
 					else{
-						running = true;
+						gameRunning = true;
 						message = "";
 					}
 				}
 				if (viewEvent.isRestart()){
-					startGame = false;
+					gameStarted = false;
 					networkController.stop();
 					menuView.init();
 				}
@@ -310,10 +260,11 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 					setOpponentUsername(viewEvent.getUsername());
 				}
 				if (viewEvent.isStart() && viewEvent.isFromNetwork()){
-					running = true;
-					startGame = true;
-					opponentStartGame = true;
+					gameRunning = true;
+					gameStarted = true;
+					opponentGameStarted = true;
 					message = "";
+					networkController.setLastSyncedTime(0.0f);
 				}
 			}
 		}
@@ -376,7 +327,7 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 	 * @param isEnemy whether game object is on enemy side
 	 */
 	private void createObject(ObjectType objectType, Vector2 position, boolean isEnemy){
-		String id = Integer.toString(nextId++) + playerId;
+		String id = Integer.toString(nextObjectId++) + playerId;
 		createObject(id, objectType, position, isEnemy);
 	}
 
@@ -399,7 +350,7 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 	 * @return the random id that was set for the unit
 	 */
 	private String createUnit(ObjectType objectType, Vector2 position, boolean isEnemy){
-		String id = Integer.toString(nextId++) + playerId;
+		String id = Integer.toString(nextObjectId++) + playerId;
 		createUnit(id, objectType, position, isEnemy);
 		return id;
 	}
@@ -455,7 +406,7 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 		}
 	}
 
-	/* ObjectReceivedListener interface */
+	/* NetworkListener interface */
 
 	public void notify(LinkedBlockingQueue<Object> receivedObjects) {
 		while (receivedObjects.size() > 0){
@@ -467,18 +418,35 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 				ModelEvent modelEvent = (ModelEvent) receivedObj;
 				model.unitHit(modelEvent.getUnitId(), modelEvent.getDamage());
 			}
+			else if (receivedObj instanceof SyncEvent){
+				SyncEvent syncEvent = (SyncEvent)receivedObj;
+				opponentGameTime = syncEvent.getGameTime();
+				if (gameTime + simulationDisparityTolerance < opponentGameTime ){
+					catchingUp = true;
+					ViewEvent pauseEvent = new ViewEvent(true);
+					pauseEvent.setFromNetwork();
+					networkController.addObjectRequest(pauseEvent);
+				}
+			}
 		}
 	}
 
 	public void notifyOnError(ErrorEvent errorEvent) {
 		if (errorEvent.isOpponentDisconnected()){
-			if (opponentStartGame){
-				//setMessageAndClearAfterTime("OPPONENT DISCONNECTED");
+			if (opponentGameStarted){
 				message = "OPPONENT DISCONNECTED!";
-				running = false;
+				gameRunning = false;
 				gameView.gameFinished();
 			}
 		}
+	}
+
+	public double getCurrentTime(){
+		return gameTime;
+	}
+
+	public SyncEvent sync(){
+		return new SyncEvent(gameTime);
 	}
 
 	/* IMenuController */
@@ -498,7 +466,7 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 		startGameEvent.setFromNetwork();
 		networkController.addObjectRequest(startGameEvent);
 
-		startGame = true;
+		gameStarted = true;
 		message = "Waiting for the opponent...";
 	}
 

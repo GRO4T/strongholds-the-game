@@ -1,6 +1,7 @@
 package com.strongholds.game.net;
 
 import com.strongholds.game.event.ErrorEvent;
+import com.strongholds.game.event.SyncEvent;
 
 import java.io.*;
 import java.net.ServerSocket;
@@ -11,14 +12,12 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * Simple Tcp server.
- * It asynchronously sends and receives request
- * from a host.
  */
 public class TcpServer implements INetworkController{
     private ServerSocket opponentClientSocket;
     private LinkedBlockingQueue<Object> objectsToSend;
     private LinkedBlockingQueue<Object> receivedObjects;
-    private ObjectReceivedListener controller;
+    private NetworkListener networkListener;
 
     private int inPort = 46004;
     private int outPort = 46004;
@@ -28,6 +27,8 @@ public class TcpServer implements INetworkController{
 
     private final int connectionWaitTimeInMillis = 2000;
     private final int connectionWaitTimeInNanos = connectionWaitTimeInMillis * 1000000;
+
+    private double lastSyncedTime; // time when the game was last sync
 
     public TcpServer(){
         objectsToSend = new LinkedBlockingQueue<>();
@@ -43,7 +44,14 @@ public class TcpServer implements INetworkController{
 
         while(true){
             if (receivedObjects.size() > 0)
-                controller.notify(receivedObjects);
+                networkListener.notify(receivedObjects);
+
+            double currentTime = networkListener.getCurrentTime();
+            if (currentTime > lastSyncedTime + 1.0f){
+                lastSyncedTime = currentTime;
+                //objectsToSend.add(networkListener.sync());
+                //objectsToSend.add(new SyncEvent(currentTime));
+            }
         }
     }
 
@@ -83,7 +91,7 @@ public class TcpServer implements INetworkController{
                 } catch (IOException e) {
                     ErrorEvent opponentDisconnected = new ErrorEvent();
                     opponentDisconnected.setOpponentDisconnected(true);
-                    controller.notifyOnError(opponentDisconnected);
+                    networkListener.notifyOnError(opponentDisconnected);
                 }
                 catch (ClassNotFoundException e){
                     e.printStackTrace();
@@ -128,8 +136,12 @@ public class TcpServer implements INetworkController{
         running = true;
     }
 
-    public void registerController(ObjectReceivedListener controller) {
-        this.controller = controller;
+    public void registerNetworkListener(NetworkListener networkListener) {
+        this.networkListener = networkListener;
+    }
+
+    public void setLastSyncedTime(double lastSyncedTime) {
+        this.lastSyncedTime = lastSyncedTime;
     }
 
     public boolean connect(){

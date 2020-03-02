@@ -36,7 +36,7 @@ public class Model implements IModel, DeathListener
      */
     private boolean addMoney = true;
     /**
-     * income at which money will be added (in milliseconds)
+     * rate at which money will be added (in milliseconds)
      */
     private int incomeInterval = 1000;
     /**
@@ -59,15 +59,15 @@ public class Model implements IModel, DeathListener
     /**
      * map of non-animated game objects
      */
-    private Map<String, GameObject> gameObjectsMap;
+    private Map<String, GameObject> gameObjectMap;
     /**
      * map of units
      */
-    private Map<String, IUnit> actorsMap;
+    private Map<String, IUnit> actorMap;
     /**
      * list of dead units to be handled by model
      */
-    private LinkedList<String> listOfDeadUnitsIds;
+    private LinkedList<String> listOfDeadUnitId;
 
     /**
      * custom contact listener
@@ -98,16 +98,16 @@ public class Model implements IModel, DeathListener
         world.setContactListener(contactListener);
 
         gameObjectsFactory = new GameObjectsFactory(world);
-        gameObjectsMap = new HashMap<>();
-        actorsMap = new HashMap<>();
-        listOfDeadUnitsIds = new LinkedList<>();
+        gameObjectMap = new HashMap<>();
+        actorMap = new HashMap<>();
+        listOfDeadUnitId = new LinkedList<>();
 
         taskScheduler = new Timer(true);
     }
 
     public void update(float timeStep)
     {
-        for (IUnit actor : actorsMap.values()){
+        for (IUnit actor : actorMap.values()){
             actor.update();
         }
 
@@ -119,12 +119,12 @@ public class Model implements IModel, DeathListener
 
         world.step(timeStep, velocityIterations, positionIterations);
 
-        if (listOfDeadUnitsIds.size() > 0){
-            String id = listOfDeadUnitsIds.poll();
-            IUnit deadActor = actorsMap.get(id);
+        if (listOfDeadUnitId.size() > 0){
+            String id = listOfDeadUnitId.poll();
+            IUnit deadActor = actorMap.get(id);
             if (deadActor != null){
-                actorsMap.get(id).dispose();
-                actorsMap.remove(id);
+                actorMap.get(id).dispose();
+                actorMap.remove(id);
             }
         }
     }
@@ -141,7 +141,7 @@ public class Model implements IModel, DeathListener
             newObject.setMaxHealth(baseInitialHealth);
         }
 
-        gameObjectsMap.put(id, newObject);
+        gameObjectMap.put(id, newObject);
     }
 
     @Override
@@ -149,48 +149,41 @@ public class Model implements IModel, DeathListener
         Unit newUnit = (Unit)gameObjectsFactory.createObject(id, objectType, position, size, isEnemy);
         newUnit.setDeathListener(this);
         newUnit.setModel(this);
-        actorsMap.put(id, newUnit);
+        actorMap.put(id, newUnit);
     }
 
-    @Override
-    public Object[] getGameObjects() {
-        return gameObjectsMap.values().toArray();
+    public IReadOnlyGameObject getGameObject(String id){ return gameObjectMap.get(id); }
+    public Object[] getGameObjectArray() {
+        return gameObjectMap.values().toArray();
     }
+    public Map<String, GameObject> getGameObjectMap() { return gameObjectMap; }
+    public void updateGameObjectMap(Map<String, GameObject> gameObjectMap) { this.gameObjectMap = gameObjectMap; }
 
-    @Override
-    public Object[] getActors(){
-        return actorsMap.values().toArray();
-    }
+    public IReadOnlyAnimatedActor getActor(String id){ return actorMap.get(id); }
+    public Object[] getActorArray(){ return actorMap.values().toArray(); }
+    public Map<String, IUnit> getActorMap() { return actorMap; }
+    public void updateActorMap(Map<String, IUnit> actorMap){ this.actorMap = actorMap; }
 
-    @Override
-    public IReadOnlyAnimatedActor getActor(String id){ return actorsMap.get(id); }
-
-    @Override
-    public IReadOnlyGameObject getGameObject(String id){ return gameObjectsMap.get(id); }
-
-    @Override
     public long getMoney(){ return money; }
-
-    @Override
     public void addMoney(long value){
         money += value;
         if (money < 0L)
             money = 0L;
     }
 
-    @Override
+    public void catchUp(float deltaTime){
+        money += moneyGain * (int)((1000 * deltaTime) / incomeInterval);
+    }
+
     public int getBaseHealth(){
-        return gameObjectsMap.get("base").getHealth();
+        return gameObjectMap.get("base").getHealth();
     }
-
-    @Override
     public int getEnemyBaseHealth(){
-        return gameObjectsMap.get("enemyBase").getHealth();
+        return gameObjectMap.get("enemyBase").getHealth();
     }
 
-    @Override
     public void notifyDeadUnit(String unitId) {
-        listOfDeadUnitsIds.add(unitId);
+        listOfDeadUnitId.add(unitId);
     }
 
     /**
@@ -207,10 +200,10 @@ public class Model implements IModel, DeathListener
 
     public void unitHit(String id, int damage){
         if (id.equals("enemyBase")){
-            gameObjectsMap.get("base").gotHit(damage);
+            gameObjectMap.get("base").gotHit(damage);
         }
         else{
-            actorsMap.get(id).gotHit(damage);
+            actorMap.get(id).gotHit(damage);
         }
     }
 

@@ -146,7 +146,7 @@ public class GameView extends AbstractView implements IGameView
         cam.update();
         spriteBatch.setProjectionMatrix(cam.combined);
 
-        for (Object obj : model.getActors()){
+        for (Object obj : model.getActorArray()){
             IReadOnlyAnimatedActor actor = (IReadOnlyAnimatedActor)obj;
             Animator animator = actorsMap.get(actor.getId());
             animator.update(actor.getState(), deltaTime);
@@ -161,12 +161,12 @@ public class GameView extends AbstractView implements IGameView
         spriteBatch.draw(backgroundTexture, 0, 0);
 
         // draw non-animated objects
-        for (Object gameObject : model.getGameObjects())
+        for (Object gameObject : model.getGameObjectArray())
         {
             drawGameObject((IReadOnlyGameObject)gameObject);
         }
         //draw actors
-        for (Object actor : model.getActors()){
+        for (Object actor : model.getActorArray()){
             drawGameObject((IReadOnlyAnimatedActor)actor);
         }
 

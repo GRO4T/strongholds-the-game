@@ -2,6 +2,10 @@ package com.strongholds.game.model;
 
 import com.badlogic.gdx.math.Vector2;
 import com.strongholds.game.GameSingleton.ObjectType;
+import com.strongholds.game.gameobject.GameObject;
+import com.strongholds.game.gameobject.IUnit;
+
+import java.util.Map;
 
 /** Model interface for Controller
  */
@@ -49,4 +53,12 @@ public interface IModel extends IReadOnlyModel{
      * @param damage damage dealt to the unit
      */
     void unitHit(String id, int damage);
+
+    Map<String, IUnit> getActorMap();
+    Map<String, GameObject> getGameObjectMap();
+
+    void updateActorMap(Map<String, IUnit> actorMap);
+    void updateGameObjectMap(Map<String, GameObject> gameObjectMap);
+
+    void catchUp(float deltaTime);
 }

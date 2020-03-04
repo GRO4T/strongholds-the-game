@@ -20,7 +20,8 @@ public class GameSingleton {
      */
     private String textureFilenames[] = {
             "platform.png", "base.png", "background-textures.png",
-            "Knight/idle.png", "Knight/move.png", "Knight/attack.png"};
+            "Knight/idle.png", "Knight/move.png", "Knight/attack.png",
+            "Archer/idle.png", "Archer/move.png", "Archer/attack.png"};
 
     /**
      * map of actor texture infos
@@ -46,7 +47,7 @@ public class GameSingleton {
      * object types
      */
     public enum ObjectType{
-        PLATFORM, BACKGROUND_IMAGE, BASE, SWORDSMAN;
+        PLATFORM, BACKGROUND_IMAGE, BASE, SWORDSMAN, ARCHER;
     }
 
     /**
@@ -117,15 +118,23 @@ public class GameSingleton {
      */
     private GameSingleton(){
         actorsTextureInfo = new HashMap<>();
-        TextureInfo textureInfo[] = {
+        TextureInfo textureInfoKnight[] = {
                 new TextureInfo("Knight/idle.png", 4, 1, 4, 0.1f),
                 new TextureInfo("Knight/move.png", 8, 1, 8, 0.1f),
                 new TextureInfo("Knight/attack.png", 10, 1, 10, 0.1f),
             };
-        actorsTextureInfo.put(ObjectType.SWORDSMAN, textureInfo);
+        actorsTextureInfo.put(ObjectType.SWORDSMAN, textureInfoKnight);
+
+        TextureInfo textureInfoArcher[] = {
+                new TextureInfo("Archer/idle.png", 8, 1, 4, 0.1f),
+                new TextureInfo("Archer/move.png", 8, 1, 8, 0.1f),
+                new TextureInfo("Archer/attack.png", 14, 1, 10, 0.1f),
+        };
+        actorsTextureInfo.put(ObjectType.ARCHER, textureInfoArcher);
 
         costLedger = new HashMap<>();
         costLedger.put(ObjectType.SWORDSMAN, 100L);
+        costLedger.put(ObjectType.ARCHER, 200L);
     }
 
     /**

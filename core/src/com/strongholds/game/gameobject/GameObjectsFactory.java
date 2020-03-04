@@ -55,7 +55,7 @@ public class GameObjectsFactory {
             bodyDef.type = BodyDef.BodyType.StaticBody;
             return new GameObject(bodyDef, bodySize.x, bodySize.y, objectType, id, isEnemy);
         }
-        else if (objectType == ObjectType.SWORDSMAN){
+        else if (objectType == ObjectType.SWORDSMAN || objectType == ObjectType.ARCHER){
             bodyDef.type = BodyDef.BodyType.DynamicBody;
             MeleeUnit meleeUnit = new MeleeUnit(bodyDef, bodySize.x, bodySize.y, objectType, id, isEnemy);
             meleeUnit.setState(ObjectState.IDLING);

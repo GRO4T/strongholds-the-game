@@ -134,7 +134,7 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 		friendliesSpawnPoint = new Vector2(friendlyBaseSpawnPoint);
 		friendliesSpawnPoint.add(new Vector2(gameView.getTextureSize(ObjectType.BASE).x - 60,0));
 		enemiesSpawnPoint = new Vector2((enemyBaseSpawnPoint));
-		enemiesSpawnPoint.add(new Vector2(20, 0));
+		//enemiesSpawnPoint.add(new Vector2(20, 0));
 		createObject("base", ObjectType.BASE, friendlyBaseSpawnPoint, false);
 		createObject("enemyBase", ObjectType.BASE, enemyBaseSpawnPoint, true);
 		createObject(ObjectType.PLATFORM, new Vector2(0, 0), false);

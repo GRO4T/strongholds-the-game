@@ -99,6 +99,14 @@ public class GameView extends AbstractView implements IGameView
                     }
                 }));
 
+        stage.addActor(createButton(120, screenY - 70, 100, 50, "archer",
+                new ClickListener(){
+                    @Override
+                    public void clicked(InputEvent event, float x, float y){
+                        controller.addEvent(new ViewEvent(ObjectType.ARCHER));
+                    }
+                }));
+
         pauseListener = new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y){

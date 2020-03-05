@@ -115,7 +115,7 @@ public class GameObject implements IGameObject{
                         | GameSingleton.ENEMY_ACTOR_COLLISION_MASK;
             }
         }
-        else if (type == GameSingleton.ObjectType.SWORDSMAN){
+        else if (type == GameSingleton.ObjectType.SWORDSMAN || type == GameSingleton.ObjectType.ARCHER){
             if (isEnemy){
                 filter.categoryBits = GameSingleton.ENEMY_ACTOR_COLLISION_MASK;
                 filter.maskBits = GameSingleton.GAME_OBJECT_COLLISION_MASK

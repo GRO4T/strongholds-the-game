@@ -12,6 +12,7 @@ import java.util.LinkedList;
  * Represents any animated object with the circular sensor around it (for detecting when something approaches the actor)
  */
 public class AnimatedActor extends GameObject implements IAnimatedActor {
+    float range;
     /**
      * current state of the object (e.g. walking, running..)
      */

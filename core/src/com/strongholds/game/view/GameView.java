@@ -249,7 +249,7 @@ public class GameView extends AbstractView implements IGameView
             spriteBatch.draw(textureRegion, x, y);
         }
 
-        if (gameObject.getType() == ObjectType.SWORDSMAN){
+        if (gameObject.getType() == ObjectType.SWORDSMAN || gameObject.getType() == ObjectType.ARCHER){
             drawHealthBar(gameObject, x , y);
         }
     }

@@ -3,7 +3,7 @@ package com.strongholds.game.model;
 import com.badlogic.gdx.math.Vector2;
 import com.strongholds.game.GameSingleton.ObjectType;
 import com.strongholds.game.gameobject.GameObject;
-import com.strongholds.game.gameobject.IUnit;
+import com.strongholds.game.gameobject.unit.IUnit;
 
 import java.util.Map;
 

@@ -92,14 +92,6 @@ public class GameSingleton {
      * used for collision filtering
      */
     public static final short BASE_COLLISION_MASK = 0x0008;
-    /**
-     * used for collision filtering
-     */
-    public static final short ENEMY_BASE_COLLISION_MASK = 0x0010;
-    /**
-     * used for collision filtering
-     */
-    public static final short ENEMY_ACTOR_COLLISION_MASK = 0x0020;
 
     /**
      * Returns game scale
@@ -191,5 +183,10 @@ public class GameSingleton {
      */
     public void setWorld(World world) {
         this.world = world;
+    }
+
+    /* HELPER METHODS */
+    public static float clamp(float val, float min, float max) {
+        return Math.max(min, Math.min(max, val));
     }
 }

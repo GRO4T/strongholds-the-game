@@ -10,6 +10,10 @@ import com.strongholds.game.GameSingleton.ObjectType;
 import static com.strongholds.game.GameSingleton.getGameSingleton;
 import com.strongholds.game.GameSingleton.ObjectState;
 import com.strongholds.game.exception.ObjectTypeNotDefinedException;
+import com.strongholds.game.gameobject.unit.MeleeUnit;
+import com.strongholds.game.gameobject.unit.RangedUnit;
+import com.strongholds.game.gameobject.unit.Unit;
+import com.strongholds.game.gameobject.unit.UnitDef;
 
 /**
  * Factory for creating game object
@@ -23,6 +27,11 @@ public class GameObjectsFactory {
      * reference to an instance of GameSingleton
      */
     GameSingleton gameSingleton;
+
+    private final UnitDef swordsmanDef = new UnitDef(2000.0f, 10.0f, 700,
+            1000, 10, 1.5f, 100);
+    private final UnitDef archerDef = new UnitDef(2500.0f, 15.0f, 1000,
+            1000, 20, 10.0f, 80);
 
     /**
      * Initializes the factory
@@ -51,15 +60,26 @@ public class GameObjectsFactory {
         BodyDef bodyDef = new BodyDef();
         bodyDef.position.set(bodyPos.x, bodyPos.y);
 
+        GameObjectDef gameObjectDef = new GameObjectDef(null, bodySize.x, bodySize.y, objectType, id, isEnemy);
+
         if (objectType == ObjectType.PLATFORM || objectType == ObjectType.BASE){
             bodyDef.type = BodyDef.BodyType.StaticBody;
-            return new GameObject(bodyDef, bodySize.x, bodySize.y, objectType, id, isEnemy);
+            gameObjectDef.body = world.createBody(bodyDef);
+            return new GameObject(gameObjectDef);
         }
         else if (objectType == ObjectType.SWORDSMAN || objectType == ObjectType.ARCHER){
             bodyDef.type = BodyDef.BodyType.DynamicBody;
-            MeleeUnit meleeUnit = new MeleeUnit(bodyDef, bodySize.x, bodySize.y, objectType, id, isEnemy);
-            meleeUnit.setState(ObjectState.IDLING);
-            return meleeUnit;
+            gameObjectDef.body = world.createBody(bodyDef);
+
+            Unit unit = null;
+            if (objectType == ObjectType.SWORDSMAN){
+                unit = new MeleeUnit(gameObjectDef, swordsmanDef);
+            }
+            else if (objectType == ObjectType.ARCHER){
+                unit = new RangedUnit(gameObjectDef, archerDef);
+            }
+            unit.setState(ObjectState.IDLING);
+            return unit;
         }
         throw new ObjectTypeNotDefinedException("ObjectType not handled by GameObjectsFactory: ObjectType = " +
                 gameSingleton.toString(objectType));

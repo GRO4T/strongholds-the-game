@@ -10,6 +10,8 @@ import com.strongholds.game.GameSingleton.ObjectType;
 import com.strongholds.game.controller.IModelController;
 import com.strongholds.game.event.ModelEvent;
 import com.strongholds.game.gameobject.*;
+import com.strongholds.game.gameobject.unit.IUnit;
+import com.strongholds.game.gameobject.unit.Unit;
 
 /**
  * Game model
@@ -50,7 +52,7 @@ public class Model implements IModel, DeathListener
     /**
      * money at the start of the game
      */
-    private final long startCash = 200L;
+    private final long startCash = 1000L;
 
     /**
      * game objects factory
@@ -81,7 +83,7 @@ public class Model implements IModel, DeathListener
     /**
      * base's initial health
      */
-    private final int baseInitialHealth = 1; // 100
+    private final int baseInitialHealth = 100; // 100
 
     /**
      * Creates a new model
@@ -203,7 +205,12 @@ public class Model implements IModel, DeathListener
             gameObjectMap.get("base").gotHit(damage);
         }
         else{
-            actorMap.get(id).gotHit(damage);
+            try{
+                actorMap.get(id).gotHit(damage);
+            }
+            catch(NullPointerException e){
+                e.printStackTrace();
+            }
         }
     }
 

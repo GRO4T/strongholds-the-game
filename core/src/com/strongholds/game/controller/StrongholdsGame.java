@@ -10,7 +10,6 @@ import com.strongholds.game.GameSingleton;
 import com.strongholds.game.GameSingleton.ObjectType;
 import com.strongholds.game.event.ErrorEvent;
 import com.strongholds.game.event.ModelEvent;
-import com.strongholds.game.event.SyncEvent;
 import com.strongholds.game.event.ViewEvent;
 import com.strongholds.game.model.IModel;
 import com.strongholds.game.model.Model;
@@ -418,16 +417,6 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 				ModelEvent modelEvent = (ModelEvent) receivedObj;
 				model.unitHit(modelEvent.getUnitId(), modelEvent.getDamage());
 			}
-			else if (receivedObj instanceof SyncEvent){
-				SyncEvent syncEvent = (SyncEvent)receivedObj;
-				opponentGameTime = syncEvent.getGameTime();
-				if (gameTime + simulationDisparityTolerance < opponentGameTime ){
-					catchingUp = true;
-					ViewEvent pauseEvent = new ViewEvent(true);
-					pauseEvent.setFromNetwork();
-					networkController.addObjectRequest(pauseEvent);
-				}
-			}
 		}
 	}
 
@@ -443,10 +432,6 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 
 	public double getCurrentTime(){
 		return gameTime;
-	}
-
-	public SyncEvent sync(){
-		return new SyncEvent(gameTime);
 	}
 
 	/* IMenuController */

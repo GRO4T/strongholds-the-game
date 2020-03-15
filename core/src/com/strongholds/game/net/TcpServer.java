@@ -1,7 +1,6 @@
 package com.strongholds.game.net;
 
 import com.strongholds.game.event.ErrorEvent;
-import com.strongholds.game.event.SyncEvent;
 
 import java.io.*;
 import java.net.ServerSocket;

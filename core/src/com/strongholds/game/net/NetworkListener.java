@@ -1,7 +1,6 @@
 package com.strongholds.game.net;
 
 import com.strongholds.game.event.ErrorEvent;
-import com.strongholds.game.event.SyncEvent;
 
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -22,6 +21,4 @@ public interface NetworkListener {
     void notifyOnError(ErrorEvent errorEvent);
 
     double getCurrentTime();
-
-    SyncEvent sync();
 }

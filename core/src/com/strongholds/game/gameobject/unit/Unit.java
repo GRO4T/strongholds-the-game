@@ -22,12 +22,14 @@ public class Unit extends AnimatedActor implements IUnit {
 
     private UnitDef unitDef;
 
-    protected boolean contactingUnit = false;
+    protected int numberOfContactingDamageable = 0;
 
     /**
      * timer used to schedule attack and suspend attack tasks
      */
-    protected Timer attackTimer;
+    protected Timer scheduler;
+
+    private int velocityAdjustmentInterval = 500;
 
     /**
      * used to randomize damage
@@ -36,12 +38,15 @@ public class Unit extends AnimatedActor implements IUnit {
 
     public Unit(GameObjectDef objectDef, UnitDef unitDef) {
         super(objectDef, unitDef.range);
-        attackTimer = new Timer(true);
+        scheduler = new Timer(true);
 
         this.unitDef = new UnitDef(unitDef);
         maxHealth = this.unitDef.maxHealth;
         health = maxHealth;
         randomGenerator = new Random();
+
+        AdjustVelocityTask adjustVelocityTask = new AdjustVelocityTask();
+        scheduler.schedule(adjustVelocityTask, velocityAdjustmentInterval);
     }
 
     /**
@@ -65,6 +70,8 @@ public class Unit extends AnimatedActor implements IUnit {
     }
 
     public void move(Vector2 direction) {
+        System.out.println(getMaxVelocity());
+
         direction.nor();
         direction.scl(getAcceleration());
         getBody().applyForce(direction, getBody().getPosition(), true);
@@ -75,17 +82,24 @@ public class Unit extends AnimatedActor implements IUnit {
     @Override
     public void update() {
         GameSingleton.ObjectState state = getState();
+        int tSize = getTargets().size();
+        int fSize = getFriendlies().size();
+
         if (state != GameSingleton.ObjectState.ATTACKING) {
-            if (getTargets().size() != 0 && canAttack){
+            if (tSize != 0 && canAttack){
                 attack();
                 getBody().setLinearVelocity(new Vector2(0, 0));
             }
             else{
-                if (!contactingUnit){
+                System.out.println(getId() + " damages = " + isContactingDamageable());
+                if (tSize == 0 && fSize == 0){
                     if (isEnemy())
                         move(new Vector2(-1.0f, 0));
                     else
                         move(new Vector2(1.0f, 0));
+                }
+                else{
+                    getBody().setLinearVelocity(new Vector2(0, 0));
                 }
 
                 if (Math.abs(getVelocity().x) < 0.5f){
@@ -94,6 +108,16 @@ public class Unit extends AnimatedActor implements IUnit {
                 else{
                     setState(GameSingleton.ObjectState.MOVING);
                 }
+            }
+        }
+    }
+
+
+    protected class AdjustVelocityTask extends TimerTask{
+        @Override
+        public void run() {
+            if (getFriendlies().size() == 0){
+                setMaxVelocity(Float.MAX_VALUE);
             }
         }
     }
@@ -125,8 +149,17 @@ public class Unit extends AnimatedActor implements IUnit {
         return unitDef.acceleration;
     }
 
-    protected float getMaxVelocity(){
-        return unitDef.maxVelocity;
+    public float getMaxVelocity(){
+        return unitDef.currentMaxVelocity;
+    }
+
+    public void setMaxVelocity(float maxVelocity){
+        if (maxVelocity < unitDef.nativeMaxVelocity){
+            unitDef.currentMaxVelocity = maxVelocity;
+        }
+        else{
+            unitDef.currentMaxVelocity = unitDef.nativeMaxVelocity;
+        }
     }
 
     protected int getAttackSpeed(){
@@ -141,11 +174,16 @@ public class Unit extends AnimatedActor implements IUnit {
         return unitDef.damage;
     }
 
-    public boolean isContactingUnit() {
-        return contactingUnit;
+    public boolean isContactingDamageable() {
+        if (numberOfContactingDamageable > 0)
+            return true;
+        return false;
     }
 
-    public void setContactingUnit(boolean contactingUnit) {
-        this.contactingUnit = contactingUnit;
+    public void setContactingDamageable(boolean contactingDamageable) {
+        if (contactingDamageable == true)
+            numberOfContactingDamageable++;
+        else if (numberOfContactingDamageable > 0)
+            numberOfContactingDamageable--;
     }
 }

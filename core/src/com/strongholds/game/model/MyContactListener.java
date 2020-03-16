@@ -4,6 +4,7 @@ import com.badlogic.gdx.physics.box2d.Contact;
 import com.badlogic.gdx.physics.box2d.ContactImpulse;
 import com.badlogic.gdx.physics.box2d.ContactListener;
 import com.badlogic.gdx.physics.box2d.Manifold;
+import com.strongholds.game.GameSingleton;
 import com.strongholds.game.gameobject.AnimatedActor;
 import com.strongholds.game.gameobject.GameObject;
 import com.strongholds.game.gameobject.unit.Unit;
@@ -29,9 +30,23 @@ public class MyContactListener implements ContactListener {
             if (actorA.isEnemy() != objectB.isEnemy()){
                 actorA.addTarget(objectB);
             }
-            if (objectB instanceof Unit){
-                Unit unitB = (Unit) objectB;
-                unitB.setContactingUnit(true);
+            else if (actorA instanceof Unit && objectB instanceof Unit){
+                if (actorA.isEnemy()){
+                    if (actorA.getPosition().x < objectB.getPosition().x){
+                        ((Unit) objectB).setMaxVelocity(((Unit) actorA).getMaxVelocity());
+                    }
+                    else{
+                        ((Unit) actorA).setMaxVelocity(((Unit) objectB).getMaxVelocity());
+                    }
+                }
+                else{
+                    if (actorA.getPosition().x > objectB.getPosition().x){
+                        ((Unit) objectB).setMaxVelocity(((Unit) actorA).getMaxVelocity());
+                    }
+                    else{
+                        ((Unit) actorA).setMaxVelocity(((Unit) objectB).getMaxVelocity());
+                    }
+                }
             }
         }
         if (contact.getFixtureB().isSensor()){
@@ -39,9 +54,40 @@ public class MyContactListener implements ContactListener {
             if (actorB.isEnemy() != objectA.isEnemy()){
                 actorB.addTarget(objectA);
             }
-            if (objectA instanceof Unit){
-                Unit unitA = (Unit) objectB;
-                unitA.setContactingUnit(true);
+            else if (actorB instanceof Unit && objectA instanceof Unit){
+                if (actorB.isEnemy()){
+                    if (actorB.getPosition().x < objectA.getPosition().x){
+                        ((Unit) objectA).setMaxVelocity(((Unit) actorB).getMaxVelocity());
+                    }
+                    else{
+                        ((Unit) actorB).setMaxVelocity(((Unit) objectA).getMaxVelocity());
+                    }
+                }
+                else{
+                    if (actorB.getPosition().x > objectA.getPosition().x){
+                        ((Unit) objectA).setMaxVelocity(((Unit) actorB).getMaxVelocity());
+                    }
+                    else{
+                        ((Unit) actorB).setMaxVelocity(((Unit) objectA).getMaxVelocity());
+                    }
+                }
+            }
+        }
+        // not sensors, instances of Unit and same side
+        if (!contact.getFixtureA().isSensor() && !contact.getFixtureB().isSensor() &&
+                objectA instanceof Unit && objectB instanceof Unit &&
+                objectA.isEnemy() == objectB.isEnemy()){
+            if (objectA.isEnemy()){
+                if (objectA.getPosition().x < objectB.getPosition().x)
+                    ((Unit) objectB).addFriendly(objectA);
+                else
+                    ((Unit) objectA).addFriendly(objectB);
+            }
+            else{
+                if (objectA.getPosition().x > objectB.getPosition().x)
+                    ((Unit) objectB).addFriendly(objectA);
+                else
+                    ((Unit) objectA).addFriendly(objectB);
             }
         }
     }
@@ -64,9 +110,10 @@ public class MyContactListener implements ContactListener {
             if (actorA.isEnemy() != objectB.isEnemy()){
                 actorA.removeTarget(objectB);
             }
-            if (objectB instanceof Unit){
+            if (objectB instanceof Unit ||
+                    (objectB.isEnemy() && objectB.getType() == GameSingleton.ObjectType.BASE)){
                 Unit unitB = (Unit) objectB;
-                unitB.setContactingUnit(false);
+                unitB.setContactingDamageable(false);
             }
         }
         if (contact.getFixtureB().isSensor()){
@@ -76,7 +123,25 @@ public class MyContactListener implements ContactListener {
             }
             if (objectA instanceof Unit){
                 Unit unitA = (Unit) objectB;
-                unitA.setContactingUnit(false);
+                unitA.setContactingDamageable(false);
+            }
+        }
+
+        if (!contact.getFixtureA().isSensor() && !contact.getFixtureB().isSensor() &&
+                objectA instanceof Unit && objectB instanceof Unit &&
+                objectA.isEnemy() == objectB.isEnemy()){
+            // both are enemies
+            if (objectA.isEnemy()){
+                if (objectA.getPosition().x < objectB.getPosition().x)
+                    ((Unit) objectB).removeFriendly(objectA);
+                else
+                    ((Unit) objectA).removeFriendly(objectB);
+            }
+            else{
+                if (objectA.getPosition().x > objectB.getPosition().x)
+                    ((Unit) objectB).removeFriendly(objectA);
+                else
+                    ((Unit) objectA).removeFriendly(objectB);
             }
         }
     }

@@ -1,8 +1,11 @@
 package com.strongholds.game.controller;
 
 import com.badlogic.gdx.ApplicationAdapter;
+import com.badlogic.gdx.Audio;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Vector2;
 
@@ -78,6 +81,7 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 	private Vector2 enemyBaseSpawnPoint;
 	private Vector2 friendliesSpawnPoint;
 	private Vector2 enemiesSpawnPoint;
+
 
 	public StrongholdsGame(int screenWidth, int screenHeight) {
 		gameSingleton = GameSingleton.getGameSingleton();
@@ -195,6 +199,8 @@ public class StrongholdsGame extends ApplicationAdapter implements IViewControll
 			networkThread.interrupt();
 		networkController.dispose();
 		menuView.dispose();
+		if (gameView != null)
+			gameView.dispose();
 	}
 
 	/**

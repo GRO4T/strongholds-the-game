@@ -1,5 +1,6 @@
 package com.strongholds.game.gameobject;
 
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import com.strongholds.game.GameSingleton;
@@ -19,10 +20,12 @@ public class AnimatedActor extends GameObject implements IAnimatedActor {
      * list of nearby objects
      */
     private LinkedList<GameObject> targets;
+    private LinkedList<GameObject> friendlies;
 
     public AnimatedActor(GameObjectDef objectDef, float range) {
         super(objectDef);
         targets = new LinkedList<>();
+        friendlies = new LinkedList<>();
 
         //create sensor definition
         CircleShape sensorShape = new CircleShape();
@@ -78,6 +81,12 @@ public class AnimatedActor extends GameObject implements IAnimatedActor {
         System.out.println(target.getId());
     }
 
+    public void addFriendly(GameObject friendly){
+        if (!friendlies.contains(friendly)){
+            friendlies.add(friendly);
+        }
+    }
+
     /**
      * Removes target from the list
      * @param target target to be removed
@@ -88,11 +97,21 @@ public class AnimatedActor extends GameObject implements IAnimatedActor {
         }
     }
 
+    public void removeFriendly(GameObject friendly){
+        if (friendlies.contains(friendly)){
+            friendlies.remove(friendly);
+        }
+    }
+
     /**
      * Returns list of targets
      * @return list of targets
      */
     public LinkedList<GameObject> getTargets() {
         return targets;
+    }
+
+    public LinkedList<GameObject> getFriendlies(){
+        return friendlies;
     }
 }

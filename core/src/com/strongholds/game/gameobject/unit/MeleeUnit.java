@@ -24,8 +24,8 @@ public class MeleeUnit extends Unit {
         canAttack = false;
         AttackTask attackTask = new AttackTask();
         SuspendAttackTask suspendAttackTask = new SuspendAttackTask();
-        attackTimer.schedule(attackTask, getAttackSpeed());
-        attackTimer.schedule(suspendAttackTask, getTimeBetweenAttacks());
+        scheduler.schedule(attackTask, getAttackSpeed());
+        scheduler.schedule(suspendAttackTask, getTimeBetweenAttacks());
     }
 
     /**

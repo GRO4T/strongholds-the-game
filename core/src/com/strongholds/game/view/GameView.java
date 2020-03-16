@@ -1,6 +1,7 @@
 package com.strongholds.game.view;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -57,6 +58,10 @@ public class GameView extends AbstractView implements IGameView
      */
     private final Vector2 msgLeftBottomCornerPos = new Vector2(-10, -10);
     private Vector2 msgPosition = msgLeftBottomCornerPos;
+
+    private Music backgroundMusic;
+    private String backgroundMusicFilename = "audio/battleThemeA.mp3";
+    private float volume = 0.05f;
 
     public GameView(IReadOnlyModel model, final IViewController controller)
     {
@@ -123,14 +128,24 @@ public class GameView extends AbstractView implements IGameView
                 ViewEvent restartEvent = new ViewEvent();
                 restartEvent.setRestart();
                 controller.addEvent(restartEvent);
+                backgroundMusic.stop();
             }
         };
+    }
+
+    public void dispose(){
+        backgroundMusic.dispose();
     }
 
     public void init(){
         Gdx.input.setInputProcessor(stage);
         msgPosition = msgLeftBottomCornerPos;
         msgLayout = new GlyphLayout();
+
+        backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal(backgroundMusicFilename));
+        backgroundMusic.setLooping(true);
+        backgroundMusic.setVolume(volume);
+        backgroundMusic.play();
     }
 
     @Override
@@ -147,6 +162,7 @@ public class GameView extends AbstractView implements IGameView
         // get message width
         float msgWidth = msgLayout.width;
         msgPosition = new Vector2(screenX / 2 - msgWidth / 2, screenY / 2);
+
     }
 
     public void update(float deltaTime)

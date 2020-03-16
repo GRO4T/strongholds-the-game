@@ -2,7 +2,8 @@ package com.strongholds.game.gameobject.unit;
 
 public class UnitDef {
     public float acceleration;
-    public float maxVelocity;
+    public float nativeMaxVelocity;
+    public float currentMaxVelocity;
 
     public int attackSpeed;
     public int timeBetweenAttacks;
@@ -14,7 +15,8 @@ public class UnitDef {
 
     public UnitDef(float acceleration, float maxVelocity, int attackSpeed, int timeBetweenAttacks, int damage, float range, int maxHealth) {
         this.acceleration = acceleration;
-        this.maxVelocity = maxVelocity;
+        this.nativeMaxVelocity = maxVelocity;
+        currentMaxVelocity = maxVelocity;
         this.attackSpeed = attackSpeed;
         this.timeBetweenAttacks = timeBetweenAttacks;
         this.damage = damage;
@@ -24,7 +26,8 @@ public class UnitDef {
 
     public UnitDef(UnitDef unitDef) {
         this.acceleration = unitDef.acceleration;
-        this.maxVelocity = unitDef.maxVelocity;
+        this.nativeMaxVelocity = unitDef.nativeMaxVelocity;
+        this.currentMaxVelocity = unitDef.currentMaxVelocity;
         this.attackSpeed = unitDef.attackSpeed;
         this.timeBetweenAttacks = unitDef.timeBetweenAttacks;
         this.damage = unitDef.damage;

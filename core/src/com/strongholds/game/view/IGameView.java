@@ -51,4 +51,5 @@ public interface IGameView {
      * Called when the game is finished.
      */
     void gameFinished();
+    void dispose();
 }

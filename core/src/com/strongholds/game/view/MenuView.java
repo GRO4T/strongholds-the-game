@@ -2,6 +2,7 @@ package com.strongholds.game.view;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
@@ -51,13 +52,10 @@ public class MenuView extends AbstractView implements IMenuView{
      */
     private boolean connected;
 
-    /**
-     * Creates a new menu view
-     * @param controller reference to controller
-     * @param assetManager reference to asset manager
-     * @param screenX screen width
-     * @param screenY screen height
-     */
+    private Sound buttonClickedSound;
+    private String buttonClickedSoundFilename = "audio/click1.wav";
+    private float volume = 0.2f;
+
     public MenuView(IMenuController controller, AssetManager assetManager, int screenX, int screenY){
         this.controller = controller;
         this.screenX = screenX;
@@ -78,6 +76,8 @@ public class MenuView extends AbstractView implements IMenuView{
         textButtonStyle.up = skin.getDrawable("button");
         textButtonStyle.down = skin.getDrawable("button-hover");
         textButtonStyle.checked = skin.getDrawable("button");
+
+        buttonClickedSound = Gdx.audio.newSound(Gdx.files.internal(buttonClickedSoundFilename));
 
         createUI();
     }
@@ -104,6 +104,8 @@ public class MenuView extends AbstractView implements IMenuView{
                 new ClickListener(){
                     @Override
                     public void clicked(InputEvent event, float x, float y){
+                        buttonClickedSound.play(volume);
+
                         if (connected){
                             String username = usernameField.getText();
                             if (username.equals("")){
@@ -153,6 +155,8 @@ public class MenuView extends AbstractView implements IMenuView{
                 new ClickListener(){
                     @Override
                     public void clicked(InputEvent event, float x, float y){
+                        buttonClickedSound.play(volume);
+
                         int outPort = 0;
                         try{
                             outPort = Integer.parseInt(outPortField.getText());
@@ -189,6 +193,7 @@ public class MenuView extends AbstractView implements IMenuView{
                             connected = false;
                             message = "Can't establish the connection";
                         }
+
                     }
                 }));
 
